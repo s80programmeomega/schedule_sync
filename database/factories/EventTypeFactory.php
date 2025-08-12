@@ -19,7 +19,7 @@ class EventTypeFactory extends Factory
     {
         return [
             'user_id' => User::factory(),
-            'name' => fake()->randomElement(['30 Min Meeting', '1 Hour Consultation', 'Quick Chat', 'Strategy Session']),
+            'name' => fake()->randomElement(['15 Min Quick Call', '30 Min Meeting', '45 Min Discussion', '1 Hour Consultation', '90 Min Deep Dive', 'Quick Chat', 'Strategy Session', 'Project Review', 'Team Standup', 'Client Onboarding']),
             'description' => fake()->optional()->paragraph(),
             'duration' => fake()->randomElement([15, 30, 45, 60, 90]),
             'location_type' => fake()->randomElement(['zoom', 'google_meet', 'phone', 'whatsapp']),

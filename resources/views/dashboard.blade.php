@@ -1,7 +1,8 @@
 @extends('layout.base')
 
 @section('content')
-     <!-- Main Content -->
+
+<!-- Main Content -->
             <div class="col-lg-10 col-12 py-4 px-4 px-lg-5">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <div>
@@ -231,147 +232,75 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr>
-                                            <td class="ps-4">
-                                                <div class="d-flex align-items-center">
-                                                    <img src="https://ui-avatars.com/api/?name=Sarah+Johnson&background=4f46e5&color=fff"
-                                                        class="rounded-circle me-3" width="42" height="42"
-                                                        alt="Sarah Johnson">
+                                        @forelse ($upcomingMeetings as $upcomingMeeting)
+                                            {{ $upcomingMeetings->count() }}
+                                            <tr>
+                                                <td class="ps-4">
+                                                    <div class="d-flex align-items-center">
+                                                        <img src="https://ui-avatars.com/api/?name={{ $upcomingMeeting->attendee_name }}&background=4f46e5&color=fff"
+                                                            class="rounded-circle me-3" width="42" height="42"
+                                                            alt="{{ $upcomingMeeting->attendee_name }}">
+                                                        <div>
+                                                            <h6 class="mb-0 fw-semibold">
+                                                                {{ $upcomingMeeting->attendee_name }}</h6>
+                                                            <span
+                                                                class="text-muted small">{{ $upcomingMeeting->attendee_email }}</span>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    {{ $upcomingMeeting->eventType?->name ?? 'N/A' }}
+                                                </td>
+
+                                                <td>
                                                     <div>
-                                                        <h6 class="mb-0 fw-semibold">Sarah Johnson</h6>
-                                                        <span class="text-muted small">sarah@example.com</span>
+                                                        {{ $upcomingMeeting->start_time->format('l, g:i A') }}
                                                     </div>
-                                                </div>
-                                            </td>
-                                            <td>30 Minute Consultation</td>
-                                            <td>
-                                                <div>Today, 2:30 PM</div>
-                                                <span class="badge bg-warning text-dark">In 45 minutes</span>
-                                            </td>
-                                            <td>30 min</td>
-                                            <td class="pe-4">
-                                                <div class="d-flex">
-                                                    <button class="btn btn-sm btn-light me-2" title="Reschedule"><i
-                                                            class="bi bi-calendar"></i></button>
-                                                    <button class="btn btn-sm btn-light me-2" title="Cancel"><i
-                                                            class="bi bi-x-lg"></i></button>
-                                                    <div class="dropdown">
-                                                        <button class="btn btn-sm btn-light" type="button"
-                                                            data-bs-toggle="dropdown">
-                                                            <i class="bi bi-three-dots-vertical"></i>
-                                                        </button>
-                                                        <ul class="dropdown-menu dropdown-menu-end">
-                                                            <li><a class="dropdown-item" href="#"><i
-                                                                        class="bi bi-clipboard me-2"></i>Copy Invite
-                                                                    Link</a></li>
-                                                            <li><a class="dropdown-item" href="#"><i
-                                                                        class="bi bi-envelope me-2"></i>Email
-                                                                    Attendee</a></li>
-                                                            <li>
-                                                                <hr class="dropdown-divider">
-                                                            </li>
-                                                            <li><a class="dropdown-item text-danger" href="#"><i
-                                                                        class="bi bi-trash me-2"></i>Cancel Meeting</a>
-                                                            </li>
-                                                        </ul>
+                                                    <span class="badge bg-warning text-dark">
+                                                        {{ $upcomingMeeting->start_time->diffForHumans() }}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    {{ $upcomingMeeting->eventType?->duration ?? 'N/A' }} min
+                                                </td>
+
+                                                <td class="pe-4">
+                                                    <div class="d-flex">
+                                                        <button class="btn btn-sm btn-light me-2"
+                                                            title="Reschedule"><i class="bi bi-calendar"></i></button>
+                                                        <button class="btn btn-sm btn-light me-2" title="Cancel"><i
+                                                                class="bi bi-x-lg"></i></button>
+                                                        <div class="dropdown">
+                                                            <button class="btn btn-sm btn-light" type="button"
+                                                                data-bs-toggle="dropdown">
+                                                                <i class="bi bi-three-dots-vertical"></i>
+                                                            </button>
+                                                            <ul class="dropdown-menu dropdown-menu-end">
+                                                                <li><a class="dropdown-item" href="#"><i
+                                                                            class="bi bi-clipboard me-2"></i>Copy
+                                                                        Invite
+                                                                        Link</a></li>
+                                                                <li><a class="dropdown-item" href="#"><i
+                                                                            class="bi bi-envelope me-2"></i>Email
+                                                                        Attendee</a></li>
+                                                                <li>
+                                                                    <hr class="dropdown-divider">
+                                                                </li>
+                                                                <li><a class="dropdown-item text-danger"
+                                                                        href="#"><i
+                                                                            class="bi bi-trash me-2"></i>Cancel
+                                                                        Meeting</a>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td class="ps-4">
-                                                <div class="d-flex align-items-center">
-                                                    <img src="https://ui-avatars.com/api/?name=Michael+Chen&background=4f46e5&color=fff"
-                                                        class="rounded-circle me-3" width="42" height="42"
-                                                        alt="Michael Chen">
-                                                    <div>
-                                                        <h6 class="mb-0 fw-semibold">Michael Chen</h6>
-                                                        <span class="text-muted small">michael@example.com</span>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td>15 Minute Meeting</td>
-                                            <td>
-                                                <div>Today, 4:00 PM</div>
-                                                <span class="badge bg-secondary text-white">In 2 hours</span>
-                                            </td>
-                                            <td>15 min</td>
-                                            <td class="pe-4">
-                                                <div class="d-flex">
-                                                    <button class="btn btn-sm btn-light me-2" title="Reschedule"><i
-                                                            class="bi bi-calendar"></i></button>
-                                                    <button class="btn btn-sm btn-light me-2" title="Cancel"><i
-                                                            class="bi bi-x-lg"></i></button>
-                                                    <div class="dropdown">
-                                                        <button class="btn btn-sm btn-light" type="button"
-                                                            data-bs-toggle="dropdown">
-                                                            <i class="bi bi-three-dots-vertical"></i>
-                                                        </button>
-                                                        <ul class="dropdown-menu dropdown-menu-end">
-                                                            <li><a class="dropdown-item" href="#"><i
-                                                                        class="bi bi-clipboard me-2"></i>Copy Invite
-                                                                    Link</a></li>
-                                                            <li><a class="dropdown-item" href="#"><i
-                                                                        class="bi bi-envelope me-2"></i>Email
-                                                                    Attendee</a></li>
-                                                            <li>
-                                                                <hr class="dropdown-divider">
-                                                            </li>
-                                                            <li><a class="dropdown-item text-danger" href="#"><i
-                                                                        class="bi bi-trash me-2"></i>Cancel Meeting</a>
-                                                            </li>
-                                                        </ul>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td class="ps-4">
-                                                <div class="d-flex align-items-center">
-                                                    <img src="https://ui-avatars.com/api/?name=Alex+Rodriguez&background=4f46e5&color=fff"
-                                                        class="rounded-circle me-3" width="42" height="42"
-                                                        alt="Alex Rodriguez">
-                                                    <div>
-                                                        <h6 class="mb-0 fw-semibold">Alex Rodriguez</h6>
-                                                        <span class="text-muted small">alex@example.com</span>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td>60 Minute Workshop</td>
-                                            <td>
-                                                <div>Tomorrow, 10:00 AM</div>
-                                                <span class="badge bg-secondary text-white">In 1 day</span>
-                                            </td>
-                                            <td>60 min</td>
-                                            <td class="pe-4">
-                                                <div class="d-flex">
-                                                    <button class="btn btn-sm btn-light me-2" title="Reschedule"><i
-                                                            class="bi bi-calendar"></i></button>
-                                                    <button class="btn btn-sm btn-light me-2" title="Cancel"><i
-                                                            class="bi bi-x-lg"></i></button>
-                                                    <div class="dropdown">
-                                                        <button class="btn btn-sm btn-light" type="button"
-                                                            data-bs-toggle="dropdown">
-                                                            <i class="bi bi-three-dots-vertical"></i>
-                                                        </button>
-                                                        <ul class="dropdown-menu dropdown-menu-end">
-                                                            <li><a class="dropdown-item" href="#"><i
-                                                                        class="bi bi-clipboard me-2"></i>Copy Invite
-                                                                    Link</a></li>
-                                                            <li><a class="dropdown-item" href="#"><i
-                                                                        class="bi bi-envelope me-2"></i>Email
-                                                                    Attendee</a></li>
-                                                            <li>
-                                                                <hr class="dropdown-divider">
-                                                            </li>
-                                                            <li><a class="dropdown-item text-danger" href="#"><i
-                                                                        class="bi bi-trash me-2"></i>Cancel Meeting</a>
-                                                            </li>
-                                                        </ul>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                        </tr>
+                                                </td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="5" class="text-center">No upcoming meetings</td>
+                                            </tr>
+                                        @endforelse
                                     </tbody>
                                 </table>
                             </div>
@@ -662,4 +591,5 @@
                     </div>
                 </div>
             </div>
+
 @endsection

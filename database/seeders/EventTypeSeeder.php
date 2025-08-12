@@ -15,7 +15,7 @@ class EventTypeSeeder extends Seeder
     public function run(): void
     {
         User::all()->each(function ($user) {
-            EventType::factory(rand(2, 4))->create([
+            EventType::factory(rand(2, 10))->create([
                 'user_id' => $user->id,
             ]);
         });

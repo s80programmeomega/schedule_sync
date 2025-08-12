@@ -15,7 +15,7 @@ class BookingSeeder extends Seeder
     public function run(): void
     {
         EventType::all()->each(function ($eventType) {
-            Booking::factory(rand(1, 3))->create([
+            Booking::factory(rand(3, 10))->create([
                 'event_type_id' => $eventType->id,
                 'user_id' => $eventType->user_id,
             ]);

@@ -9,7 +9,7 @@
                         <h1 class="h3 mb-0 fw-bold">Dashboard</h1>
                         <p class="text-muted mb-0">Manage your availability and bookings</p>
                     </div>
-                    <button class="btn btn-primary d-flex align-items-center">
+                    <button class="btn btn-primary d-flex align-items-center" id="createEventBtn">
                         <i class="bi bi-plus me-2"></i> Create Event Type
                     </button>
                 </div>

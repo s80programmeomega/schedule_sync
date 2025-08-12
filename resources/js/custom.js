@@ -15,7 +15,7 @@ timeSlots.forEach(slot => {
 });
 
 // Create event button - show modal
-document.querySelector('.btn-primary').addEventListener('click', function () {
+document.querySelector('#createEventBtn').addEventListener('click', function () {
     const createEventModal = new bootstrap.Modal(document.getElementById('createEventModal'));
     createEventModal.show();
 });

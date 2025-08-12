@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\EventTypeController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -24,4 +25,8 @@ Route::post('/register', [RegisterController::class, 'register']);
 
 Route::middleware('auth')->group(function () {
     Route::resource('dashboard', DashboardController::class)->only(['index']);
+});
+
+Route::middleware('auth')->group(function () {
+    Route::resource('event-types', EventTypeController::class);
 });

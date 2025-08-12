@@ -1,11 +1,11 @@
 <div class="col-lg-2 px-0 d-none d-lg-block">
     <div class="sidebar py-4 px-3">
         <div class="mb-4">
-            <a href="#" class="sidebar-link active">
+            <a href="{{ route('dashboard.index') }}" class="sidebar-link active">
                 <i class="bi bi-grid-1x2"></i>
                 Dashboard
             </a>
-            <a href="#" class="sidebar-link">
+            <a href="{{ route('event-types.index') }}" class="sidebar-link">
                 <i class="bi bi-calendar-event"></i>
                 Event Types
             </a>

@@ -18,7 +18,7 @@ class EventTypeController extends Controller
      */
     public function index()
     {
-        $eventTypes = EventType::where('user_id', auth()->id())
+        $eventTypes = EventType::where('user_id', auth()->user()->id)
             ->withCount('bookings')
             ->latest()
             ->get();
@@ -52,7 +52,7 @@ class EventTypeController extends Controller
             'color' => 'nullable|string|max:7',
         ]);
 
-        $validated['user_id'] = auth()->user()->id();
+        $validated['user_id'] = auth()->user()->id;
 
         EventType::create($validated);
 
@@ -61,12 +61,26 @@ class EventTypeController extends Controller
     }
 
     /**
+     * Display the specified event type
+     */
+    public function show(EventType $eventType)
+    {
+        // Ensure user can only view their own event types
+        if ($eventType->user_id !== auth()->user()->id) {
+            abort(403);
+        }
+
+        return view('event-types.show', compact('eventType'));
+    }
+
+
+    /**
      * Show the form for editing an event type
      */
     public function edit(EventType $eventType)
     {
         // Ensure user can only edit their own event types
-        if ($eventType->user_id !== auth()->user()->id()) {
+        if ($eventType->user_id !== auth()->user()->id) {
             abort(403);
         }
 
@@ -79,7 +93,7 @@ class EventTypeController extends Controller
     public function update(Request $request, EventType $eventType)
     {
         // Ensure user can only edit their own event types
-        if ($eventType->user_id !== auth()->user()->id()) {
+        if ($eventType->user_id !== auth()->user()->id) {
             abort(403);
         }
 
@@ -108,7 +122,7 @@ class EventTypeController extends Controller
     public function destroy(EventType $eventType)
     {
         // Ensure user can only delete their own event types
-        if ($eventType->user_id !== auth()->user()->id()) {
+        if ($eventType->user_id !== auth()->user()->id) {
             abort(403);
         }
 
@@ -123,7 +137,7 @@ class EventTypeController extends Controller
      */
     public function toggle(EventType $eventType)
     {
-        if ($eventType->user_id !== auth()->user()->id()) {
+        if ($eventType->user_id !== auth()->user()->id) {
             abort(403);
         }
 

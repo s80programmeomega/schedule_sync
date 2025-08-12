@@ -21,6 +21,10 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'username',
+        'timezone',
+        'bio',
+        'avatar',
     ];
 
     /**
@@ -44,5 +48,37 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Get all event types for this user
+     */
+    public function eventTypes()
+    {
+        return $this->hasMany(EventType::class);
+    }
+
+    /**
+     * Get all bookings for this user's events
+     */
+    public function bookings()
+    {
+        return $this->hasMany(Booking::class);
+    }
+
+    /**
+     * Get user's availability schedule
+     */
+    public function availability()
+    {
+        return $this->hasMany(Availability::class);
+    }
+
+    /**
+     * Get public booking URL
+     */
+    public function getBookingUrlAttribute()
+    {
+        return url("/{$this->username}");
     }
 }

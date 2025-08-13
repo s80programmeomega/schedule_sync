@@ -19,6 +19,11 @@
                 <i class="bi bi-calendar3"></i>
                 All Bookings
             </a>
+            <a href="{{ route('availability.index') }}"
+                class="sidebar-link {{ request()->routeIs('availability.*') ? 'active' : '' }}">
+                <i class="bi bi-clock"></i>
+                Availability
+            </a>
             <a href="#" class="sidebar-link">
                 <i class="bi bi-people"></i>
                 Team

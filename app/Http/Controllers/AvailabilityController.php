@@ -3,64 +3,88 @@
 namespace App\Http\Controllers;
 
 use App\Models\Availability;
-use App\Http\Requests\StoreAvailabilityRequest;
-use App\Http\Requests\UpdateAvailabilityRequest;
+use Illuminate\Http\Request;
 
 class AvailabilityController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        $availabilities = Availability::where('user_id', auth()->user()->id)
+            ->orderBy('day_of_week')
+            ->orderBy('start_time')
+            ->get();
+
+        return view('availabilities.index', compact('availabilities'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        //
+        return view('availabilities.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreAvailabilityRequest $request)
+    public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'day_of_week' => 'required|in:monday,tuesday,wednesday,thursday,friday,saturday,sunday',
+            'start_time' => 'required|date_format:H:i',
+            'end_time' => 'required|date_format:H:i|after:start_time',
+            'is_available' => 'boolean',
+        ]);
+
+        $validated['user_id'] = auth()->user()->id;
+
+        Availability::create($validated);
+
+        return redirect()->route('availability.index')
+            ->with('success', 'Availability added successfully!');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Availability $availability)
     {
-        //
+        if ($availability->user_id !== auth()->user()->id) {
+            abort(403);
+        }
+
+        return view('availabilities.show', compact('availability'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Availability $availability)
     {
-        //
+        if ($availability->user_id !== auth()->user()->id) {
+            abort(403);
+        }
+
+        return view('availabilities.edit', compact('availability'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateAvailabilityRequest $request, Availability $availability)
+    public function update(Request $request, Availability $availability)
     {
-        //
+        if ($availability->user_id !== auth()->user()->id) {
+            abort(403);
+        }
+
+        $validated = $request->validate([
+            'day_of_week' => 'required|in:monday,tuesday,wednesday,thursday,friday,saturday,sunday',
+            'start_time' => 'required|date_format:H:i',
+            'end_time' => 'required|date_format:H:i|after:start_time',
+            'is_available' => 'boolean',
+        ]);
+
+        $availability->update($validated);
+
+        return redirect()->route('availability.index')
+            ->with('success', 'Availability updated successfully!');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Availability $availability)
     {
-        //
+        if ($availability->user_id !== auth()->user()->id) {
+            abort(403);
+        }
+
+        $availability->delete();
+
+        return redirect()->route('availability.index')
+            ->with('success', 'Availability deleted successfully!');
     }
 }

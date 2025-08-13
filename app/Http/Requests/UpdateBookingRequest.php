@@ -11,18 +11,24 @@ class UpdateBookingRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return auth()->check() && $this->booking->user_id === auth()->user()->id;
     }
 
     /**
      * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
         return [
-            //
+            'event_type_id' => 'required|exists:event_types,id',
+            'attendee_name' => 'required|string|max:255',
+            'attendee_email' => 'required|email|max:255',
+            'attendee_notes' => 'nullable|string|max:1000',
+            'start_time' => 'required|date',
+            'end_time' => 'required|date|after:start_time',
+            'status' => 'required|in:scheduled,completed,cancelled,no_show',
+            'meeting_link' => 'nullable|url|max:255',
+            'cancellation_reason' => 'nullable|string|max:500',
         ];
     }
 }

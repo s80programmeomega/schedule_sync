@@ -5,6 +5,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\EventTypeController;
+use App\Http\Controllers\BookingController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -29,4 +30,10 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::resource('event-types', EventTypeController::class);
+});
+
+Route::middleware('auth')->group(function () {
+    Route::resource('bookings', BookingController::class);
+    Route::get('bookings-scheduled', [BookingController::class, 'scheduled'])->name('bookings.scheduled');
+    Route::patch('bookings/{booking}/cancel', [BookingController::class, 'cancel'])->name('bookings.cancel');
 });

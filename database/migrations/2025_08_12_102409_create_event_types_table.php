@@ -24,7 +24,7 @@ return new class extends Migration
             $table->boolean('is_active')->default(true);
             $table->boolean('requires_confirmation')->default(false);
             $table->integer('max_events_per_day')->nullable();
-            $table->enum('color', ['#5D5CDE', '#FF5733', '#33FF57', '#3357FF'])->default('#5D5CDE'); // Calendar color
+            $table->string('color')->default('#5D5CDE'); // Calendar color
             $table->timestamps();
         });
     }

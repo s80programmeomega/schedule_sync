@@ -177,7 +177,9 @@ body {
 /* Sidebar */
 .sidebar {
     border-right: 1px solid var(--gray-light);
-    height: calc(100vh - 70px);
+    position: relative;
+    min-height: fit-content;
+    overflow: auto;
 }
 
 .sidebar-link {

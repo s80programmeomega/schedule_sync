@@ -24,10 +24,10 @@
         <div class="row">
             @forelse($eventTypes as $eventType)
                 <div class="col-md-4 mb-4">
-                    <a href="{{ route('event-types.show', $eventType) }}" class="text-decoration-none ">
 
-                        <div class="event-type-card h-100 bg-white">
-                            <div class="p-4">
+                    <div class="event-type-card h-100 bg-white d-flex flex-column">
+                        <div class="p-4">
+                            <a href="{{ route('event-types.show', $eventType) }}" class="text-decoration-none flex-grow-1">
                                 <div class="d-flex align-items-center mb-3">
                                     <div class="event-type-icon me-3"
                                         style="background-color: {{ $eventType->color ?? '#6366f1' }}20; color: {{ $eventType->color ?? '#6366f1' }}">
@@ -48,40 +48,47 @@
                                     <span
                                         class="text-truncate">{{ ucfirst(str_replace('_', ' ', $eventType->location_type)) }}</span>
                                 </div>
+                            </a>
                             </div>
-                            <div class="card-footer bg-light border-top py-3 px-4">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div class="form-check form-switch">
-                                        <input class="form-check-input" type="checkbox"
-                                            id="eventActive{{ $eventType->id }}"
-                                            {{ $eventType->is_active ? 'checked' : '' }}
-                                            onchange="toggleEventType({{ $eventType->id }})">
-                                        <label class="form-check-label"
-                                            for="eventActive{{ $eventType->id }}">Active</label>
-                                    </div>
-                                    <div class="dropdown">
-                                        <button class="btn btn-sm btn-light" type="button" data-bs-toggle="dropdown">
-                                            <i class="bi bi-three-dots"></i>
-                                        </button>
-                                        <ul class="dropdown-menu dropdown-menu-end">
-                                            <li><a class="dropdown-item"
-                                                    href="{{ route('event-types.edit', $eventType) }}">
-                                                    <i class="bi bi-pencil me-2"></i>Edit</a></li>
-                                            <li><a class="dropdown-item" href="#"
-                                                    onclick="copyLink('{{ $eventType->id }}')">
-                                                    <i class="bi bi-clipboard me-2"></i>Copy Link</a></li>
-                                            <li>
-                                                <hr class="dropdown-divider">
-                                            </li>
-                                            <li><a class="dropdown-item text-danger" href="#"
-                                                    onclick="deleteEventType({{ $eventType->id }})">
-                                                    <i class="bi bi-trash me-2"></i>Delete</a></li>
-                                        </ul>
-                                    </div>
+                        <div class="card-footer bg-light border-top py-3 px-4 mt-auto">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="eventActive{{ $eventType->id }}"
+                                        {{ $eventType->is_active ? 'checked' : '' }}
+                                        onchange="toggleEventType({{ $eventType->id }})">
+                                    <label class="form-check-label" for="eventActive{{ $eventType->id }}">Active</label>
+                                </div>
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-light" type="button" data-bs-toggle="dropdown">
+                                        <i class="bi bi-three-dots"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li><a class="dropdown-item" href="{{ route('event-types.edit', $eventType) }}">
+                                                <i class="bi bi-pencil me-2"></i>Edit</a></li>
+                                        <li><a class="dropdown-item" href="#"
+                                                onclick="copyLink('{{ $eventType->id }}')">
+                                                <i class="bi bi-clipboard me-2"></i>Copy Link</a></li>
+                                        <li>
+                                            <hr class="dropdown-divider">
+                                        </li>
+                                        <li>
+                                            <form method="POST" action="{{ route('event-types.destroy', $eventType) }}"
+                                                style="display: inline;">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit"
+                                                    class="dropdown-item text-danger border-0 bg-transparent w-100 text-start"
+                                                    onclick="return confirm('Are you sure you want to delete this event type?')">
+                                                    <i class="bi bi-trash me-2"></i>Delete
+                                                </button>
+                                            </form>
+                                        </li>
+                                    </ul>
                                 </div>
                             </div>
                         </div>
-                    </a>
+                    </div>
+
                 </div>
             @empty
                 <div class="col-12">

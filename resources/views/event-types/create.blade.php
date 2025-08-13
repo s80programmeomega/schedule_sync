@@ -84,7 +84,7 @@
                                         {{ old('location_type') == 'google_meet' ? 'selected' : '' }}>Google Meet</option>
                                     <option value="phone" {{ old('location_type') == 'phone' ? 'selected' : '' }}>Phone
                                         Call</option>
-                                    <option value="custom" {{ old('location_type') == 'custom' ? 'selected' : '' }}>Custom
+                                    <option value="whatsapp" {{ old('location_type') == 'whatsapp' ? 'selected' : '' }}>WhatsApp
                                     </option>
                                 </select>
                                 @error('location_type')

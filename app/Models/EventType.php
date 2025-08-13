@@ -69,4 +69,35 @@ class EventType extends Model
     {
         return $this->duration . ' min';
     }
+
+    /**
+     * Get default colors for event types
+     */
+    public static function getDefaultColors()
+    {
+        return [
+            '#5D5CDE',
+            '#FF5733',
+            '#33FF57',
+            '#3357FF',
+            '#FF33A1',
+            '#33FFF5',
+            '#FFD700',
+            '#8A2BE2'
+        ];
+    }
+
+    /**
+     * Get location types
+     */
+    public static function getLocationTypes()
+    {
+        return [
+            'zoom' => 'Zoom',
+            'google_meet' => 'Google Meet',
+            'phone' => 'Phone Call',
+            'whatsapp' => 'WhatsApp',
+            'custom' => 'Custom'
+        ];
+    }
 }

@@ -1,7 +1,6 @@
 <?php
-// app/Http/Controllers/Api/AvailabilityController.php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\v1;
 
 use App\Models\Availability;
 use Illuminate\Http\Request;

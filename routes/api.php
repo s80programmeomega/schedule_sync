@@ -3,13 +3,13 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\AuthController;
-use App\Http\Controllers\Api\UserController;
-use App\Http\Controllers\Api\EventTypeController;
-use App\Http\Controllers\Api\AvailabilityController;
-use App\Http\Controllers\Api\BookingController;
-use App\Http\Controllers\Api\PublicBookingController;
-use App\Http\Controllers\Api\DashboardController;
+use App\Http\Controllers\Api\v1\AuthController;
+use App\Http\Controllers\Api\v1\UserController;
+use App\Http\Controllers\Api\v1\EventTypeController;
+use App\Http\Controllers\Api\v1\AvailabilityController;
+use App\Http\Controllers\Api\v1\BookingController;
+use App\Http\Controllers\Api\v1\PublicBookingController;
+use App\Http\Controllers\Api\v1\DashboardController;
 
 /*
 |--------------------------------------------------------------------------

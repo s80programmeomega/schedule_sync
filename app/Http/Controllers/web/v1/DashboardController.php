@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\web\v1;
 
 use Illuminate\Http\Request;
 use App\Models\Booking;
 use App\Models\EventType;
-use Carbon\Carbon;
+use App\Http\Controllers\Controller;
 
 /**
  * Dashboard Controller

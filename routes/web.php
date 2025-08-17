@@ -1,12 +1,12 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\Auth\RegisterController;
-use App\Http\Controllers\EventTypeController;
-use App\Http\Controllers\BookingController;
-use App\Http\Controllers\AvailabilityController;
+use App\Http\Controllers\web\v1\DashboardController;
+use App\Http\Controllers\web\v1\Auth\LoginController;
+use App\Http\Controllers\web\v1\Auth\RegisterController;
+use App\Http\Controllers\web\v1\EventTypeController;
+use App\Http\Controllers\web\v1\BookingController;
+use App\Http\Controllers\web\v1\AvailabilityController;
 
 Route::get('/', function () {
     return view('welcome');

@@ -1,9 +1,10 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\web\v1;
 
 use App\Models\Availability;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 
 class AvailabilityController extends Controller
 {

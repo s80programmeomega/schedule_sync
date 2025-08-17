@@ -40,7 +40,9 @@ abstract class ApiController extends Controller
             $response['data'] = $data['data'];
         }
 
-        return response()->json($response, $statusCode);
+        return response()->json($response, $statusCode)
+            ->header('Content-Type', 'application/json')
+            ->header('API-Version', 'v1');
     }
 
     /**
@@ -62,7 +64,9 @@ abstract class ApiController extends Controller
             $response['errors'] = $errors;
         }
 
-        return response()->json($response, $statusCode);
+        return response()->json($response, $statusCode)
+            ->header('Content-Type', 'application/json')
+            ->header('API-Version', 'v1');
     }
 
     /**
@@ -77,7 +81,9 @@ abstract class ApiController extends Controller
             'Validation failed',
             Response::HTTP_UNPROCESSABLE_ENTITY,
             $errors
-        );
+        )
+            ->header('Content-Type', 'application/json')
+            ->header('API-Version', 'v1');
     }
 
     /**
@@ -88,7 +94,9 @@ abstract class ApiController extends Controller
      */
     protected function notFoundResponse(string $message = 'Resource not found'): JsonResponse
     {
-        return $this->errorResponse($message, Response::HTTP_NOT_FOUND);
+        return $this->errorResponse($message, Response::HTTP_NOT_FOUND)
+            ->header('Content-Type', 'application/json')
+            ->header('API-Version', 'v1');
     }
 
     /**
@@ -99,7 +107,9 @@ abstract class ApiController extends Controller
      */
     protected function unauthorizedResponse(string $message = 'Unauthorized'): JsonResponse
     {
-        return $this->errorResponse($message, Response::HTTP_UNAUTHORIZED);
+        return $this->errorResponse($message, Response::HTTP_UNAUTHORIZED)
+            ->header('Content-Type', 'application/json')
+            ->header('API-Version', 'v1');
     }
 
     /**
@@ -110,6 +120,8 @@ abstract class ApiController extends Controller
      */
     protected function forbiddenResponse(string $message = 'Forbidden'): JsonResponse
     {
-        return $this->errorResponse($message, Response::HTTP_FORBIDDEN);
+        return $this->errorResponse($message, Response::HTTP_FORBIDDEN)
+            ->header('Content-Type', 'application/json')
+            ->header('API-Version', 'v1');
     }
 }

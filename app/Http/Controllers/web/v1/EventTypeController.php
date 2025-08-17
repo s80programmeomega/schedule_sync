@@ -1,11 +1,10 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\web\v1;
 
 use App\Models\EventType;
-use App\Http\Requests\StoreEventTypeRequest;
-use App\Http\Requests\UpdateEventTypeRequest;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 
 /**
  * Event Type Controller

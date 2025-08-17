@@ -6,7 +6,6 @@ use App\Models\Booking;
 use App\Models\EventType;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use Carbon\Carbon;
 
 class DashboardController extends ApiController
 {

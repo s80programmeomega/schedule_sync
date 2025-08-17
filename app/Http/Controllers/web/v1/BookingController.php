@@ -1,12 +1,11 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\web\v1;
 
 use App\Models\Booking;
 use App\Models\EventType;
-use App\Http\Requests\StoreBookingRequest;
-use App\Http\Requests\UpdateBookingRequest;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 
 /**
  * Booking Controller

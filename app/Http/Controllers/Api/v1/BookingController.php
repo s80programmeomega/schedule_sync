@@ -6,7 +6,7 @@ use App\Models\Booking;
 use App\Models\EventType;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use App\Http\Resources\BookingResource;
+use App\Http\Resources\v1\BookingResource;
 use Carbon\Carbon;
 
 /**

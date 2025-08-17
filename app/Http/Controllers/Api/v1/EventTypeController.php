@@ -6,8 +6,8 @@ use App\Models\EventType;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Validation\ValidationException;
-use App\Http\Resources\EventTypeResource;
-use App\Http\Resources\EventTypeCollection;
+use App\Http\Resources\v1\EventTypeResource;
+use App\Http\Resources\v1\EventTypeCollection;
 
 /**
  * Event Types API Controller

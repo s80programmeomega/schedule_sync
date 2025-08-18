@@ -47,7 +47,7 @@
                         <div class="text-muted small">
                             <i
                                 class="bi bi-calendar{{ $booking->status === 'completed' ? '-check' : ($booking->status === 'cancelled' ? '-x' : '') }} me-1"></i>
-                            {{ $booking->formatted_date_time }}
+                            {{ $booking->full_start_time->format('M j, Y \a\t g:i A') }}
                         </div>
                     </div>
                     <div class="col-md-2 text-end">

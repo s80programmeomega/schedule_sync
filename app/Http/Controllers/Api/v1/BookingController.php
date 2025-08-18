@@ -109,7 +109,7 @@ class BookingController extends ApiController
 
     public function show(Booking $booking): JsonResponse
     {
-        if ($booking->user_id !== auth()->user->id) {
+        if ($booking->user_id !== auth()->id()) {
             return $this->forbiddenResponse();
         }
 
@@ -122,7 +122,7 @@ class BookingController extends ApiController
     public function cancel(Request $request, Booking $booking): JsonResponse
     {
         try {
-            if ($booking->user_id !== auth()->user->id) {
+            if ($booking->user_id !== auth()->id()) {
                 return $this->forbiddenResponse();
             }
 
@@ -152,7 +152,7 @@ class BookingController extends ApiController
     public function reschedule(Request $request, Booking $booking): JsonResponse
     {
         try {
-            if ($booking->user_id !== auth()->user->id) {
+            if ($booking->user_id !== auth()->id()) {
                 return $this->forbiddenResponse();
             }
 

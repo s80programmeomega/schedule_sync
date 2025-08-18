@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use App\Models\User;
+use Carbon\Carbon;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Availability>
@@ -17,17 +18,23 @@ class AvailabilityFactory extends Factory
      */
     public function definition(): array
     {
-        $startHour = fake()->numberBetween(8, 16);
-        $endHour = fake()->numberBetween($startHour + 1, 18);
+        $startHour = $this->faker->numberBetween(4, 17);
+        $startMinute = $this->faker->randomElement([0, 15, 30, 45]);
+        $startTime = Carbon::createFromTime($startHour, $startMinute);
+
+        $duration = $this->faker->randomElement([7, 10, 12]);
+        $endTime = (clone $startTime)->addHours($duration)->format('H:i');
 
         return [
             'user_id' => User::factory(),
-            'day_of_week' => fake()->randomElement(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']),
-            'start_time' => sprintf('%02d:00:00', $startHour),
-            'end_time' => sprintf('%02d:00:00', $endHour),
-            'is_available' => fake()->boolean(90),
+            'availability_date' => $this->faker->dateTimeBetween('now', '+4 months')->format('Y-m-d'),
+            // 'day_of_week' => $this->faker->randomElement(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']),
+            'start_time' => $startTime->format('H:i'),
+            'end_time' => $endTime,
+            'is_available' => $this->faker->boolean(72),
         ];
     }
+
     public function weekdays(): static
     {
         return $this->state([

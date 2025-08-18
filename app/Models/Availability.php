@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-
+use Carbon\Carbon;
 
 
 /**
@@ -18,6 +18,7 @@ class Availability extends Model
 
     protected $fillable = [
         'user_id',
+        'availability_date',
         'day_of_week',
         'start_time',
         'end_time',
@@ -27,6 +28,7 @@ class Availability extends Model
     protected function casts(): array
     {
         return [
+            'availability_date' => 'date',
             'start_time' => 'datetime:H:i',
             'end_time' => 'datetime:H:i',
             'is_available' => 'boolean',
@@ -40,4 +42,16 @@ class Availability extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    // Accessors to format time fields
+    public function getStartTimeAttribute($value)
+    {
+        return $value ? Carbon::parse($value)->format('g:i A') : null;
+    }
+
+    public function getEndTimeAttribute($value)
+    {
+        return $value ? Carbon::parse($value)->format('g:i A') : null;
+    }
+
 }

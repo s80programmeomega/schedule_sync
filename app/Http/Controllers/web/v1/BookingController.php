@@ -6,6 +6,7 @@ use App\Models\Booking;
 use App\Models\EventType;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\v1\StoreBookingRequest;
 
 /**
  * Booking Controller
@@ -56,22 +57,15 @@ class BookingController extends Controller
     /**
      * Store a newly created booking
      */
-    public function store(Request $request)
+    public function store(StoreBookingRequest $request)
     {
-        $validated = $request->validate([
-            'event_type_id' => 'required|exists:event_types,id',
-            'attendee_name' => 'required|string|max:255',
-            'attendee_email' => 'required|email|max:255',
-            'attendee_notes' => 'nullable|string|max:1000',
-            'start_time' => 'required|date|after:now',
-            'end_time' => 'required|date|after:start_time',
-            'meeting_link' => 'nullable|url|max:255',
-        ]);
+        $validated = $request->validated();
 
-        $validated['user_id'] = auth()->user()->id;
-        $validated['status'] = 'scheduled';
+        $bookingData = collect($validated)->except(['full_start_time', 'full_end_time'])->all();
+        $bookingData['user_id'] = auth()->id();
+        $bookingData['status'] = 'scheduled';
 
-        Booking::create($validated);
+        Booking::create($bookingData);
 
         return redirect()->route('bookings.index')
             ->with('success', 'Booking created successfully!');
@@ -119,8 +113,8 @@ class BookingController extends Controller
             'attendee_name' => 'required|string|max:255',
             'attendee_email' => 'required|email|max:255',
             'attendee_notes' => 'nullable|string|max:1000',
-            'start_time' => 'required|date',
-            'end_time' => 'required|date|after:start_time',
+            'start_time' => 'required',
+            // 'end_time' => 'required|date|after:start_time',
             'status' => 'required|in:scheduled,completed,cancelled,no_show',
             'meeting_link' => 'nullable|url|max:255',
             'cancellation_reason' => 'nullable|string|max:500',

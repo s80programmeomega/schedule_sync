@@ -76,7 +76,7 @@ class AvailabilityController extends ApiController
 
     public function show(Availability $availability): JsonResponse
     {
-        if ($availability->user_id !== auth()->user->id) {
+        if ($availability->user_id !== auth()->id()) {
             return $this->forbiddenResponse();
         }
 
@@ -86,7 +86,7 @@ class AvailabilityController extends ApiController
     public function update(Request $request, Availability $availability): JsonResponse
     {
         try {
-            if ($availability->user_id !== auth()->user->id) {
+            if ($availability->user_id !== auth()->id()) {
                 return $this->forbiddenResponse();
             }
 
@@ -109,7 +109,7 @@ class AvailabilityController extends ApiController
 
     public function destroy(Availability $availability): JsonResponse
     {
-        if ($availability->user_id !== auth()->user->id) {
+        if ($availability->user_id !== auth()->id()) {
             return $this->forbiddenResponse();
         }
 

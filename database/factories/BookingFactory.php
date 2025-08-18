@@ -5,6 +5,9 @@ namespace Database\Factories;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use App\Models\EventType;
 use App\Models\User;
+use Carbon\Carbon;
+
+use function Laravel\Prompts\form;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Booking>
@@ -18,10 +21,11 @@ class BookingFactory extends Factory
      */
     public function definition(): array
     {
-
-        $startTime = fake()->dateTimeBetween('now', '+30 days');
+        $booking_date = fake()->dateTimeBetween(startDate: "-30 days", endDate: "+3 month")->format(format: 'Y-m-d');
+        $startTime = Carbon::parse(fake()->time('H:i'));
         $duration = fake()->randomElement([30, 60, 90]);
-        $endTime = (clone $startTime)->modify("+{$duration} minutes");
+        $endTime = (clone $startTime)->addMinutes($duration);
+
 
         return [
             'event_type_id' => EventType::factory(),
@@ -29,8 +33,9 @@ class BookingFactory extends Factory
             'attendee_name' => fake()->name(),
             'attendee_email' => fake()->safeEmail(),
             'attendee_notes' => fake()->optional()->paragraph(),
-            'start_time' => $startTime,
-            'end_time' => $endTime,
+            'booking_date' => $booking_date,
+            'start_time' => $startTime->format('H:i'),
+            'end_time' => $endTime->format('H:i'),
             'status' => fake()->randomElement(['scheduled', 'completed', 'cancelled', 'no_show']),
             'meeting_link' => fake()->optional()->url(),
             'cancellation_reason' => fake()->optional()->sentence(),

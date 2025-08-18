@@ -59,24 +59,33 @@
                         </div>
 
                         <div class="row mb-4">
+                            <div class="col-12">
+                                <label for="booking_date" class="form-label">Booking Date *</label>
+                                <input type="date"
+                                    class="form-control @error('booking_date') is-invalid @enderror" id="booking_date"
+                                    name="booking_date" value="{{ old('booking_date') }}" required>
+                                @error('booking_date')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
                             <div class="col-md-6">
                                 <label for="start_time" class="form-label">Start Time *</label>
-                                <input type="datetime-local"
+                                <input type="time"
                                     class="form-control @error('start_time') is-invalid @enderror" id="start_time"
                                     name="start_time" value="{{ old('start_time') }}" required>
                                 @error('start_time')
                                 <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
-                            <div class="col-md-6">
+                            {{-- <div class="col-md-6">
                                 <label for="end_time" class="form-label">End Time *</label>
-                                <input type="datetime-local"
+                                <input type="time"
                                     class="form-control @error('end_time') is-invalid @enderror" id="end_time"
                                     name="end_time" value="{{ old('end_time') }}" required>
                                 @error('end_time')
                                 <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
-                            </div>
+                            </div> --}}
                         </div>
 
                         <div class="mb-4">

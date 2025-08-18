@@ -126,7 +126,7 @@ class EventTypeController extends ApiController
     {
         try {
             // Check ownership
-            if ($eventType->user_id !== auth()->user->id) {
+            if ($eventType->user_id !== auth()->id()) {
                 return $this->forbiddenResponse('You do not have permission to view this event type');
             }
 
@@ -154,7 +154,7 @@ class EventTypeController extends ApiController
     {
         try {
             // Check ownership
-            if ($eventType->user_id !== auth()->user->id) {
+            if ($eventType->user_id !== auth()->id()) {
                 return $this->forbiddenResponse('You do not have permission to update this event type');
             }
 
@@ -195,7 +195,7 @@ class EventTypeController extends ApiController
     {
         try {
             // Check ownership
-            if ($eventType->user_id !== auth()->user->id) {
+            if ($eventType->user_id !== auth()->id()) {
                 return $this->forbiddenResponse('You do not have permission to delete this event type');
             }
 
@@ -230,7 +230,7 @@ class EventTypeController extends ApiController
     {
         try {
             // Check ownership
-            if ($eventType->user_id !== auth()->user->id) {
+            if ($eventType->user_id !== auth()->id()) {
                 return $this->forbiddenResponse('You do not have permission to modify this event type');
             }
 
@@ -257,7 +257,7 @@ class EventTypeController extends ApiController
     {
         try {
             // Check ownership
-            if ($eventType->user_id !== auth()->user->id) {
+            if ($eventType->user_id !== auth()->id()) {
                 return $this->forbiddenResponse('You do not have permission to duplicate this event type');
             }
 

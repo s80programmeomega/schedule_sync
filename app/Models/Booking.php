@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 
 /**
@@ -21,8 +22,9 @@ class Booking extends Model
         'attendee_name',
         'attendee_email',
         'attendee_notes',
+        'booking_date',
         'start_time',
-        'end_time',
+        // 'end_time',
         'status',
         'meeting_link',
         'cancellation_reason',
@@ -32,8 +34,9 @@ class Booking extends Model
     protected function casts(): array
     {
         return [
-            'start_time' => 'datetime',
-            'end_time' => 'datetime',
+            'booking_date' => 'date',
+            // 'start_time' => 'datetime:H:i',
+            // 'end_time' => 'datetime:H:i',
             'cancelled_at' => 'datetime',
         ];
     }
@@ -54,31 +57,38 @@ class Booking extends Model
         return $this->belongsTo(User::class);
     }
 
-    /**
-     * Check if booking is upcoming
-     */
-    public function getIsUpcomingAttribute()
+    // Helper method to get full datetime
+    public function getFullStartTimeAttribute(): ?Carbon
     {
-        return $this->start_time->isFuture() && $this->status === 'scheduled';
+        if (!$this->booking_date || !$this->start_time) {
+            return null;
+        }
+        return Carbon::parse($this->booking_date->toDateString() . ' ' . $this->start_time);
     }
 
-    /**
-     * Get time until booking starts
-     */
-    public function getTimeUntilAttribute()
+    public function getFullEndTimeAttribute(): ?Carbon
+    {
+        if (!$this->booking_date || !$this->end_time) {
+            return null;
+        }
+        return Carbon::parse($this->booking_date->toDateString() . ' ' . $this->end_time);
+    }
+
+    public function getIsUpcomingAttribute(): bool
+    {
+        return $this->full_start_time?->isFuture() && $this->status === 'scheduled';
+    }
+
+    public function getTimeUntilAttribute(): ?string
     {
         if (!$this->is_upcoming) {
             return null;
         }
-
-        return $this->start_time->diffForHumans();
+        return $this->full_start_time?->diffForHumans();
     }
 
-    /**
-     * Get formatted date and time
-     */
-    public function getFormattedDateTimeAttribute()
+    public function getFormattedDateTimeAttribute(): ?string
     {
-        return $this->start_time->format('M j, Y \a\t g:i A');
+        return $this->full_start_time?->format('M j, Y \a\t g:i A');
     }
 }

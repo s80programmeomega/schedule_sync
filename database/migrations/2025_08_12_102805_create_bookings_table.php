@@ -18,8 +18,9 @@ return new class extends Migration
             $table->string('attendee_name');
             $table->string('attendee_email');
             $table->text('attendee_notes')->nullable();
-            $table->datetime('start_time');
-            $table->datetime('end_time');
+            $table->date('booking_date');
+            $table->time('start_time');
+            $table->time('end_time');
             $table->enum('status', ['scheduled', 'completed', 'cancelled', 'no_show'])->default('scheduled');
             $table->string('meeting_link')->nullable(); // Zoom/Meet link
             $table->string('cancellation_reason')->nullable();

@@ -8,22 +8,26 @@
         @auth
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
-                <!-- <li class="nav-item">
+                <li class="nav-item d-lg-none">
                     <a class="nav-link {{ request()->routeIs('dashboard.*') ? 'active' : '' }}"
                         href="{{ route('dashboard.index') }}">Dashboard</a>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item d-lg-none">
                     <a class="nav-link {{ request()->routeIs('event-types.*') ? 'active' : '' }}"
                         href="{{ route('event-types.index') }}">Event Types</a>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item d-lg-none">
                     <a class="nav-link {{ request()->routeIs('bookings.scheduled') ? 'active' : '' }}"
-                        href="{{ route('bookings.scheduled') }}">Scheduled</a>
+                        href="{{ route('bookings.scheduled') }}">Scheduled Events</a>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item d-lg-none">
                     <a class="nav-link {{ request()->routeIs('bookings.index') ? 'active' : '' }}"
                         href="{{ route('bookings.index') }}">All Bookings</a>
-                </li> -->
+                </li>
+                <li class="nav-item d-lg-none">
+                    <a class="nav-link {{ request()->routeIs('availability.*') ? 'active' : '' }}"
+                        href="{{ route('availability.index') }}">Availability</a>
+                </li>
 
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"

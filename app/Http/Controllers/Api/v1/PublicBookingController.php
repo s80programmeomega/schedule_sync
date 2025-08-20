@@ -387,4 +387,27 @@ class PublicBookingController extends ApiController
             return $this->errorResponse('Failed to confirm booking', 500);
         }
     }
+    public function rescheduleBooking(Request $request, Booking $booking)
+    {
+        $validated = $request->validate([
+            'start_time' => 'required|date',
+            'attendee_email' => 'required|email',
+        ]);
+
+        if ($booking->attendee_email !== $validated['attendee_email']) {
+            return back()->withErrors(['attendee_email' => 'The provided email does not match the booking.'])->withInput();
+        }
+
+        $startTime = Carbon::parse($validated['start_time']);
+        $endTime = $startTime->copy()->addMinutes($booking->eventType->duration);
+
+        $booking->update([
+            'booking_date' => $startTime->toDateString(),
+            'start_time' => $startTime->toTimeString(),
+            'end_time' => $endTime->toTimeString(),
+        ]);
+
+        return redirect()->route('public.booking.reschedule', $booking)
+            ->with('success', 'Your booking has been successfully rescheduled.');
+    }
 }

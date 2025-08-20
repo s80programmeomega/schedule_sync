@@ -20,10 +20,10 @@ class StoreBookingRequest extends FormRequest
      */
     protected function prepareForValidation(): void
     {
-        if ($this->has(['booking_date', 'start_time', 'end_time'])) {
+        if ($this->has(['booking_date', 'start_time'])) {
             $this->merge([
                 'full_start_time' => Carbon::parse($this->booking_date . ' ' . $this->start_time),
-                'full_end_time' => Carbon::parse($this->booking_date . ' ' . $this->end_time),
+                // 'full_end_time' => Carbon::parse($this->booking_date . ' ' . $this->end_time),
             ]);
         }
     }

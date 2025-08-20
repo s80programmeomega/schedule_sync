@@ -38,6 +38,8 @@ class Booking extends Model
             // 'start_time' => 'datetime:H:i',
             // 'end_time' => 'datetime:H:i',
             'cancelled_at' => 'datetime',
+            'reminder_24h_sent_at' => 'datetime',
+            'reminder_1h_sent_at' => 'datetime',
         ];
     }
 

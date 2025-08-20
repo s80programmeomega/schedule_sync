@@ -3,7 +3,6 @@
 namespace App\Observers;
 
 use App\Models\Availability;
-use Carbon\Carbon;
 
 class AvailabilityObserver
 {

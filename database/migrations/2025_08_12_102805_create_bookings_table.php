@@ -25,6 +25,8 @@ return new class extends Migration
 			$table->string('meeting_link')->nullable(); // Zoom/Meet link
 			$table->string('cancellation_reason')->nullable();
 			$table->timestamp('cancelled_at')->nullable();
+            $table->timestamp('reminder_24h_sent_at')->nullable();
+            $table->timestamp('reminder_1h_sent_at')->nullable();
 			$table->timestamps();
 		});
 	}

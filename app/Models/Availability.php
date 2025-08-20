@@ -19,7 +19,7 @@ class Availability extends Model
     protected $fillable = [
         'user_id',
         'availability_date',
-        'day_of_week',
+        // 'day_of_week',
         'start_time',
         'end_time',
         'is_available',

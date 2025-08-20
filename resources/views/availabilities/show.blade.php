@@ -19,6 +19,10 @@
             <div class="card border-0 shadow-sm">
                 <div class="card-body p-4">
                     <div class="mb-4">
+                        <label class="form-label fw-semibold">Date</label>
+                        <p class="mb-0">{{ \Carbon\Carbon::parse(ucfirst($availability->availability_date))->format('F d, Y') }}</p>
+                    </div>
+                    <div class="mb-4">
                         <label class="form-label fw-semibold">Day of Week</label>
                         <p class="mb-0">{{ ucfirst($availability->day_of_week) }}</p>
                     </div>

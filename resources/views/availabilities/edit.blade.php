@@ -23,26 +23,10 @@
                         @method('PUT')
 
                         <div class="mb-4">
-                            <label for="day_of_week" class="form-label">Day of Week *</label>
-                            <select class="form-select @error('day_of_week') is-invalid @enderror" id="day_of_week"
-                                name="day_of_week" >
-                                <option value="">Select day</option>
-                                <option value="monday" {{ old('day_of_week', $availability->day_of_week) == 'monday' ?
-                                    'selected' : '' }}>Monday</option>
-                                <option value="tuesday" {{ old('day_of_week', $availability->day_of_week) == 'tuesday' ?
-                                    'selected' : '' }}>Tuesday</option>
-                                <option value="wednesday" {{ old('day_of_week', $availability->day_of_week) ==
-                                    'wednesday' ? 'selected' : '' }}>Wednesday</option>
-                                <option value="thursday" {{ old('day_of_week', $availability->day_of_week) == 'thursday'
-                                    ? 'selected' : '' }}>Thursday</option>
-                                <option value="friday" {{ old('day_of_week', $availability->day_of_week) == 'friday' ?
-                                    'selected' : '' }}>Friday</option>
-                                <option value="saturday" {{ old('day_of_week', $availability->day_of_week) == 'saturday'
-                                    ? 'selected' : '' }}>Saturday</option>
-                                <option value="sunday" {{ old('day_of_week', $availability->day_of_week) == 'sunday' ?
-                                    'selected' : '' }}>Sunday</option>
-                            </select>
-                            @error('day_of_week')
+                            <label for="availability_date" class="form-label">Availability Date *</label>
+                            <input type="date" class="form-control @error('availability_date') is-invalid @enderror" id="availability_date"
+                                name="availability_date" value="{{ old('availability_date', $availability->availability_date->format('Y-m-d')) }}">
+                            @error('availability_date')
                             <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
@@ -52,7 +36,7 @@
                                 <label for="start_time" class="form-label">Start Time *</label>
                                 <input type="time" class="form-control @error('start_time') is-invalid @enderror"
                                     id="start_time" name="start_time"
-                                    value="{{ old('start_time', $availability->start_time) }}">
+                                    value="{{ old('start_time', \Carbon\Carbon::parse($availability->start_time)->format('H:i')) }}">
                                 @error('start_time')
                                 <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -60,7 +44,7 @@
                             <div class="col-md-6">
                                 <label for="end_time" class="form-label">End Time *</label>
                                 <input type="time" class="form-control @error('end_time') is-invalid @enderror"
-                                    id="end_time" name="end_time" value="{{ old('end_time', $availability->end_time) }}"
+                                    id="end_time" name="end_time" value="{{ old('end_time', \Carbon\Carbon::parse($availability->end_time)->format('H:i')) }}"
                                     >
                                 @error('end_time')
                                 <div class="invalid-feedback">{{ $message }}</div>

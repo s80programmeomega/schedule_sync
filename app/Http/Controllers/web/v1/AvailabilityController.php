@@ -5,13 +5,15 @@ namespace App\Http\Controllers\web\v1;
 use App\Models\Availability;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\v1\StoreAvailabilityRequest;
+use App\Http\Requests\v1\UpdateAvailabilityRequest;
 
 class AvailabilityController extends Controller
 {
     public function index()
     {
         $availabilities = Availability::where('user_id', auth()->user()->id)
-            ->orderBy('day_of_week')
+            ->orderBy('availability_date')
             ->orderBy('start_time')
             ->get();
 
@@ -23,15 +25,11 @@ class AvailabilityController extends Controller
         return view('availabilities.create');
     }
 
-    public function store(Request $request)
+    public function store(StoreAvailabilityRequest $request)
     {
-        $validated = $request->validate([
-            'day_of_week' => 'required|in:monday,tuesday,wednesday,thursday,friday,saturday,sunday',
-            'start_time' => 'required|date_format:H:i',
-            'end_time' => 'required|date_format:H:i|after:start_time',
-            'is_available' => 'boolean',
-        ]);
+        $validated = $request->validated();
 
+        // Automatically set the user_id from the authenticated user
         $validated['user_id'] = auth()->user()->id;
 
         Availability::create($validated);
@@ -58,20 +56,13 @@ class AvailabilityController extends Controller
         return view('availabilities.edit', compact('availability'));
     }
 
-    public function update(Request $request, Availability $availability)
+    public function update(UpdateAvailabilityRequest $request, Availability $availability)
     {
         if ($availability->user_id !== auth()->user()->id) {
             abort(403);
         }
 
-        $validated = $request->validate([
-            'day_of_week' => 'required|in:monday,tuesday,wednesday,thursday,friday,saturday,sunday',
-            'start_time' => 'required|date_format:H:i',
-            'end_time' => 'required|date_format:H:i|after:start_time',
-            'is_available' => 'boolean',
-        ]);
-
-        $availability->update($validated);
+        $availability->update($request->validated());
 
         return redirect()->route('availability.index')
             ->with('success', 'Availability updated successfully!');

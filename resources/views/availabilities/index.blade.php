@@ -27,7 +27,8 @@
                 <table class="table table-hover align-middle mb-0">
                     <thead class="bg-light">
                         <tr>
-                            <th class="ps-4">Day</th>
+<th class="ps-4">Date</th>
+<th class="">Day</th>
                             <th>Start Time</th>
                             <th>End Time</th>
                             <th>Status</th>
@@ -37,7 +38,8 @@
                     <tbody>
                         @forelse($availabilities as $availability)
                         <tr>
-                            <td class="ps-4">{{ ucfirst($availability->day_of_week) }}</td>
+<td class="ps-4">{{ \Carbon\Carbon::parse(ucfirst($availability->availability_date))->format('F d, Y') }}</td>
+<td class="">{{ \Carbon\Carbon::parse(ucfirst($availability->day_of_week))->format('l') }}</td>
                             <td>{{ $availability->start_time }}</td>
                             <td>{{ $availability->end_time }}</td>
                             <td>

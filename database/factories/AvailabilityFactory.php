@@ -28,17 +28,9 @@ class AvailabilityFactory extends Factory
         return [
             'user_id' => User::factory(),
             'availability_date' => $this->faker->dateTimeBetween('now', '+4 months')->format('Y-m-d'),
-            // 'day_of_week' => $this->faker->randomElement(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']),
             'start_time' => $startTime->format('H:i'),
             'end_time' => $endTime,
             'is_available' => $this->faker->boolean(72),
         ];
-    }
-
-    public function weekdays(): static
-    {
-        return $this->state([
-            'day_of_week' => fake()->randomElement(['monday', 'tuesday', 'wednesday', 'thursday', 'friday']),
-        ]);
     }
 }

@@ -6,34 +6,34 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
-    public function up(): void
-    {
-        Schema::create('bookings', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('event_type_id')->constrained()->onDelete('cascade');
-            $table->foreignId('user_id')->constrained()->onDelete('cascade'); // Event owner
-            $table->string('attendee_name');
-            $table->string('attendee_email');
-            $table->text('attendee_notes')->nullable();
-            $table->date('booking_date');
-            $table->time('start_time');
-            $table->time('end_time');
-            $table->enum('status', ['scheduled', 'completed', 'cancelled', 'no_show'])->default('scheduled');
-            $table->string('meeting_link')->nullable(); // Zoom/Meet link
-            $table->string('cancellation_reason')->nullable();
-            $table->timestamp('cancelled_at')->nullable();
-            $table->timestamps();
-        });
-    }
+	/**
+	 * Run the migrations.
+	 */
+	public function up(): void
+	{
+		Schema::create('bookings', function (Blueprint $table) {
+			$table->id();
+			$table->foreignId('event_type_id')->constrained()->onDelete('cascade');
+			$table->foreignId('user_id')->constrained()->onDelete('cascade'); // Event owner
+			$table->string('attendee_name');
+			$table->string('attendee_email');
+			$table->text('attendee_notes')->nullable();
+			$table->date('booking_date');
+			$table->time('start_time');
+			$table->time('end_time');
+			$table->enum('status', ['pending', 'scheduled', 'completed', 'cancelled', 'no_show'])->default('pending');
+			$table->string('meeting_link')->nullable(); // Zoom/Meet link
+			$table->string('cancellation_reason')->nullable();
+			$table->timestamp('cancelled_at')->nullable();
+			$table->timestamps();
+		});
+	}
 
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
-    {
-        Schema::dropIfExists('bookings');
-    }
+	/**
+	 * Reverse the migrations.
+	 */
+	public function down(): void
+	{
+		Schema::dropIfExists('bookings');
+	}
 };

@@ -97,7 +97,7 @@ class PublicBookingController extends ApiController
                 ->orderBy('start_time')
                 ->get();
 
-            dd($availability);
+            // dd($availability);
             if ($availability->isEmpty()) {
                 return $this->successResponse([
                     'available_slots' => [],
@@ -338,6 +338,53 @@ class PublicBookingController extends ApiController
             );
         } catch (\Exception $e) {
             return $this->errorResponse('Failed to cancel booking', 500);
+        }
+    }
+
+    /**
+     * Get event types for a user
+     */
+    public function getEventTypes(string $username): JsonResponse
+    {
+        try {
+            $user = User::where('username', $username)->first();
+
+            if (!$user) {
+                return $this->notFoundResponse('User not found');
+            }
+
+            $eventTypes = EventType::where('user_id', $user->id)
+                ->where('is_active', true)
+                ->orderBy('duration')
+                ->get();
+
+            return $this->successResponse(
+                EventTypeResource::collection($eventTypes),
+                'Event types retrieved successfully'
+            );
+        } catch (\Exception $e) {
+            return $this->errorResponse('Failed to retrieve event types', 500);
+        }
+    }
+
+    /**
+     * Confirm a booking (for bookings that require confirmation)
+     */
+    public function confirmBooking(Booking $booking): JsonResponse
+    {
+        try {
+            if ($booking->status !== 'pending') {
+                return $this->errorResponse('Booking is not pending confirmation', 422);
+            }
+
+            $booking->update(['status' => 'scheduled']);
+
+            return $this->successResponse(
+                new BookingResource($booking->fresh()->load('eventType')),
+                'Booking confirmed successfully'
+            );
+        } catch (\Exception $e) {
+            return $this->errorResponse('Failed to confirm booking', 500);
         }
     }
 }

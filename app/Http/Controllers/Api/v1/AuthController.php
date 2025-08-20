@@ -226,6 +226,7 @@ class AuthController extends ApiController
             $validated = $request->validate([
                 'token' => 'required',
                 'email' => 'required|email',
+                // 'password' => 'required|confirmed',
                 'password' => 'required|min:8|confirmed',
             ]);
 
@@ -241,6 +242,8 @@ class AuthController extends ApiController
                     event(new PasswordReset($user));
                 }
             );
+
+            // dd($status);
 
             if ($status === Password::PASSWORD_RESET) {
                 return $this->successResponse(null, 'Password reset successfully');

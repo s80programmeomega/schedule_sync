@@ -41,7 +41,7 @@ Route::prefix('v1')->group(function () {
         Route::post('users/{username}/event-types/{eventType}/book', [PublicBookingController::class, 'createBooking']);
         Route::get('bookings/{booking}/confirm', [PublicBookingController::class, 'confirmBooking']);
         // Route::get('bookings/{booking}/cancel', [PublicBookingController::class, 'showCancelBookingForm'])->name('public.booking.show_cancel');
-        Route::post('bookings/{booking}/cancel', [PublicBookingController::class, 'cancelBooking'])->name('public.booking.cancel');
+        Route::get('bookings/{booking}/cancel', [PublicBookingController::class, 'cancelBooking'])->name('public.booking.cancel');
         Route::get('bookings/{booking}/reschedule', [PublicBookingController::class, 'rescheduleBooking'])->name('public.booking.reschedule');
     });
 });

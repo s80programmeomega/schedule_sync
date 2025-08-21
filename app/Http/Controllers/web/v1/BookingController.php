@@ -7,6 +7,7 @@ use App\Models\EventType;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\v1\StoreBookingRequest;
+use App\Http\Requests\v1\UpdateBookingRequest;
 
 /**
  * Booking Controller
@@ -102,23 +103,13 @@ class BookingController extends Controller
     /**
      * Update the specified booking
      */
-    public function update(Request $request, Booking $booking)
+    public function update(UpdateBookingRequest $request, Booking $booking)
     {
         if ($booking->user_id !== auth()->user()->id) {
             abort(403);
         }
 
-        $validated = $request->validate([
-            'event_type_id' => 'required|exists:event_types,id',
-            'attendee_name' => 'required|string|max:255',
-            'attendee_email' => 'required|email|max:255',
-            'attendee_notes' => 'nullable|string|max:1000',
-            'start_time' => 'required',
-            // 'end_time' => 'required|date|after:start_time',
-            'status' => 'required|in:scheduled,completed,cancelled,no_show',
-            'meeting_link' => 'nullable|url|max:255',
-            'cancellation_reason' => 'nullable|string|max:500',
-        ]);
+        $validated = $request->validated();
 
         if ($validated['status'] === 'cancelled' && !$booking->cancelled_at) {
             $validated['cancelled_at'] = now();

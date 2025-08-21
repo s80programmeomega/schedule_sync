@@ -148,7 +148,8 @@ class PublicBookingController extends ApiController
                 'attendee_name' => 'required|string|max:255',
                 'attendee_email' => 'required|email|max:255',
                 'attendee_notes' => 'nullable|string|max:1000',
-                'start_time' => 'required|date|after:now',
+                'booking_date' => 'required|date|after_or_equal:today',
+                'start_time' => 'required',
                 'timezone' => 'nullable|string'
             ]);
 
@@ -197,6 +198,7 @@ class PublicBookingController extends ApiController
                 'attendee_name' => $validated['attendee_name'],
                 'attendee_email' => $validated['attendee_email'],
                 'attendee_notes' => $validated['attendee_notes'],
+                'booking_date' => $validated['booking_date'],
                 'start_time' => $startTime,
                 'end_time' => $endTime,
                 'status' => $eventType->requires_confirmation ? 'pending' : 'scheduled',
@@ -390,6 +392,7 @@ class PublicBookingController extends ApiController
     public function rescheduleBooking(Request $request, Booking $booking)
     {
         $validated = $request->validate([
+            'booking_date' => 'required|date',
             'start_time' => 'required|date',
             'attendee_email' => 'required|email',
         ]);
@@ -398,16 +401,17 @@ class PublicBookingController extends ApiController
             return back()->withErrors(['attendee_email' => 'The provided email does not match the booking.'])->withInput();
         }
 
+        $booking_date = Carbon::parse($validated['booking_date']);
         $startTime = Carbon::parse($validated['start_time']);
         $endTime = $startTime->copy()->addMinutes($booking->eventType->duration);
 
         $booking->update([
-            'booking_date' => $startTime->toDateString(),
+            'booking_date' => $booking_date->toDateString(),
             'start_time' => $startTime->toTimeString(),
             'end_time' => $endTime->toTimeString(),
         ]);
 
-        return redirect()->route('public.booking.reschedule', $booking)
+        return redirect()->route('bookings.update', $booking)
             ->with('success', 'Your booking has been successfully rescheduled.');
     }
 }

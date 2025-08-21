@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\BookingConfirmation;
 use App\Mail\BookingCancellation;
 use App\Mail\BookingRescheduled;
+use App\Models\User;
 
 
 /**
@@ -36,28 +37,7 @@ class BookingObserver
     {
         // Set the end time for the booking
         $this->setEndTime($booking);
-        // try {
-        //     // Send confirmation email to attendee
-        //     Mail::to($booking->attendee_email)
-        //         ->send(new BookingConfirmation($booking));
-
-        //     // Send notification to host
-        //     Mail::to($booking->eventType->user->email)
-        //         ->send(new BookingConfirmation($booking));
-
-        //     Log::info('Booking confirmation emails sent', [
-        //         'booking_id' => $booking->id,
-        //         'attendee_email' => $booking->attendee_email,
-        //         'host_email' => $booking->eventType->user->email,
-        //     ]);
-        // } catch (\Exception $e) {
-        //     Log::error('Failed to send booking confirmation emails', [
-        //         'booking_id' => $booking->id,
-        //         'error' => $e->getMessage(),
-        //     ]);
-        // }
     }
-
     /**
      * Handle the Booking "created" event.
      * Sends confirmation email to attendee and notification to host
@@ -72,7 +52,7 @@ class BookingObserver
             Mail::to($booking->attendee_email)
                 ->send(new BookingConfirmation($booking));
 
-            // Send notification to host
+            // send notification to host
             Mail::to($booking->eventType->user->email)
                 ->send(new BookingConfirmation($booking));
 
@@ -104,15 +84,11 @@ class BookingObserver
             $this->setEndTime($booking);
         }
 
-        // // Check if booking was cancelled
+        // Check if booking was cancelled
         // if ($booking->wasChanged('status') && $booking->status === 'cancelled') {
         //     $this->sendCancellationEmail($booking);
         // }
 
-        // // Check if booking was rescheduled
-        // if ($booking->wasChanged(['start_time', 'end_time'])) {
-        //     $this->sendRescheduleEmail($booking);
-        // }
     }
 
     /**
@@ -123,15 +99,24 @@ class BookingObserver
      */
     public function updated(Booking $booking): void
     {
-        // Check if booking was cancelled
+        // Check if booking was cancelled first (highest priority)
         if ($booking->wasChanged('status') && $booking->status === 'cancelled') {
+
             $this->sendCancellationEmail($booking);
+            Log::info('Booking cancelled', [
+                'booking_id' => $booking->id,
+                'attendee_email' => $booking->attendee_email,
+                'host_email' => $booking->eventType->user->email,
+            ]);
         }
 
-        // Check if booking was rescheduled
-        if ($booking->wasChanged(['start_time', 'end_time']) && $booking->status !== 'cancelled') {
-            $this->sendRescheduleEmail($booking);
+        if ($booking->wasChanged(['booking_date', 'start_time', 'status'])) {
+            if ($booking->status === 'scheduled') {
+                // If the booking is rescheduled, send reschedule email
+                $this->sendRescheduleEmail($booking);
+            }
         }
+
     }
 
 
@@ -153,7 +138,9 @@ class BookingObserver
                 ->send(new BookingCancellation($booking, $cancelledBy));
 
             // Send to host
-            Mail::to($booking->eventType->user->email)
+            $eventType = EventType::where('id', $booking->event_type_id)->first();
+            $user = User::where('id', $eventType->user_id)->first();
+            Mail::to($user->email)
                 ->send(new BookingCancellation($booking, $cancelledBy));
 
             Log::info('Booking cancellation emails sent', [
@@ -167,6 +154,8 @@ class BookingObserver
             ]);
         }
     }
+
+
 
     /**
      * Send reschedule email
@@ -199,7 +188,7 @@ class BookingObserver
      */
     protected function setEndTime(Booking $booking): void
     {
-        if ($booking->booking_date && $booking->start_time && $booking->event_type_id) {
+        if ($booking->start_time && $booking->event_type_id) {
             $eventType = EventType::find($booking->event_type_id);
 
             if ($eventType) {

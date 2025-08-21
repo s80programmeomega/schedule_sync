@@ -17,6 +17,7 @@ use Illuminate\Queue\SerializesModels;
  */
 class BookingCancellation extends Mailable
 {
+    // use SerializesModels;
     use Queueable, SerializesModels;
 
     public function __construct(

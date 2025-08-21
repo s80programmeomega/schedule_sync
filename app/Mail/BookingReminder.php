@@ -18,6 +18,7 @@ use Illuminate\Queue\SerializesModels;
 class BookingReminder extends Mailable
 {
     use Queueable, SerializesModels;
+    // use SerializesModels;
 
     public function __construct(
         public Booking $booking,

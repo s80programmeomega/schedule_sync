@@ -21,6 +21,7 @@ use Illuminate\Mail\Mailables\Attachment;
  */
 class BookingConfirmation extends Mailable
 {
+    // use SerializesModels;
     use Queueable, SerializesModels;
 
     public function __construct(

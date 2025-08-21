@@ -8,6 +8,7 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Mail\Mailables\Attachment;
 
 /**
  * Booking Rescheduled Email
@@ -17,6 +18,7 @@ use Illuminate\Queue\SerializesModels;
  */
 class BookingRescheduled extends Mailable
 {
+    // use SerializesModels;
     use Queueable, SerializesModels;
 
     public function __construct(
@@ -69,8 +71,8 @@ class BookingRescheduled extends Mailable
 
     private function generateUpdatedCalendarInvite()
     {
-        $startTime = $this->booking->start_time->format('Ymd\THis\Z');
-        $endTime = $this->booking->end_time->format('Ymd\THis\Z');
+        $startTime = \Carbon\Carbon::parse($this->booking->start_time)->format('Ymd\THis\Z');
+        $endTime = \Carbon\Carbon::parse($this->booking->end_time)->format('Ymd\THis\Z');
         $now = now()->format('Ymd\THis\Z');
 
         $icsContent = "BEGIN:VCALENDAR\r\n";
@@ -93,12 +95,7 @@ class BookingRescheduled extends Mailable
         $icsContent .= "END:VEVENT\r\n";
         $icsContent .= "END:VCALENDAR\r\n";
 
-        return [
-            'data' => $icsContent,
-            'name' => 'meeting-rescheduled.ics',
-            'options' => [
-                'mime' => 'text/calendar',
-            ],
-        ];
+        return Attachment::fromData(fn() => $icsContent,  'meeting-rescheduled.ics')
+            ->withMime('text/calendar');
     }
 }

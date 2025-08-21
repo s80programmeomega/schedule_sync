@@ -60,6 +60,17 @@
 
                             <div class="row mb-4">
                                 <div class="col-md-6">
+                                    <label for="booking_date" class="form-label">Booking Date</label>
+                                    <input type="date" class="form-control @error('booking_date') is-invalid @enderror" id="booking_date"
+                                        name="booking_date"
+                                        value="{{ old('booking_date', \Carbon\Carbon::parse($booking->booking_date)->format('Y-m-d')) }}"
+                                        required>
+                                    @error('booking_date')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            <div class="row mb-4">
+                                <div class="col-md-6">
                                     <label for="start_time" class="form-label">Start Time *</label>
                                     <input type="time" class="form-control @error('start_time') is-invalid @enderror"
                                         id="start_time" name="start_time"
@@ -89,6 +100,9 @@
                                     <option value="completed"
                                         {{ old('status', $booking->status) === 'completed' ? 'selected' : '' }}>
                                         Completed</option>
+                                    <option value="pending"
+                                        {{ old('status', $booking->status) === 'pending' ? 'selected' : '' }}>
+                                        Pending</option>
                                     <option value="cancelled"
                                         {{ old('status', $booking->status) === 'cancelled' ? 'selected' : '' }}>
                                         Cancelled</option>

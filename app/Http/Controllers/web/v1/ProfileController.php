@@ -15,10 +15,11 @@ class ProfileController extends Controller
         return view('profile.show', ['user' => auth()->user()]);
     }
 
-    public function edit()
+    public function edit(Request $request)
     {
+        $user = $request->user();
         $timezones = Timezone::orderBy('display_name')->get();
-        return view('profile.edit', compact('timezones'));
+        return view('profile.edit', compact('timezones', 'user'));
     }
 
     public function update(Request $request)
@@ -30,6 +31,7 @@ class ProfileController extends Controller
             'timezone_id' => 'required|exists:timezones,id',
             'bio' => 'nullable|string|max:500',
             'avatar' => 'nullable|image|max:2048',
+            'clear_avatar' => 'nullable|boolean',
             'current_password' => 'nullable|current_password',
             'password' => 'nullable|min:8|confirmed',
         ]);
@@ -37,11 +39,23 @@ class ProfileController extends Controller
         $user = auth()->user();
         $passwordChanged = false;
 
-        if ($request->hasFile('avatar')) {
+        if ($request->has('clear_avatar') && $request->clear_avatar) {
             if ($user->avatar) {
                 Storage::disk('public')->delete($user->avatar);
             }
-            $validated['avatar'] = $request->file('avatar')->store('avatars', 'public');
+            $validated['avatar'] = null;
+            // if a new file is submitted, replace old one
+        } elseif ($request->hasFile('avatar')) {
+            if ($user->avatar) {
+                Storage::disk('public')->delete($user->avatar);
+            }
+            $file = $request->file('avatar');
+            $originalName = $file->getClientOriginalName();
+            $extension = $file->getClientOriginalExtension();
+            $filename = time() . '_' . $originalName;
+
+            $validated['avatar'] = $file->storeAs('avatars', $filename, 'public');
+            $validated['original_avatar_name'] = $originalName;
         }
 
         if ($validated['password']) {

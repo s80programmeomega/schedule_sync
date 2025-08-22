@@ -21,6 +21,8 @@ return new class extends Migration
             $table->foreignId('timezone_id')->constrained();
             $table->text('bio')->nullable();
             $table->string('avatar')->nullable();
+            $table->string('original_avatar_name')->nullable();
+
             $table->rememberToken();
             $table->timestamps();
         });

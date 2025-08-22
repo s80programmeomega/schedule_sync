@@ -64,7 +64,7 @@
     <p class="text-muted mb-4">
         You can easily book a new appointment at your convenience.
     </p>
-    <a href="{{ $rebookLink }}" class="btn btn-primary">
+    <a href="{{ route('bookings.create') }}" class="btn btn-primary">
         <i class="bi bi-calendar-plus me-2"></i>Book New Meeting
     </a>
 </div>

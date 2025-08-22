@@ -18,18 +18,18 @@
     <div class="card border-0 shadow-sm">
         <div class="card-header">
             <div class="row mb-3">
-                <div class="col-sm-4"></div>
-                <div class="col-sm-4">
+                <div class="col-5"></div>
+                <div class="col-2">
                     @if($user->avatar && Str::startsWith($user->avatar, 'https'))
                     <img src="{{ $user->avatar }}" alt="avatar" class="rounded-circle" width="64" height="64">
                     @elseif($user->avatar)
-                    <img src="{{ asset('storage/' . $user->avatar) }}" alt="avatar" class="rounded-circle" width="64" height="64">
+                    <img src="{{ asset('storage/' . $user->avatar) }}" alt="avatar" class="img img-fluid rounded-circle ">
                     @else
                     <img src="https://ui-avatars.com/api/?name={{ $user->name }}&background=6366f1&color=fff" class="rounded-circle"
                         width="64" height="64" alt="Profile" />
                     @endif
                 </div>
-                <div class="col-sm-4"></div>
+                <div class="col-5"></div>
                 </div>
             </div>
         </div>

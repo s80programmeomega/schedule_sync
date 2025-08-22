@@ -5,6 +5,7 @@ namespace Database\Factories;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use App\Models\User;
 use Carbon\Carbon;
+use App\Models\Timezone;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Availability>
@@ -28,6 +29,7 @@ class AvailabilityFactory extends Factory
         return [
             'user_id' => User::factory(),
             'availability_date' => $this->faker->dateTimeBetween('now', '+4 months')->format('Y-m-d'),
+            'timezone_id' => Timezone::inRandomOrder()->first()->id,
             'start_time' => $startTime->format('H:i'),
             'end_time' => $endTime,
             'is_available' => $this->faker->boolean(72),

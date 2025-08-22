@@ -26,7 +26,10 @@
                         <label class="form-label fw-semibold">Day of Week</label>
                         <p class="mb-0">{{ ucfirst($availability->day_of_week) }}</p>
                     </div>
-
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">Time Zone</label>
+                        <p class="mb-0">{{ ucfirst($availability->timezone->display_name) }}</p>
+                    </div>
                     <div class="row mb-4">
                         <div class="col-md-6">
                             <label class="form-label fw-semibold">Start Time</label>

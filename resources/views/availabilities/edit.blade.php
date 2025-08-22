@@ -30,6 +30,20 @@
                             <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
+                        <div class="mb-4">
+                            <label for="timezone_id" class="form-label">Timezone *</label>
+                            <select class="form-select @error('timezone_id') is-invalid @enderror" id="timezone_id" name="timezone_id">
+                                <option value="">Select Timezone</option>
+                                @foreach($timezones as $timezone)
+                                    <option value="{{ $timezone->id }}" {{ old('timezone_id', $availability->timezone_id) == $timezone->id ? 'selected' : '' }}>
+                                        {{ $timezone->display_name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('timezone_id')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
 
                         <div class="row mb-4">
                             <div class="col-md-6">

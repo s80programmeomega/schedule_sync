@@ -17,6 +17,7 @@ class UpdateAvailabilityRequest extends FormRequest
     {
         return [
             'availability_date' => 'required|date|after_or_equal:today',
+            'timezone_id' => 'required|exists:timezones,id',
             'start_time' => 'required',
             'end_time' => 'required|after:start_time',
             'is_available' => 'boolean',

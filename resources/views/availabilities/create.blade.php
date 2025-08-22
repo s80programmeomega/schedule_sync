@@ -48,7 +48,16 @@
                                 @enderror
                             </div>
                         </div>
-
+                        <div class="row mb-4">
+                            <select name="timezone_id" class="form-select">
+                                <option value="">Select your timezone</option>
+                                @foreach(\App\Models\Timezone::orderBy('display_name')->get() as $timezone)
+                                <option value="{{ $timezone->id }}" {{ old('timezone_id')==$timezone->id ? 'selected' : '' }}>
+                                    {{ $timezone->display_name }} ({{ $timezone->offset }})
+                                </option>
+                                @endforeach
+                            </select>
+                        </div>
                         <div class="form-check mb-4">
                             <input type="hidden" name="is_available" value="0">
                             <input class="form-check-input" type="checkbox" id="is_available" name="is_available"

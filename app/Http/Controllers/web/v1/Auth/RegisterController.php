@@ -22,6 +22,7 @@ class RegisterController extends Controller
             'email' => 'required|string|email|max:255|unique:users',
             'username' => 'required|string|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
+            'timezone_id' => 'required|exists:timezones,id',
         ]);
 
         $user = User::create([
@@ -29,6 +30,7 @@ class RegisterController extends Controller
             'email' => $validated['email'],
             'username' => $validated['username'],
             'password' => Hash::make($validated['password']),
+            'timezone_id' => $validated['timezone_id'],
         ]);
 
         Auth::login($user);

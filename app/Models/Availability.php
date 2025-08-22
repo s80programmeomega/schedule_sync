@@ -20,6 +20,7 @@ class Availability extends Model
         'user_id',
         'availability_date',
         // 'day_of_week',
+        'timezone_id',
         'start_time',
         'end_time',
         'is_available',
@@ -41,6 +42,11 @@ class Availability extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function timezone()
+    {
+        return $this->belongsTo(Timezone::class);
     }
 
     // Accessors to format time fields

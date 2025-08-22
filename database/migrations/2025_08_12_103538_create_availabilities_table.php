@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->date('availability_date');
             $table->string('day_of_week')->nullable();
+            $table->foreignId('timezone_id')->constrained();
             $table->time('start_time');
             $table->time('end_time');
             $table->boolean('is_available')->default(true);

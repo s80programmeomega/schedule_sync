@@ -2,9 +2,10 @@
 
 namespace Database\Seeders;
 
+use App\Models\Timezone;
 use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+
 
 class DatabaseSeeder extends Seeder
 {
@@ -21,7 +22,7 @@ class DatabaseSeeder extends Seeder
             'name' => 'admin',
             'email' => 'admin@email.com',
             'username' => 'admin',
-            'timezone' => 'UTC',
+            'timezone_id' => Timezone::inRandomOrder()->first()->id,
         ]);
 
         // Create additional random users

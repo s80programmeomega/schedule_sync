@@ -50,16 +50,16 @@
                                 <input type="password" class="form-control" id="password_confirmation"
                                     name="password_confirmation" required>
                             </div>
-                            {{-- <div class="mb-3">
+                            <div class="mb-3">
                                 <select name="timezone_id" class="form-select">
+                                    <option value="">Select your timezone</option>
                                     @foreach(\App\Models\Timezone::all() as $timezone)
-                                    <option value="{{ $timezone->id }}" {{ old('timezone_id', auth()->user()->timezone_id ?? 1) == $timezone->id ?
-                                        'selected' : '' }}>
+                                    <option value="{{ $timezone->id }}" {{ old('timezone_id')==$timezone->id ? 'selected' : '' }}>
                                         {{ $timezone->display_name }} ({{ $timezone->offset }})
                                     </option>
                                     @endforeach
                                 </select>
-                            </div> --}}
+                            </div>
                             <button type="submit" class="btn btn-primary">Register</button>
                             <a href="{{ route('login') }}" class="btn btn-link">Login</a>
                         </form>

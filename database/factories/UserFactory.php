@@ -5,6 +5,7 @@ namespace Database\Factories;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use App\Models\Timezone;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
@@ -31,7 +32,7 @@ class UserFactory extends Factory
             'password' => static::$password ??= Hash::make('admin'),
             'remember_token' => Str::random(10),
             'username' => fake()->unique()->userName(),
-            'timezone' => fake()->randomElement(['UTC', 'America/New_York', 'America/Los_Angeles', 'Europe/London']),
+            'timezone_id' => Timezone::inRandomOrder()->first()->id,
             'bio' => fake()->optional()->sentence(10),
             'avatar' => fake()->optional()->imageUrl(200, 200, 'people'),
         ];

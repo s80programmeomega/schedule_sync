@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\v1\StoreAvailabilityRequest;
 use App\Http\Requests\v1\UpdateAvailabilityRequest;
+use App\Models\Timezone;
 
 class AvailabilityController extends Controller
 {
@@ -16,8 +17,9 @@ class AvailabilityController extends Controller
             ->orderBy('availability_date')
             ->orderBy('start_time')
             ->paginate(10);
+        $timezones = Timezone::orderBy('display_name')->get();
 
-        return view('availabilities.index', compact('availabilities'));
+        return view('availabilities.index', compact('availabilities', 'timezones'));
     }
 
     public function create()
@@ -53,7 +55,9 @@ class AvailabilityController extends Controller
             abort(403);
         }
 
-        return view('availabilities.edit', compact('availability'));
+        $timezones = Timezone::orderBy('display_name')->get();
+
+        return view('availabilities.edit', compact('availability', 'timezones'));
     }
 
     public function update(UpdateAvailabilityRequest $request, Availability $availability)

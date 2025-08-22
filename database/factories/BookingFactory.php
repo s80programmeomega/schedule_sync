@@ -8,7 +8,6 @@ use App\Models\User;
 use Carbon\Carbon;
 use App\Models\Timezone;
 
-use function Laravel\Prompts\form;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Booking>
@@ -26,7 +25,7 @@ class BookingFactory extends Factory
         $startTime = Carbon::parse(fake()->time('H:i'));
         $duration = fake()->randomElement([30, 60, 90]);
         $endTime = (clone $startTime)->addMinutes($duration);
-        $timezone_id = fake()->randomElement(Timezone::all());
+        $timezone_id = Timezone::inRandomOrder()->first()->id;
 
 
         return [

@@ -7,6 +7,7 @@ use App\Http\Controllers\web\v1\Auth\RegisterController;
 use App\Http\Controllers\web\v1\EventTypeController;
 use App\Http\Controllers\web\v1\BookingController;
 use App\Http\Controllers\web\v1\AvailabilityController;
+use App\Http\Controllers\web\v1\ProfileController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -26,6 +27,14 @@ Route::post('/login', [LoginController::class, 'login']);
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
 Route::post('/register', [RegisterController::class, 'register']);
+
+// Profile Routes
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
+    Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+});
+
 
 Route::middleware('auth')->group(function () {
     Route::resource('dashboard', DashboardController::class)->only(['index']);

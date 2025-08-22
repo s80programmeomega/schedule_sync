@@ -30,11 +30,18 @@
                 </li>
 
                 <li class="nav-item dropdown">
+                    @if(auth()->user()->avatar)
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                        <img src="{{ asset('storage/' . auth()->user()->avatar) }}" alt="Current avatar" class="rounded-circle" width="28"
+                            height="28">
+                    </a>
+                    @else
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
                         data-bs-toggle="dropdown">
                         <img src="https://ui-avatars.com/api/?name={{ auth()->user()->name }}&background=6366f1&color=fff"
                             class="rounded-circle me-1" width="28" height="28" alt="Profile" />
                     </a>
+                    @endif
                     <ul class="dropdown-menu dropdown-menu-end">
                         <li>
                             <h6 class="dropdown-header fw-bold">
@@ -45,7 +52,7 @@
                             <hr class="dropdown-divider" />
                         </li>
                         <li>
-                            <a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>Profile</a>
+                            <a class="dropdown-item" href="{{ route('profile.show') }}"><i class="bi bi-person me-2"></i>Profile</a>
                         </li>
                         <li>
                             <a class="dropdown-item" href="#"><i class="bi bi-gear me-2"></i>Settings</a>

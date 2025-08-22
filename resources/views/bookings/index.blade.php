@@ -48,6 +48,7 @@
                             <i
                                 class="bi bi-calendar{{ $booking->status === 'completed' ? '-check' : ($booking->status === 'cancelled' ? '-x' : '') }} me-1"></i>
                             {{ $booking->full_start_time->format('M j, Y \a\t g:i A') }}
+                            <br><small class="text-muted">{{ $booking->timezone->display_name ?? 'UTC' }}</small>
                         </div>
                     </div>
                     <div class="col-md-2 text-end">
@@ -106,6 +107,11 @@
         </div>
     </div>
 </div>
+@if($bookings->hasPages())
+    <div class="mt-4">
+        {{ $bookings->links('pagination.bootstrap') }}
+    </div>
+@endif
 
 <script>
     function cancelBooking(id) {

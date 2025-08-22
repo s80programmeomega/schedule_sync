@@ -43,7 +43,10 @@
 
                     <div class="row mb-4">
                         <div class="col-sm-3 fw-semibold">Date & Time:</div>
-                        <div class="col-sm-9">{{ $booking->full_start_time->format('M j, Y \a\t g:i A') }}</div>
+                        <div class="col-sm-9">
+                            {{ $booking->full_start_time->format('M j, Y \a\t g:i A') }}
+                        <br><small class="text-muted">{{ $booking->timezone->display_name ?? 'UTC' }}</small>
+                        </div>
                     </div>
 
                     @if($booking->meeting_link)

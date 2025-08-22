@@ -13,6 +13,8 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // Run timezone seeder first
+        $this->call([TimezoneSeeder::class]);
 
         // Create a test user
         User::factory()->create([

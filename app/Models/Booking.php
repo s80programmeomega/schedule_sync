@@ -25,11 +25,28 @@ class Booking extends Model
         'booking_date',
         'start_time',
         // 'end_time',
+        'timezone_id',
         'status',
         'meeting_link',
         'cancellation_reason',
         'cancelled_at',
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($booking) {
+            if (!$booking->timezone_id) {
+                $timezoneName = request()->header('X-Timezone') ??
+                    request()->input('timezone') ??
+                    config('app.timezone', 'UTC');
+
+                $timezone = Timezone::where('name', $timezoneName)->first();
+                $booking->timezone_id = $timezone?->id ?? Timezone::where('name', 'UTC')->first()?->id;
+            }
+        });
+    }
 
     protected function casts(): array
     {
@@ -57,6 +74,11 @@ class Booking extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function timezone()
+    {
+        return $this->belongsTo(Timezone::class);
     }
 
     // Helper method to get full datetime

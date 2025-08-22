@@ -39,6 +39,7 @@ class StoreBookingRequest extends FormRequest
             'attendee_email' => 'required|email|max:255',
             'attendee_notes' => 'nullable|string|max:1000',
             'booking_date' => 'required|date',
+            'timezone_id' => 'required|exists:timezones,id',
             'start_time' => 'required|date_format:H:i',
             // 'end_time' => 'required|date_format:H:i|after:start_time',
             'meeting_link' => 'nullable|url|max:255',

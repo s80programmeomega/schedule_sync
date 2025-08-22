@@ -25,6 +25,7 @@ class UpdateBookingRequest extends FormRequest
             'attendee_email' => 'required|email|max:255',
             'attendee_notes' => 'nullable|string|max:1000',
             'booking_date' => 'required|date|after_or_equal:today',
+            'timezone_id' => 'required|exists:timezones,id',
             'start_time' => 'required',
             // 'end_time' => 'required|date|after:start_time',
             'status' => 'required|in:scheduled,completed,cancelled,no_show,pending',

@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\v1\StoreBookingRequest;
 use App\Http\Requests\v1\UpdateBookingRequest;
+use App\Models\Timezone;
 
 /**
  * Booking Controller
@@ -23,7 +24,7 @@ class BookingController extends Controller
         $bookings = Booking::with(['eventType', 'user'])
             ->where('user_id', auth()->user()->id)
             ->latest('start_time')
-            ->get();
+            ->paginate(10);
 
         return view('bookings.index', compact('bookings'))->with('viewType', 'all');
     }
@@ -37,7 +38,7 @@ class BookingController extends Controller
             ->where('user_id', auth()->user()->id)
             ->where('status', 'scheduled')
             ->latest('start_time')
-            ->get();
+            ->paginate(10);
 
         return view('bookings.index', compact('bookings'))->with('viewType', 'scheduled');
     }
@@ -51,8 +52,9 @@ class BookingController extends Controller
         $eventTypes = EventType::where('user_id', auth()->user()->id)
             ->where('is_active', true)
             ->get();
+        $timezones = Timezone::orderBy('display_name')->get();
 
-        return view('bookings.create', compact('eventTypes'));
+        return view('bookings.create', compact('eventTypes', 'timezones'));
     }
 
     /**
@@ -97,7 +99,10 @@ class BookingController extends Controller
             ->where('is_active', true)
             ->get();
 
-        return view('bookings.edit', compact('booking', 'eventTypes'));
+        $timezones = Timezone::orderBy('display_name')->get();
+
+
+        return view('bookings.edit', compact('booking', 'eventTypes', 'timezones'));
     }
 
     /**

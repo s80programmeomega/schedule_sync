@@ -104,6 +104,11 @@
             @endforelse
         </div>
     </div>
+    @if($eventTypes->hasPages())
+        <div class="mt-4">
+            {{ $eventTypes->links('pagination.bootstrap') }}
+        </div>
+    @endif
 
     <script>
         function toggleEventType(id) {

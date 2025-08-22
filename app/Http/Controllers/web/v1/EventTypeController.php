@@ -20,7 +20,7 @@ class EventTypeController extends Controller
         $eventTypes = EventType::where('user_id', auth()->user()->id)
             ->withCount('bookings')
             ->latest()
-            ->get();
+            ->paginate(6);
 
         return view('event-types.index', compact('eventTypes'));
     }

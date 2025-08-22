@@ -16,6 +16,8 @@ class BookingResource extends JsonResource
             'attendee_name' => $this->attendee_name,
             'attendee_email' => $this->attendee_email,
             'attendee_notes' => $this->attendee_notes,
+            'booking_date' => $this->booking_date,
+            'timezone_id' => $this->timezone->id,
             'start_time' => $this->start_time?->toISOString(),
             'end_time' => $this->end_time?->toISOString(),
             'status' => $this->status,

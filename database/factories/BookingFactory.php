@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 use App\Models\EventType;
 use App\Models\User;
 use Carbon\Carbon;
+use App\Models\Timezone;
 
 use function Laravel\Prompts\form;
 
@@ -25,6 +26,7 @@ class BookingFactory extends Factory
         $startTime = Carbon::parse(fake()->time('H:i'));
         $duration = fake()->randomElement([30, 60, 90]);
         $endTime = (clone $startTime)->addMinutes($duration);
+        $timezone_id = fake()->randomElement(Timezone::all());
 
 
         return [
@@ -34,6 +36,7 @@ class BookingFactory extends Factory
             'attendee_email' => fake()->safeEmail(),
             'attendee_notes' => fake()->optional()->paragraph(),
             'booking_date' => $booking_date,
+            'timezone_id' => $timezone_id,
             'start_time' => $startTime->format('H:i'),
             'end_time' => $endTime->format('H:i'),
             'status' => fake()->randomElement(['scheduled', 'completed', 'cancelled', 'no_show']),

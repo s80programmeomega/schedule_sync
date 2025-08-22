@@ -19,7 +19,8 @@ return new class extends Migration
 			$table->string('attendee_email');
 			$table->text('attendee_notes')->nullable();
 			$table->date('booking_date');
-			$table->time('start_time');
+            $table->foreignId('timezone_id')->constrained();
+            $table->time('start_time');
 			$table->time('end_time');
 			$table->enum('status', ['pending', 'scheduled', 'completed', 'cancelled', 'no_show'])->default('pending');
 			$table->string('meeting_link')->nullable(); // Zoom/Meet link

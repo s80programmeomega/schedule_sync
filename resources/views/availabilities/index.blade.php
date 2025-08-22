@@ -84,4 +84,9 @@
         </div>
     </div>
 </div>
+@if($availabilities->hasPages())
+    <div class="mt-4">
+        {{ $availabilities->links('pagination.bootstrap') }}
+    </div>
+@endif
 @endsection

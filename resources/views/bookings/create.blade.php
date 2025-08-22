@@ -68,15 +68,6 @@
                                 <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
-                            <div class="col-md-6">
-                                <label for="start_time" class="form-label">Start Time *</label>
-                                <input type="time"
-                                    class="form-control @error('start_time') is-invalid @enderror" id="start_time"
-                                    name="start_time" value="{{ old('start_time') }}" required>
-                                @error('start_time')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
                             {{-- <div class="col-md-6">
                                 <label for="end_time" class="form-label">End Time *</label>
                                 <input type="time"
@@ -86,6 +77,31 @@
                                 <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div> --}}
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-6">
+                                <label for="timezone_id" class="form-label">Timezone *</label>
+                                <select class="form-select @error('timezone_id') is-invalid @enderror" id="timezone_id" name="timezone_id" required>
+                                    <option value="">Select timezone</option>
+                                    @foreach($timezones as $timezone)
+                                    <option value="{{ $timezone->id }}" {{ old('timezone_id')==$timezone->id ? 'selected' : '' }}>
+                                        {{ $timezone->display_name }}
+                                    </option>
+                                    @endforeach
+                                </select>
+                                @error('timezone_id')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="col-md-6">
+                                <label for="start_time" class="form-label">Start Time *</label>
+                                <input type="time" class="form-control @error('start_time') is-invalid @enderror" id="start_time" name="start_time"
+                                    value="{{ old('start_time') }}" required>
+                                @error('start_time')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
                         </div>
 
                         <div class="mb-4">

@@ -15,7 +15,7 @@ class AvailabilityController extends Controller
         $availabilities = Availability::where('user_id', auth()->user()->id)
             ->orderBy('availability_date')
             ->orderBy('start_time')
-            ->get();
+            ->paginate(10);
 
         return view('availabilities.index', compact('availabilities'));
     }

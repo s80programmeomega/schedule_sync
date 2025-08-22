@@ -49,6 +49,7 @@ class ProfileController extends Controller
             if ($user->avatar) {
                 Storage::disk('public')->delete($user->avatar);
             }
+            // Handle original file name
             $file = $request->file('avatar');
             $originalName = $file->getClientOriginalName();
             $extension = $file->getClientOriginalExtension();

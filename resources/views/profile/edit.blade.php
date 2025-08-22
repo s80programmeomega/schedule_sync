@@ -19,18 +19,25 @@
 
           <div class="card-header">
             <div class="row justify-content-start mb-3">
-              <div class="col-5"></div>
-              <div class="col-2">
-                @if (auth()->user()->avatar && Str::startsWith(auth()->user()->avatar, 'https'))
-                  <img src="{{ $user->avatar }}" alt="avatar" class="img img-fluid rounded-circle">
-                @elseif(auth()->user()->avatar && !Str::startsWith(auth()->user()->avatar, 'https'))
-                  <img src="{{ asset('storage/' . auth()->user()->avatar) }}" alt="avatar"
-                    class="img img-fluid rounded-circle ">
-                @else
-                  <img src="https://ui-avatars.com/api/?name={{ auth()->user()->name }}&background=6366f1&color=fff"
-                    class="rounded-circle" width="64" height="64" alt="Profile" />
-                @endif
-                <div class="col-2"></div>
+              <div class="col-4"></div>
+              <div class="col-4">
+                @php
+                  $avatar = auth()->user()->avatar;
+                  $src = $avatar
+                      ? (Str::startsWith($avatar, 'https')
+                          ? $avatar
+                          : asset('storage/' . $avatar))
+                      : 'https://ui-avatars.com/api/?name=' .
+                          urlencode(auth()->user()->name) .
+                          '&background=6366f1&color=fff';
+                @endphp
+                <a href="{{ $src }}" target="_blank" class="d-inline-block">
+                  <img src="{{ $src }}" alt="avatar" class="img img-fluid rounded-circle"
+                    style="cursor: pointer;">
+                </a>
+
+
+                <div class="col-4"></div>
               </div>
             </div>
             <div class="mb-3">

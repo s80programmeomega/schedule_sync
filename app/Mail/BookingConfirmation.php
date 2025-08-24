@@ -62,9 +62,9 @@ class BookingConfirmation extends Mailable
                 'host' => $this->booking->eventType->user,
                 'meetingDetails' => [
                     'date' => $this->booking->booking_date->format('l, F j, Y'),
-                    'time' => \Carbon\Carbon::parse($this->booking->start_time)->format('g:i A T'),
+                    'time' => \Carbon\Carbon::parse($this->booking->start_time)->format('g:i A'),
                     'duration' => $this->booking->eventType->duration . ' minutes',
-                    'timezone' => \Carbon\Carbon::parse($this->booking->start_time)->timezone->getName(),
+                    'timezone' => $this->booking->timezone->display_name,
                 ],
                 'joinLink' => $this->booking->meeting_link,
                 'cancelLink' => route('public.booking.cancel', $this->booking->id),

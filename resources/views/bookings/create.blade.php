@@ -3,7 +3,7 @@
 @section('title', 'Create Booking - ScheduleSync')
 
 @section('content')
-<div class="col-lg-10 col-12 py-4 px-4 px-lg-5">
+<div class="col-lg-10 col-12 py-4 px-4 px-lg-5" data-aos="fade-down" data-aos-duration="1000">
     <div class="d-flex align-items-center mb-4">
         <a href="{{ route('bookings.index') }}" class="btn btn-light me-3">
             <i class="bi bi-arrow-left"></i>
@@ -17,7 +17,7 @@
     <div class="row">
         <div class="col-lg-8">
             <div class="card border-0 shadow-sm">
-                <div class="card-body p-4">
+                <div class="card-body p-4" data-aos="zoom-in">
                     <form method="POST" action="{{ route('bookings.store') }}">
                         @csrf
 

@@ -2,15 +2,18 @@
 
 @section('content')
   <!-- Main Content -->
-  <div class="col-lg-10 col-12 py-4 px-4 px-lg-5">
+  <div class="col-lg-10 col-12 py-4 px-4 px-lg-5" data-aos="zoom-out" data-aos-duration="1000">
 	<div class="d-flex justify-content-between align-items-center mb-4">
 	  <div>
 		<h1 class="h3 mb-0 fw-bold">Dashboard</h1>
 		<p class="text-muted mb-0">Manage your availability and bookings</p>
 	  </div>
-	  <button class="btn btn-primary d-flex align-items-center" id="createEventBtn">
+	  <a href="{{ route('event-types.create') }}" class="btn btn-primary d-flex align-items-center" id="createEventBtn">
 		<i class="bi bi-plus me-2"></i> Create Event Type
-	  </button>
+	  </a>
+	  {{-- <button class="btn btn-primary d-flex align-items-center" id="createEventBtn">
+		<i class="bi bi-plus me-2"></i> Create Event Type
+	  </button> --}}
 	</div>
 
 	<!-- Statistics Cards -->

@@ -24,7 +24,8 @@ class AvailabilityController extends Controller
 
     public function create()
     {
-        return view('availabilities.create');
+        $timezones = Timezone::orderBy('display_name')->get();
+        return view('availabilities.create', compact('timezones'));
     }
 
     public function store(StoreAvailabilityRequest $request)

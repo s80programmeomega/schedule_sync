@@ -51,7 +51,7 @@
                 <i class="bi bi-clock text-primary me-2"></i>
                 <div>
                     <small class="text-muted d-block">Time</small>
-                    <strong>{{ $meetingDetails['time'] }}</strong>
+                    <strong>{{ $meetingDetails['time']}}</strong> - {{ $meetingDetails['timezone'] }}
                 </div>
             </div>
         </div>

@@ -1,4 +1,4 @@
-<div class="col-lg-2 px-0 d-none d-lg-block" id="sidebar" data-aos="fade-right" data-aos-duration="500">
+<div class="col-lg-2 px-0 d-none d-lg-block" id="sidebar">
     <div class="sidebar py-4 px-3">
         <div class="mb-4">
             <a href="{{ route('dashboard.index') }}" class="sidebar-link {{ request()->routeIs('dashboard.*') ? 'active' : '' }}">

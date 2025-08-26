@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\v1\StoreBookingRequest;
 use App\Http\Requests\v1\UpdateBookingRequest;
 use App\Models\Timezone;
+use App\Services\AvailabilityService;
 
 /**
  * Booking Controller
@@ -16,6 +17,11 @@ use App\Models\Timezone;
  */
 class BookingController extends Controller
 {
+
+    public function __construct(
+        private AvailabilityService $availabilityService
+    ) {}
+
     /**
      * Display a listing of bookings
      */
@@ -63,6 +69,22 @@ class BookingController extends Controller
     public function store(StoreBookingRequest $request)
     {
         $validated = $request->validated();
+
+        // dd($validated);
+
+        // ✅ Get duration from the event type
+        $eventType = EventType::findOrFail($validated['event_type_id']);
+
+        // ✅ Validate slot availability before creating
+        if (!$this->availabilityService->isSlotAvailable(
+            auth()->id(),
+            $validated['booking_date'],
+            $validated['start_time'],
+            $eventType->duration
+        )) {
+            return back()->withErrors(['start_time' => 'Selected time slot is not available'])
+                ->withInput();
+        }
 
         $bookingData = collect($validated)->except(['full_start_time', 'full_end_time'])->all();
         $bookingData['user_id'] = auth()->id();

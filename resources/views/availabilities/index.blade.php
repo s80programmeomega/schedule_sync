@@ -53,19 +53,22 @@
                             </td>
                             <td class="pe-4">
                                 <div class="d-flex gap-2">
-                                    <a href="{{ route('availability.show', $availability) }}" class="btn btn-sm btn-light" data-toggle="tooltip" title="View">
+                                    <a href="{{ route('availability.slots', $availability) }}" class="btn btn-sm btn-light" data-toggle="tooltip"
+                                        title="View Slots">
+                                        <i class="bi bi-clock"></i>
+                                    </a>
+                                    <a href="{{ route('availability.show', $availability) }}" class="btn btn-sm btn-light" data-toggle="tooltip"
+                                        title="View">
                                         <i class="bi bi-eye"></i>
                                     </a>
-                                    <a href="{{ route('availability.edit', $availability) }}"
-                                        class="btn btn-sm btn-light" data-toggle="tooltip" title="Edit">
+                                    <a href="{{ route('availability.edit', $availability) }}" class="btn btn-sm btn-light" data-toggle="tooltip"
+                                        title="Edit">
                                         <i class="bi bi-pencil"></i>
                                     </a>
-                                    <form method="POST" action="{{ route('availability.destroy', $availability) }}"
-                                        style="display: inline;">
+                                    <form method="POST" action="{{ route('availability.destroy', $availability) }}" style="display: inline;">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-light text-danger"
-                                        data-bs-toggle="tooltip" title="Delete"
+                                        <button type="submit" class="btn btn-sm btn-light text-danger" data-bs-toggle="tooltip" title="Delete"
                                             onclick="return confirm('Are you sure?')">
                                             <i class="bi bi-trash"></i>
                                         </button>

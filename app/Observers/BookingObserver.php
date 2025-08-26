@@ -47,25 +47,28 @@ class BookingObserver
      */
     public function created(Booking $booking): void
     {
-        try {
-            // Send confirmation email to attendee
-            Mail::to($booking->attendee_email)
-                ->send(new BookingConfirmation($booking));
+        if ($booking->status === 'scheduled') {
+            try {
+                // Send confirmation email to attendee
+                Mail::to($booking->attendee_email)
+                    ->send(new BookingConfirmation($booking));
 
-            // send notification to host
-            Mail::to($booking->eventType->user->email)
-                ->send(new BookingConfirmation($booking));
+                // send notification to host
+                Mail::to($booking->eventType->user->email)
+                    ->send(new BookingConfirmation($booking));
 
-            Log::info('Booking confirmation emails sent', [
-                'booking_id' => $booking->id,
-                'attendee_email' => $booking->attendee_email,
-                'host_email' => $booking->eventType->user->email,
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Failed to send booking confirmation emails', [
-                'booking_id' => $booking->id,
-                'error' => $e->getMessage(),
-            ]);
+                Log::info('Booking confirmation emails sent', [
+                    'booking_id' => $booking->id,
+                    'attendee_email' => $booking->attendee_email,
+                    'host_email' => $booking->eventType->user->email,
+                ]);
+            } catch (\Exception $e) {
+                Log::error('Failed to send booking confirmation emails', [
+                    'booking_id' => $booking->id,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+
         }
     }
 

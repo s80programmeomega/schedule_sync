@@ -8,9 +8,15 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\v1\StoreAvailabilityRequest;
 use App\Http\Requests\v1\UpdateAvailabilityRequest;
 use App\Models\Timezone;
+use App\Services\AvailabilityService;
 
 class AvailabilityController extends Controller
 {
+
+    public function __construct(
+        private AvailabilityService $availabilityService
+    ) {}
+
     public function index()
     {
         $availabilities = Availability::where('user_id', auth()->user()->id)
@@ -83,5 +89,23 @@ class AvailabilityController extends Controller
 
         return redirect()->route('availability.index')
             ->with('success', 'Availability deleted successfully!');
+    }
+
+    public function slots(Availability $availability, Request $request)
+    {
+        if ($availability->user_id !== auth()->user()->id) {
+            abort(403);
+        }
+
+        $duration = $request->get('duration', 30); // Default 30 minutes
+
+
+        $slots = $this->availabilityService->getAvailableSlots(
+            auth()->user()->id,
+            $availability->availability_date->toDateString(),
+            $duration
+        );
+
+        return view('availabilities.slots', compact('availability', 'slots', 'duration'));
     }
 }

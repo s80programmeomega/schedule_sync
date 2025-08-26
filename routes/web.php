@@ -52,7 +52,9 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::resource('availability', AvailabilityController::class);
+    Route::get('availability/{availability}/slots', [AvailabilityController::class, 'slots'])->name('availability.slots');
 });
+
 
 // Public Booking Routes
 Route::prefix('book')->name('public.booking.')->group(function () {

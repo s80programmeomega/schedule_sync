@@ -2,7 +2,7 @@
 
 @section('content')
   <!-- Main Content -->
-  <div class="col-lg-10 col-12 py-4 px-4 px-lg-5" data-aos="zoom-out" data-aos-duration="1000">
+  <div class="col-lg-10 col-12 py-4 px-4 px-lg-5" data-aos="zoom-out" data-aos-duration="1500" data-aos-offset="50">
 	<div class="d-flex justify-content-between align-items-center mb-4">
 	  <div>
 		<h1 class="h3 mb-0 fw-bold">Dashboard</h1>

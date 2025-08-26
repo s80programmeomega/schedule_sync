@@ -37,11 +37,11 @@
   </header>
   <main class="flex-shrink-0">
     <!-- Sidebar Toggle Button -->
-    @auth
-      <button class="btn btn-outline-primary btn-sm m-2 d-none d-lg-inline-block" type="button" id="sidebarToggle">
-        <i class="bi bi-list"></i>
-      @endauth
-    </button>
+    {{-- @auth
+        <button class="btn btn-outline-primary btn-sm m-2 d-none d-md-inline-block" type="button" id="sidebarToggle">
+            <i class="bi bi-list"></i>
+        </button>
+    @endauth --}}
     <div class="container-fluid">
 
       <div class="row">

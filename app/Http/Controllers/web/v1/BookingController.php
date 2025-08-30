@@ -23,7 +23,7 @@ class BookingController extends Controller
     ) {}
 
     /**
-     * Display a listing of bookings
+     * Display a listing of all bookings
      */
     public function index()
     {
@@ -47,6 +47,35 @@ class BookingController extends Controller
             ->paginate(10);
 
         return view('bookings.index', compact('bookings'))->with('viewType', 'scheduled');
+    }
+
+
+    /**
+     * Display completed bookings only
+     */
+    public function completed()
+    {
+        $bookings = Booking::with(['eventType', 'user'])
+            ->where('user_id', auth()->user()->id)
+            ->where('status', 'completed')
+            ->latest('start_time')
+            ->paginate(10);
+
+        return view('bookings.index', compact('bookings'))->with('viewType', 'completed');
+    }
+
+    /**
+     * Display cancelled bookings only
+     */
+    public function cancelled()
+    {
+        $bookings = Booking::with(['eventType', 'user'])
+            ->where('user_id', auth()->user()->id)
+            ->where('status', 'cancelled')
+            ->latest('start_time')
+            ->paginate(10);
+
+        return view('bookings.index', compact('bookings'))->with('viewType', 'cancelled');
     }
 
 
@@ -137,6 +166,21 @@ class BookingController extends Controller
         }
 
         $validated = $request->validated();
+
+        // Get duration from the event type
+        $eventType = EventType::findOrFail($validated['event_type_id']);
+
+        // Validate slot availability before updating
+        if (!$this->availabilityService->isSlotAvailable(
+            auth()->id(),
+            $validated['booking_date'],
+            $validated['start_time'],
+            $eventType->duration,
+            $booking->id,
+        )) {
+            return back()->withErrors(['start_time' => 'Selected time slot is not available'])
+                ->withInput();
+        }
 
         if ($validated['status'] === 'cancelled' && !$booking->cancelled_at) {
             $validated['cancelled_at'] = now();

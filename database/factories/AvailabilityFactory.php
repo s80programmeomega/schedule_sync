@@ -28,7 +28,7 @@ class AvailabilityFactory extends Factory
 
         return [
             'user_id' => User::factory(),
-            'availability_date' => $this->faker->dateTimeBetween('now', '+4 months')->format('Y-m-d'),
+            'availability_date' => $this->faker->dateTimeBetween('now', '+1 months')->format('Y-m-d'),
             'timezone_id' => Timezone::inRandomOrder()->first()->id,
             'start_time' => $startTime->format('H:i'),
             'end_time' => $endTime,

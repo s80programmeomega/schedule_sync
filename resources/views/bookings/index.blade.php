@@ -7,10 +7,25 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <div>
-                <h1 class="h3 mb-0 fw-bold">{{ $viewType === 'scheduled' ? 'Scheduled Events' : 'All Bookings' }}</h1>
-                <p class="text-muted mb-0">{{ $viewType === 'scheduled' ? 'Manage your upcoming appointments' : 'Manage all your
-                    appointments' }}</p>
+                <h1 class="h3 mb-0 fw-bold">
+                    @switch($viewType)
+                        @case('scheduled') Scheduled Events @break
+                        @case('completed') Completed Events @break
+                        @case('cancelled') Cancelled Events @break
+                        @default All Bookings
+                    @endswitch
+                </h1>
+                <p class="text-muted mb-0">
+                    @switch($viewType)
+                        @case('scheduled') Manage your upcoming appointments @break
+                        @case('completed') View your completed appointments @break
+                        @case('cancelled') View your cancelled appointments @break
+                        @default Manage all your appointments
+                    @endswitch
+                </p>
+
             </div>
+
         </div>
         <a href="{{ route('bookings.create') }}" class="btn btn-primary d-flex align-items-center">
             <i class="bi bi-calendar-plus me-2"></i> New Booking
@@ -88,21 +103,27 @@
             @empty
             <div class="text-center py-5">
                 <i class="bi bi-calendar-x text-muted" style="font-size: 4rem;"></i>
-                <h4 class="mt-3 mb-2">{{ $viewType === 'scheduled' ? 'No Scheduled Events' : 'No Bookings Yet' }}</h4>
-                <p class="text-muted mb-4">{{ $viewType === 'scheduled' ? 'You have no upcoming appointments' : 'Create your first
-                    booking to get started' }}</p>
+                <h4 class="mt-3 mb-2">
+                    @switch($viewType)
+                        @case('scheduled') No Scheduled Events @break
+                        @case('completed') No Completed Events @break
+                        @case('cancelled') No Cancelled Events @break
+                        @default No Bookings Yet
+                    @endswitch
+                </h4>
+                <p class="text-muted mb-4">
+                    @switch($viewType)
+                        @case('scheduled') You have no upcoming appointments @break
+                        @case('completed') You have no completed appointments @break
+                        @case('cancelled') You have no cancelled appointments @break
+                        @default Create your first booking to get started
+                    @endswitch
+                </p>
                 <a href="{{ route('bookings.create') }}" class="btn btn-primary">
                     <i class="bi bi-calendar-plus me-2"></i> New Booking
                 </a>
             </div>
-            {{-- <div class="text-center py-5">
-                <i class="bi bi-calendar-x text-muted" style="font-size: 4rem;"></i>
-                <h4 class="mt-3 mb-2">No Bookings Yet</h4>
-                <p class="text-muted mb-4">Create your first booking to get started</p>
-                <a href="{{ route('bookings.create') }}" class="btn btn-primary">
-                    <i class="bi bi-calendar-plus me-2"></i> New Booking
-                </a>
-            </div> --}}
+
             @endforelse
         </div>
     </div>

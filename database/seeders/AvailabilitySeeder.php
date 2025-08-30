@@ -16,7 +16,7 @@ class AvailabilitySeeder extends Seeder
     {
         User::all()->each(function ($user) {
 
-            Availability::factory(5)->create([
+            Availability::factory(rand(7, 20))->create([
                 'user_id' => $user->id,
             ]);
         });

@@ -11,7 +11,8 @@
 body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     color: var(--dark);
-    background-color: #fafafa;
+    background-color: #f5f5f0;
+    /* background-color: #fafafa; */
 }
 
 /* Navigation */
@@ -49,8 +50,8 @@ body {
 }
 
 .btn-outline-primary:hover {
-    background-color: var(--primary);
-    border-color: var(--primary);
+    background-color: var(--primary-hover);
+    border-color: var(--primary-hover);
 }
 
 /* Calendar Grid */
@@ -204,6 +205,12 @@ body {
     font-size: 1.1rem;
 }
 
+/* Dashboard */
+.filter-active{
+    background-color: var(--primary);
+    color: var(--light);
+}
+
 /* Custom Form Styling */
 .form-control,
 .form-select {
@@ -226,12 +233,15 @@ label {
 /* Booking Items Hover Effects */
 .booking-item {
     transition: all 0.2s ease;
-    cursor: pointer;
+    /* cursor: pointer; */
 }
 
 .booking-item:hover {
     background-color: rgba(99, 102, 241, 0.02);
-    transform: translateX(2px);
+    /* border: 1px solid #6366f1; */
+    border-radius: 20px;
+    box-shadow: 0 0 0 0.1rem var(--primary);
+    transform: translateX(4px);
 }
 
 /* Table Row Hover Effects */

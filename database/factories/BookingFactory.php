@@ -21,7 +21,7 @@ class BookingFactory extends Factory
      */
     public function definition(): array
     {
-        $booking_date = fake()->dateTimeBetween(startDate: "-30 days", endDate: "+3 month")->format(format: 'Y-m-d');
+        $booking_date = fake()->dateTimeBetween(startDate: "now", endDate: "+1 month")->format(format: 'Y-m-d');
         $startTime = Carbon::parse(fake()->time('H:i'));
         $duration = fake()->randomElement([30, 60, 90]);
         $endTime = (clone $startTime)->addMinutes($duration);

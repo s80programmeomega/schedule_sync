@@ -45,9 +45,14 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
+    Route::get('bookings/scheduled', [BookingController::class, 'scheduled'])->name('bookings.scheduled');
+    Route::get('bookings/completed', [BookingController::class, 'completed'])->name('bookings.completed');
+    Route::get('bookings/cancelled', [BookingController::class, 'cancelled'])->name('bookings.cancelled');
+
+    // Resource Routes come always at the end
     Route::resource('bookings', BookingController::class);
-    Route::get('bookings-scheduled', [BookingController::class, 'scheduled'])->name('bookings.scheduled');
     Route::patch('bookings/{booking}/cancel', [BookingController::class, 'cancel'])->name('bookings.cancel');
+
 });
 
 Route::middleware('auth')->group(function () {

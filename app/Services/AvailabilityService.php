@@ -115,12 +115,18 @@ class AvailabilityService
      * @param int $duration - How long the appointment is in minutes (e.g., 30)
      * @return bool - true if slot is available, false if not
      */
-    public function isSlotAvailable(int $userId, string $date, string $startTime, int $duration): bool
+    public function isSlotAvailable(int $userId, string $date, string $startTime, int $duration, $excludeBookingId=null): bool
     {
         // Step 1: Convert the input time to proper format
         $requestedStartTime = Carbon::parse($startTime)->format('H:i'); // e.g., '14:30'
         $requestedEndTime = Carbon::parse($startTime)->addMinutes($duration)->format('H:i'); // e.g., '15:00'
         $dayOfWeek = strtolower(Carbon::parse($date)->format('l')); // e.g., 'monday'
+
+        // Check if requested time is in the past
+        $requestedDateTime = Carbon::parse($date . ' ' . $startTime);
+        if ($requestedDateTime->isPast()) {
+            return false;
+        }
 
         // Step 2: Check if user is available during this time on this day of week
         $userHasAvailability = Availability::where('user_id', $userId)
@@ -140,6 +146,7 @@ class AvailabilityService
         $conflictingBookings = Booking::where('user_id', $userId)
             ->whereDate('booking_date', $date)  // Only check bookings on the same date
             ->where('status', 'scheduled')      // Only check confirmed bookings
+            ->where('id' != $excludeBookingId) // exclude the current booking.
             ->where(function ($query) use ($requestedStartTime, $requestedEndTime) {
                 // Check for 3 types of conflicts:
 

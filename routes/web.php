@@ -9,6 +9,7 @@ use App\Http\Controllers\web\v1\BookingController;
 use App\Http\Controllers\web\v1\AvailabilityController;
 use App\Http\Controllers\web\v1\ProfileController;
 use App\Http\Controllers\web\v1\Auth\EmailVerificationController;
+use App\Http\Controllers\web\v1\Auth\PasswordResetController;
 
 
 Route::get('/', function () {
@@ -53,6 +54,14 @@ Route::middleware('auth', 'verified')->group(function () {
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
 });
+
+
+// Password Reset Routes
+Route::get('/forgot-password', [PasswordResetController::class, 'showLinkRequestForm'])->name('password.request');
+Route::post('/forgot-password', [PasswordResetController::class, 'sendResetLinkEmail'])->name('password.email');
+Route::get('/reset-password/{token}', [PasswordResetController::class, 'showResetForm'])->name('password.reset');
+Route::post('/reset-password', [PasswordResetController::class, 'reset'])->name('password.update');
+
 
 
 Route::middleware('auth', 'verified')->group(function () {

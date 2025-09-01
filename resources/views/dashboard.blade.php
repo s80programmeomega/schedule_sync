@@ -296,9 +296,9 @@
                         <button class="btn btn-sm btn-light me-2" title="Reschedule">
                           <i class="bi bi-calendar"></i>
                         </button>
-                        <button class="btn btn-sm btn-light me-2" title="Cancel">
-                          <i class="bi bi-x-lg"></i>
-                        </button>
+                            <button onclick="cancelBooking({{ $upcomingMeeting->id }})" class="btn btn-sm btn-light me-2" title="Cancel">
+                                <i class="bi bi-x-lg"></i>
+                            </button>
                         <div class="dropdown">
                           <button class="btn btn-sm btn-light" type="button" data-bs-toggle="dropdown">
                             <i class="bi bi-three-dots-vertical"></i>
@@ -342,242 +342,68 @@
     <div class="row">
       <div class="col-lg-8 mb-4">
         <div class="card border-0 shadow-sm calendar-grid">
-          <div class="calendar-header">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-              <h5 class="mb-0 fw-semibold">September 2023</h5>
-              <div>
-                <button class="btn btn-sm btn-primary bg-opacity-75 border-0 me-2">
-                  <i class="bi bi-chevron-left"></i>
-                </button>
-                <button class="btn btn-sm btn-primary bg-opacity-75 border-0">
-                  <i class="bi bi-chevron-right"></i>
-                </button>
-              </div>
+            <div class="calendar-header">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="mb-0 fw-semibold">{{ $calendarData['current_month']->format('F Y') }}</h5>
+                    <div>
+                        <a href="?month={{ $calendarData['prev_month']->format('Y-m') }}"
+                            class="btn btn-sm btn-primary bg-opacity-75 border-0 me-2">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                        <a href="?month={{ $calendarData['next_month']->format('Y-m') }}"
+                            class="btn btn-sm btn-primary bg-opacity-75 border-0">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="row text-center">
+                    <div class="col">Mon</div>
+                    <div class="col">Tue</div>
+                    <div class="col">Wed</div>
+                    <div class="col">Thu</div>
+                    <div class="col">Fri</div>
+                    <div class="col">Sat</div>
+                    <div class="col">Sun</div>
+                </div>
             </div>
-            <div class="row text-center">
-              <div class="col">Mon</div>
-              <div class="col">Tue</div>
-              <div class="col">Wed</div>
-              <div class="col">Thu</div>
-              <div class="col">Fri</div>
-              <div class="col">Sat</div>
-              <div class="col">Sun</div>
+            <div class="card-body p-0">
+                @foreach(array_chunk($calendarData['calendar_days'], 7) as $week)
+                <div class="row g-0">
+                    @foreach($week as $day)
+                    <div
+                        class="col calendar-day {{ !$day['is_current_month'] ? 'disabled' : '' }} {{ $day['is_today'] ? 'active' : '' }}">
+                        <div class="p-2">
+                            <div class="day-number mb-2">{{ $day['day'] }}</div>
+
+                            @if($day['is_today'])
+                            <div class="small py-1 px-2 bg-warning text-dark rounded mb-1 text-truncate">
+                                Today
+                            </div>
+                            @endif
+
+                            @if($day['bookings_count'] > 0)
+                            <div class="small py-1 px-2 bg-primary text-white rounded mb-1 text-truncate">
+                                {{ $day['bookings_count'] }} {{ $day['bookings_count'] == 1 ? 'booking' : 'bookings' }}
+                            </div>
+                            @endif
+
+                            @if($day['has_availability'] && $day['bookings_count'] == 0)
+                            <div class="small py-1 px-2 bg-success text-white rounded mb-1 text-truncate">
+                                Available
+                            </div>
+                            @endif
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+                @endforeach
             </div>
-          </div>
-          <div class="card-body p-0">
-            <div class="row g-0">
-              <div class="col calendar-day disabled">
-                <div class="p-2">
-                  <div class="day-number mb-2">28</div>
-                </div>
-              </div>
-              <div class="col calendar-day disabled">
-                <div class="p-2">
-                  <div class="day-number mb-2">29</div>
-                </div>
-              </div>
-              <div class="col calendar-day disabled">
-                <div class="p-2">
-                  <div class="day-number mb-2">30</div>
-                </div>
-              </div>
-              <div class="col calendar-day disabled">
-                <div class="p-2">
-                  <div class="day-number mb-2">31</div>
-                </div>
-              </div>
-              <div class="col calendar-day">
-                <div class="p-2">
-                  <div class="day-number mb-2">1</div>
-                  <div class="small py-1 px-2 bg-primary text-white rounded mb-1 text-truncate">
-                    2 events
-                  </div>
-                </div>
-              </div>
-              <div class="col calendar-day">
-                <div class="p-2">
-                  <div class="day-number mb-2">2</div>
-                </div>
-              </div>
-              <div class="col calendar-day">
-                <div class="p-2">
-                  <div class="day-number mb-2">3</div>
-                </div>
-              </div>
-            </div>
-            <div class="row g-0">
-              <div class="col calendar-day">
-                <div class="p-2">
-                  <div class="day-number mb-2">4</div>
-                </div>
-              </div>
-              <div class="col calendar-day">
-                <div class="p-2">
-                  <div class="day-number mb-2">5</div>
-                  <div class="small py-1 px-2 bg-success text-white rounded mb-1 text-truncate">
-                    1 event
-                  </div>
-                </div>
-              </div>
-              <div class="col calendar-day">
-                <div class="p-2">
-                  <div class="day-number mb-2">6</div>
-                </div>
-              </div>
-              <div class="col calendar-day">
-                <div class="p-2">
-                  <div class="day-number mb-2">7</div>
-                </div>
-              </div>
-              <div class="col calendar-day">
-                <div class="p-2">
-                  <div class="day-number mb-2">8</div>
-                </div>
-              </div>
-              <div class="col calendar-day">
-                <div class="p-2">
-                  <div class="day-number mb-2">9</div>
-                  <div class="small py-1 px-2 bg-primary text-white rounded mb-1 text-truncate">
-                    3 events
-                  </div>
-                </div>
-              </div>
-              <div class="col calendar-day">
-                <div class="p-2">
-                  <div class="day-number mb-2">10</div>
-                </div>
-              </div>
-            </div>
-            <div class="row g-0">
-              <div class="col calendar-day">
-                <div class="p-2">
-                  <div class="day-number mb-2">11</div>
-                </div>
-              </div>
-              <div class="col calendar-day">
-                <div class="p-2">
-                  <div class="day-number mb-2">12</div>
-                </div>
-              </div>
-              <div class="col calendar-day active">
-                <div class="p-2">
-                  <div class="day-number mb-2">13</div>
-                  <div class="small py-1 px-2 bg-warning text-dark rounded mb-1 text-truncate">
-                    Today
-                  </div>
-                  <div class="small py-1 px-2 bg-primary text-white rounded mb-1 text-truncate">
-                    2 events
-                  </div>
-                </div>
-              </div>
-              <div class="col calendar-day">
-                <div class="p-2">
-                  <div class="day-number mb-2">14</div>
-                  <div class="small py-1 px-2 bg-primary text-white rounded mb-1 text-truncate">
-                    1 event
-                  </div>
-                </div>
-              </div>
-              <div class="col calendar-day">
-                <div class="p-2">
-                  <div class="day-number mb-2">15</div>
-                </div>
-              </div>
-              <div class="col calendar-day">
-                <div class="p-2">
-                  <div class="day-number mb-2">16</div>
-                </div>
-              </div>
-              <div class="col calendar-day">
-                <div class="p-2">
-                  <div class="day-number mb-2">17</div>
-                </div>
-              </div>
-            </div>
-            <div class="row g-0">
-              <div class="col calendar-day">
-                <div class="p-2">
-                  <div class="day-number mb-2">18</div>
-                </div>
-              </div>
-              <div class="col calendar-day">
-                <div class="p-2">
-                  <div class="day-number mb-2">19</div>
-                </div>
-              </div>
-              <div class="col calendar-day">
-                <div class="p-2">
-                  <div class="day-number mb-2">20</div>
-                </div>
-              </div>
-              <div class="col calendar-day">
-                <div class="p-2">
-                  <div class="day-number mb-2">21</div>
-                  <div class="small py-1 px-2 bg-success text-white rounded mb-1 text-truncate">
-                    1 event
-                  </div>
-                </div>
-              </div>
-              <div class="col calendar-day">
-                <div class="p-2">
-                  <div class="day-number mb-2">22</div>
-                </div>
-              </div>
-              <div class="col calendar-day">
-                <div class="p-2">
-                  <div class="day-number mb-2">23</div>
-                </div>
-              </div>
-              <div class="col calendar-day">
-                <div class="p-2">
-                  <div class="day-number mb-2">24</div>
-                </div>
-              </div>
-            </div>
-            <div class="row g-0">
-              <div class="col calendar-day">
-                <div class="p-2">
-                  <div class="day-number mb-2">25</div>
-                </div>
-              </div>
-              <div class="col calendar-day">
-                <div class="p-2">
-                  <div class="day-number mb-2">26</div>
-                </div>
-              </div>
-              <div class="col calendar-day">
-                <div class="p-2">
-                  <div class="day-number mb-2">27</div>
-                </div>
-              </div>
-              <div class="col calendar-day">
-                <div class="p-2">
-                  <div class="day-number mb-2">28</div>
-                </div>
-              </div>
-              <div class="col calendar-day">
-                <div class="p-2">
-                  <div class="day-number mb-2">29</div>
-                </div>
-              </div>
-              <div class="col calendar-day">
-                <div class="p-2">
-                  <div class="day-number mb-2">30</div>
-                </div>
-              </div>
-              <div class="col calendar-day disabled">
-                <div class="p-2">
-                  <div class="day-number mb-2">1</div>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
-      </div>
+    </div>
 
       <div class="col-lg-4 mb-4">
         <div class="card-header border-bottom bg-white py-3 mb-4">
-          <h5 class="card-title mb-0 fw-semibold">Today's Schedule</h5>
+            <h5 class="card-title mb-0 fw-semibold text-center">Today's Schedule</h5>
         </div>
         <div class="card-body">
           @forelse($todaysBookings as $booking)
@@ -626,7 +452,6 @@
               <p class="text-muted small">No available slots for today</p>
             @endforelse
           </div>
-
 
           <div class="text-center mt-3">
             <a href="{{ route('bookings.create') }}" class="btn btn-primary w-100">
@@ -695,5 +520,20 @@
         window.location.href = url.toString();
       });
     });
+    function cancelBooking(id) {
+            const reason = prompt('Cancellation reason (optional):');
+            if (reason !== null) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = `/bookings/${id}/cancel`;
+                form.innerHTML = `
+                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="_method" value="PATCH">
+                    <input type="hidden" name="cancellation_reason" value="${reason}">
+                `;
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
   </script>
 @endsection

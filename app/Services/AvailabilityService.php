@@ -201,12 +201,14 @@ class AvailabilityService
 
             // Adjust start time if it's in the past
             if ($periodStart->lt($currentTime)) {
-                $minutesToAdd = 15 - ($currentTime->minute % 15);
+                $minutesToAdd = 30 - ($currentTime->minute % 30);
                 $periodStart = $currentTime->copy()->addMinutes($minutesToAdd)->startOfMinute();
             }
 
-            // Generate slots in 15-minute intervals
+            // Ensure slot starts on 30-minute boundary
             $slotStart = $periodStart->copy();
+            $slotStart->minute = $slotStart->minute < 30 ? 0 : 30;
+            $slotStart->second = 0;
 
             while ($slotStart->copy()->addMinutes($duration)->lte($periodEnd)) {
                 $slotEnd = $slotStart->copy()->addMinutes($duration);
@@ -240,7 +242,7 @@ class AvailabilityService
                     ];
                 }
 
-                $slotStart->addMinutes(15);
+                $slotStart->addMinutes($duration + 30);
             }
         }
 

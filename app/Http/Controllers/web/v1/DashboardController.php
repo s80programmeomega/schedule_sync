@@ -61,23 +61,12 @@ class DashboardController extends Controller
                 break;
         }
 
-
-        // switch ($filter) {
-        //     case 'week':
-        //         $query =  $query->whereBetween('booking_date', [now()->startOfWeek(), now()->endOfWeek()]);
-        //         break;
-        //     case 'month':
-        //         $query = $query->whereBetween('booking_date', [now()->startOfMonth(), now()->endOfMonth()]);
-        //         break;
-        //     default: // day
-        //         $query = $query->whereDate('booking_date', today()->toDateString());
-        //         break;
-        // }
+        // Calendar data
+        $currentMonth = $request->get('month') ?
+            \Carbon\Carbon::parse($request->get('month')) : now();
+        $calendarData = $this->generateCalendarData($user, $currentMonth);
 
         // Get booking statistics
-
-        // $upcomingMeetings = $query->get();
-
         $upcomingMeetings = Booking::where('user_id', $user->id)
             ->with('eventType')
             ->where('status', 'scheduled')
@@ -132,9 +121,66 @@ class DashboardController extends Controller
             'cancelledMeetings',
             'eventTypes',
             'todaysBookings',
+            'todaysAvailability',
             'upcomingBookings',
             'availableSlots',
             'duration',
+            'calendarData',
         ));
+    }
+
+    // Calendar data generation function
+    private function generateCalendarData($user, $currentMonth = null)
+    {
+        $currentMonth = $currentMonth ?: now();
+        $startOfMonth = $currentMonth->copy()->startOfMonth();
+        $endOfMonth = $currentMonth->copy()->endOfMonth();
+
+        // Get bookings for the month
+        $monthlyBookings = Booking::where('user_id', $user->id)
+            ->whereBetween('booking_date', [$startOfMonth, $endOfMonth])
+            ->where('status', 'scheduled')
+            ->with('eventType')
+            ->get()
+            ->groupBy(function ($booking) {
+                return $booking->booking_date->format('Y-m-d');
+            });
+
+        // Get availabilities for the month
+        $monthlyAvailabilities = Availability::where('user_id', $user->id)
+            ->whereBetween('availability_date', [$startOfMonth, $endOfMonth])
+            ->where('is_available', true)
+            ->get()
+            ->groupBy(function ($availability) {
+                return $availability->availability_date->format('Y-m-d');
+            });
+
+        // Generate calendar grid
+        $calendarDays = [];
+        $startOfCalendar = $startOfMonth->copy()->startOfWeek();
+        $endOfCalendar = $endOfMonth->copy()->endOfWeek();
+
+        for ($date = $startOfCalendar->copy(); $date->lte($endOfCalendar); $date->addDay()) {
+            $dateKey = $date->format('Y-m-d');
+            $bookings = $monthlyBookings->get($dateKey, collect());
+            $availabilities = $monthlyAvailabilities->get($dateKey, collect());
+
+            $calendarDays[] = [
+                'date' => $date->copy(),
+                'day' => $date->day,
+                'is_current_month' => $date->month === $currentMonth->month,
+                'is_today' => $date->isToday(),
+                'bookings_count' => $bookings->count(),
+                'has_availability' => $availabilities->isNotEmpty(),
+                'bookings' => $bookings->take(3), // Limit for display
+            ];
+        }
+
+        return [
+            'calendar_days' => $calendarDays,
+            'current_month' => $currentMonth,
+            'prev_month' => $currentMonth->copy()->subMonth(),
+            'next_month' => $currentMonth->copy()->addMonth(),
+        ];
     }
 }

@@ -241,7 +241,7 @@ label {
     /* border: 1px solid #6366f1; */
     border-radius: 20px;
     box-shadow: 0 0 0 0.1rem var(--primary);
-    transform: translateX(4px);
+    /* transform: translateX(4px); */
 }
 
 /* Table Row Hover Effects */

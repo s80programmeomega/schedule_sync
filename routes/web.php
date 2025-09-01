@@ -8,6 +8,8 @@ use App\Http\Controllers\web\v1\EventTypeController;
 use App\Http\Controllers\web\v1\BookingController;
 use App\Http\Controllers\web\v1\AvailabilityController;
 use App\Http\Controllers\web\v1\ProfileController;
+use App\Http\Controllers\web\v1\Auth\EmailVerificationController;
+
 
 Route::get('/', function () {
     return view('welcome');
@@ -28,23 +30,40 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
 Route::post('/register', [RegisterController::class, 'register']);
 
-// Profile Routes
+// Email Verification Routes
 Route::middleware('auth')->group(function () {
+    // Show email verification notice
+    Route::get('/email/verify', [EmailVerificationController::class, 'notice'])
+        ->name('verification.notice');
+
+    // Handle email verification
+    Route::get('/email/verify/{id}/{hash}', [EmailVerificationController::class, 'verify'])
+        ->middleware(['signed', 'throttle:6,1'])
+        ->name('verification.verify');
+
+    // Resend verification email
+    Route::post('/email/verification-notification', [EmailVerificationController::class, 'send'])
+        ->middleware('throttle:6,1')
+        ->name('verification.send');
+});
+
+// Profile Routes
+Route::middleware('auth', 'verified')->group(function () {
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
 });
 
 
-Route::middleware('auth')->group(function () {
+Route::middleware('auth', 'verified')->group(function () {
     Route::resource('dashboard', DashboardController::class)->only(['index']);
 });
 
-Route::middleware('auth')->group(function () {
+Route::middleware('auth', 'verified')->group(function () {
     Route::resource('event-types', EventTypeController::class);
 });
 
-Route::middleware('auth')->group(function () {
+Route::middleware('auth', 'verified')->group(function () {
     Route::get('bookings/scheduled', [BookingController::class, 'scheduled'])->name('bookings.scheduled');
     Route::get('bookings/completed', [BookingController::class, 'completed'])->name('bookings.completed');
     Route::get('bookings/cancelled', [BookingController::class, 'cancelled'])->name('bookings.cancelled');
@@ -55,7 +74,7 @@ Route::middleware('auth')->group(function () {
 
 });
 
-Route::middleware('auth')->group(function () {
+Route::middleware('auth', 'verified')->group(function () {
     Route::resource('availability', AvailabilityController::class);
     Route::get('availability/{availability}/slots', [AvailabilityController::class, 'slots'])->name('availability.slots');
 });

@@ -3,12 +3,25 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable
+use App\Notifications\EmailVerificationNotification;
+
+/**
+ * User Model with Email Verification
+ *
+ * This model implements MustVerifyEmail contract which provides:
+ * - hasVerifiedEmail() method to check verification status
+ * - markEmailAsVerified() method to mark email as verified
+ * - sendEmailVerificationNotification() method to send verification emails
+ * - getEmailForVerification() method to get the email for verification
+ */
+class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable, HasApiTokens;
@@ -86,5 +99,51 @@ class User extends Authenticatable
     public function getBookingUrlAttribute()
     {
         return url("/{$this->username}");
+    }
+
+    /**
+     * Determine if the user's email address has been verified.
+     * This method is provided by MustVerifyEmail contract
+     *
+     * @return bool
+     */
+    public function hasVerifiedEmail()
+    {
+        return ! is_null($this->email_verified_at);
+    }
+
+    /**
+     * Mark the given user's email as verified.
+     * This method is provided by MustVerifyEmail contract
+     *
+     * @return bool
+     */
+    public function markEmailAsVerified()
+    {
+        return $this->forceFill([
+            'email_verified_at' => $this->freshTimestamp(),
+        ])->save();
+    }
+
+    /**
+     * Send the email verification notification.
+     * This method is provided by MustVerifyEmail contract
+     *
+     * @return void
+     */
+    public function sendEmailVerificationNotification()
+    {
+        $this->notify(new EmailVerificationNotification);
+    }
+
+    /**
+     * Get the email address that should be used for verification.
+     * This method is provided by MustVerifyEmail contract
+     *
+     * @return string
+     */
+    public function getEmailForVerification()
+    {
+        return $this->email;
     }
 }

@@ -1,6 +1,24 @@
 @extends('layout.base') @section('content')
   <!-- Main Content -->
   <div class="col-lg-10 col-12 py-4 px-4 px-lg-5">
+    @if (!auth()->user()->hasVerifiedEmail())
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        <strong>Email Verification Required:</strong>
+        Please verify your email address to access all features.
+        <a href="{{ route('verification.notice') }}" class="alert-link">Verify now</a>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    @endif
+
+    {{-- Show success message when email is verified --}}
+    @if (request('verified') == 1)
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle me-2"></i>
+        <strong>Email Verified!</strong> Your email address has been successfully verified.
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    @endif
     <div class="d-flex justify-content-between align-items-center mb-4">
       <div>
         <h1 class="h3 mb-0 fw-bold">Dashboard</h1>

@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Auth\Events\Registered;
 
 class RegisterController extends Controller
 {
@@ -35,6 +36,11 @@ class RegisterController extends Controller
 
         Auth::login($user);
 
-        return redirect('/dashboard');
+        // Fire the Registered event - this triggers email verification
+        event(new Registered($user));
+
+        // Redirect to email verification notice
+        return redirect()->route('verification.notice');
+        // return redirect('/dashboard');
     }
 }

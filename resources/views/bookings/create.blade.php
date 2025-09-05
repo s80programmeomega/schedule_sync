@@ -1,134 +1,104 @@
+{{-- resources/views/bookings/create-with-attendees.blade.php --}}
 @extends('layout.base')
 
-@section('title', 'Create Booking - ScheduleSync')
-
 @section('content')
-<div class="col-lg-10 col-12 py-4 px-4 px-lg-5" data-aos="fade-down" data-aos-duration="1000">
-    <div class="d-flex align-items-center mb-4">
-        <a href="{{ route('bookings.index') }}" class="btn btn-light me-3">
-            <i class="bi bi-arrow-left"></i>
-        </a>
-        <div>
-            <h1 class="h3 mb-0 fw-bold">Create Booking</h1>
-            <p class="text-muted mb-0">Schedule a new appointment</p>
-        </div>
+<div class="col-lg-10 col-12 py-4 px-4 px-lg-5">
+    <div class="mb-4">
+        <h1 class="h3 mb-0 fw-bold">Create Booking</h1>
+        <p class="text-muted mb-0">Schedule a meeting with multiple attendees</p>
     </div>
 
     <div class="row">
         <div class="col-lg-8">
             <div class="card border-0 shadow-sm">
-                <div class="card-body p-4" data-aos="zoom-in">
-                    <form method="POST" action="{{ route('bookings.store') }}">
+                <div class="card-body p-4">
+                    <form method="POST" action="{{ route('bookings.store-with-attendees') }}" id="bookingForm">
                         @csrf
 
                         <div class="mb-4">
-                            <label for="event_type_id" class="form-label">Event Type *</label>
-                            <select class="form-select @error('event_type_id') is-invalid @enderror" id="event_type_id"
-                                name="event_type_id" required>
-                                <option value="">Select event type</option>
+                            <label for="event_type_id" class="form-label fw-semibold">Event Type</label>
+                            <select class="form-select @error('event_type_id') is-invalid @enderror"
+                                    id="event_type_id" name="event_type_id" required>
+                                <option value="">Select Event Type</option>
                                 @foreach($eventTypes as $eventType)
-                                <option value="{{ $eventType->id }}" {{ old('event_type_id')==$eventType->id ?
-                                    'selected' : '' }}>
+                                <option value="{{ $eventType->id }}"
+                                        data-duration="{{ $eventType->duration }}"
+                                        data-multiple="{{ $eventType->allow_multiple_attendees ? 'true' : 'false' }}">
                                     {{ $eventType->name }} ({{ $eventType->duration }} min)
                                 </option>
                                 @endforeach
                             </select>
                             @error('event_type_id')
-                            <div class="invalid-feedback">{{ $message }}</div>
+                                <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
 
-                        <div class="row mb-4">
-                            <div class="col-md-6">
-                                <label for="attendee_name" class="form-label">Attendee Name *</label>
-                                <input type="text" class="form-control @error('attendee_name') is-invalid @enderror"
-                                    id="attendee_name" name="attendee_name" value="{{ old('attendee_name') }}" required>
-                                @error('attendee_name')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            <div class="col-md-6">
-                                <label for="attendee_email" class="form-label">Attendee Email *</label>
-                                <input type="email" class="form-control @error('attendee_email') is-invalid @enderror"
-                                    id="attendee_email" name="attendee_email" value="{{ old('attendee_email') }}"
-                                    required>
-                                @error('attendee_email')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="row mb-4">
-                            <div class="col-12">
-                                <label for="booking_date" class="form-label">Booking Date *</label>
-                                <input type="date"
-                                    class="form-control @error('booking_date') is-invalid @enderror" id="booking_date"
-                                    name="booking_date" value="{{ old('booking_date') }}" required>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="booking_date" class="form-label fw-semibold">Date</label>
+                                <input type="date" class="form-control @error('booking_date') is-invalid @enderror"
+                                       id="booking_date" name="booking_date" value="{{ old('booking_date') }}" required>
                                 @error('booking_date')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                                    <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
-                            {{-- <div class="col-md-6">
-                                <label for="end_time" class="form-label">End Time *</label>
-                                <input type="time"
-                                    class="form-control @error('end_time') is-invalid @enderror" id="end_time"
-                                    name="end_time" value="{{ old('end_time') }}" required>
-                                @error('end_time')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div> --}}
-                        </div>
-
-                        <div class="row mb-4">
-                            <div class="col-6">
-                                <label for="timezone_id" class="form-label">Timezone *</label>
-                                <select class="form-select @error('timezone_id') is-invalid @enderror" id="timezone_id" name="timezone_id" required>
-                                    <option value="">Select timezone</option>
-                                    @foreach($timezones as $timezone)
-                                    <option value="{{ $timezone->id }}" {{ old('timezone_id')==$timezone->id ? 'selected' : '' }}>
-                                        {{ $timezone->display_name }}
-                                    </option>
-                                    @endforeach
-                                </select>
-                                @error('timezone_id')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            <div class="col-md-6">
-                                <label for="start_time" class="form-label">Start Time *</label>
-                                <input type="time" class="form-control @error('start_time') is-invalid @enderror" id="start_time" name="start_time"
-                                    value="{{ old('start_time') }}" required>
+                            <div class="col-md-6 mb-3">
+                                <label for="start_time" class="form-label fw-semibold">Start Time</label>
+                                <input type="time" class="form-control @error('start_time') is-invalid @enderror"
+                                       id="start_time" name="start_time" value="{{ old('start_time') }}" required>
                                 @error('start_time')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                                    <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
                         </div>
 
+                        <!-- Attendees Section -->
                         <div class="mb-4">
-                            <label for="meeting_link" class="form-label">Meeting Link</label>
-                            <input type="url" class="form-control @error('meeting_link') is-invalid @enderror"
-                                id="meeting_link" name="meeting_link" value="{{ old('meeting_link') }}"
-                                placeholder="https://zoom.us/j/...">
-                            @error('meeting_link')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <label class="form-label fw-semibold mb-0">Attendees</label>
+                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="addAttendee()">
+                                    <i class="bi bi-plus me-1"></i>Add Attendee
+                                </button>
+                            </div>
+
+                            <div id="attendees-container">
+                                <div class="attendee-row border rounded p-3 mb-3">
+                                    <div class="row">
+                                        <div class="col-md-3 mb-2">
+                                            <select class="form-select" name="attendees[0][type]" onchange="toggleAttendeeFields(this, 0)">
+                                                <option value="contact">From Contacts</option>
+                                                <option value="email">Enter Email</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4 mb-2">
+                                            <select class="form-select contact-select" name="attendees[0][contact_id]">
+                                                <option value="">Select Contact</option>
+                                                @foreach($contacts as $contact)
+                                                <option value="{{ $contact->id }}">{{ $contact->name }} ({{ $contact->email }})</option>
+                                                @endforeach
+                                            </select>
+                                            <input type="text" class="form-control email-input d-none" name="attendees[0][name]" placeholder="Full Name">
+                                        </div>
+                                        <div class="col-md-3 mb-2">
+                                            <input type="email" class="form-control email-input d-none" name="attendees[0][email]" placeholder="Email Address">
+                                        </div>
+                                        <div class="col-md-2 mb-2">
+                                            <select class="form-select" name="attendees[0][role]">
+                                                <option value="required">Required</option>
+                                                <option value="optional">Optional</option>
+                                                <option value="organizer">Organizer</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="mb-4">
-                            <label for="attendee_notes" class="form-label">Notes</label>
-                            <textarea class="form-control @error('attendee_notes') is-invalid @enderror"
-                                id="attendee_notes" name="attendee_notes"
-                                rows="3">{{ old('attendee_notes') }}</textarea>
-                            @error('attendee_notes')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                        <div class="d-flex gap-2">
+                        <div class="d-flex gap-3">
                             <button type="submit" class="btn btn-primary">
-                                <i class="bi bi-check me-2"></i> Create Booking
+                                <i class="bi bi-check me-2"></i>Create Booking
                             </button>
-                            <a href="{{ route('bookings.index') }}" class="btn btn-light">Cancel</a>
+                            <a href="{{ route('bookings.index') }}" class="btn btn-outline-secondary">Cancel</a>
                         </div>
                     </form>
                 </div>
@@ -136,4 +106,67 @@
         </div>
     </div>
 </div>
+
+<script>
+let attendeeCount = 1;
+
+function addAttendee() {
+    const container = document.getElementById('attendees-container');
+    const newRow = document.createElement('div');
+    newRow.className = 'attendee-row border rounded p-3 mb-3';
+    newRow.innerHTML = `
+        <div class="row">
+            <div class="col-md-3 mb-2">
+                <select class="form-select" name="attendees[${attendeeCount}][type]" onchange="toggleAttendeeFields(this, ${attendeeCount})">
+                    <option value="contact">From Contacts</option>
+                    <option value="email">Enter Email</option>
+                </select>
+            </div>
+            <div class="col-md-4 mb-2">
+                <select class="form-select contact-select" name="attendees[${attendeeCount}][contact_id]">
+                    <option value="">Select Contact</option>
+                    @foreach($contacts as $contact)
+                    <option value="{{ $contact->id }}">{{ $contact->name }} ({{ $contact->email }})</option>
+                    @endforeach
+                </select>
+                <input type="text" class="form-control email-input d-none" name="attendees[${attendeeCount}][name]" placeholder="Full Name">
+            </div>
+            <div class="col-md-3 mb-2">
+                <input type="email" class="form-control email-input d-none" name="attendees[${attendeeCount}][email]" placeholder="Email Address">
+            </div>
+            <div class="col-md-1 mb-2">
+                <select class="form-select" name="attendees[${attendeeCount}][role]">
+                    <option value="required">Required</option>
+                    <option value="optional">Optional</option>
+                </select>
+            </div>
+            <div class="col-md-1 mb-2">
+                <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeAttendee(this)">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </div>
+        </div>
+    `;
+    container.appendChild(newRow);
+    attendeeCount++;
+}
+
+function removeAttendee(button) {
+    button.closest('.attendee-row').remove();
+}
+
+function toggleAttendeeFields(select, index) {
+    const row = select.closest('.attendee-row');
+    const contactSelect = row.querySelector('.contact-select');
+    const emailInputs = row.querySelectorAll('.email-input');
+
+    if (select.value === 'contact') {
+        contactSelect.classList.remove('d-none');
+        emailInputs.forEach(input => input.classList.add('d-none'));
+    } else {
+        contactSelect.classList.add('d-none');
+        emailInputs.forEach(input => input.classList.remove('d-none'));
+    }
+}
+</script>
 @endsection

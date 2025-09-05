@@ -8,25 +8,71 @@
         @auth
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
+                <!-- PLANNING Section -->
+                <li class="nav-item d-lg-none"><hr class="dropdown-divider my-2"></li>
                 <li class="nav-item d-lg-none">
-                    <a class="nav-link {{ request()->routeIs('dashboard.*') ? 'active' : '' }}"
-                        href="{{ route('dashboard.index') }}">Dashboard</a>
+                    <small class="text-muted text-uppercase fw-semibold px-3">PLANNING</small>
                 </li>
                 <li class="nav-item d-lg-none">
-                    <a class="nav-link {{ request()->routeIs('event-types.*') ? 'active' : '' }}"
-                        href="{{ route('event-types.index') }}">Event Types</a>
+                    <a class="sidebar-link {{ request()->routeIs('dashboard.*') ? 'active' : '' }}"
+                        href="{{ route('dashboard.index') }}">
+                        <i class="bi bi-grid-1x2"></i>
+                        Dashboard
+                    </a>
                 </li>
                 <li class="nav-item d-lg-none">
-                    <a class="nav-link {{ request()->routeIs('bookings.scheduled') ? 'active' : '' }}"
-                        href="{{ route('bookings.scheduled') }}">Scheduled Events</a>
+                    <a class="sidebar-link {{ request()->routeIs('event-types.*') ? 'active' : '' }}"
+                        href="{{ route('event-types.index') }}">
+                        <i class="bi bi-calendar-event"></i>
+                        Event Types
+                    </a>
                 </li>
                 <li class="nav-item d-lg-none">
-                    <a class="nav-link {{ request()->routeIs('bookings.index') ? 'active' : '' }}"
-                        href="{{ route('bookings.index') }}">All Bookings</a>
+                    <a class="sidebar-link {{ request()->routeIs('bookings.scheduled') ? 'active' : '' }}"
+                        href="{{ route('bookings.scheduled') }}">
+                        <i class="bi bi-calendar-check"></i>
+                        Scheduled Events
+                    </a>
                 </li>
                 <li class="nav-item d-lg-none">
-                    <a class="nav-link {{ request()->routeIs('availability.*') ? 'active' : '' }}"
-                        href="{{ route('availability.index') }}">Availability</a>
+                    <a class="sidebar-link {{ request()->routeIs('bookings.index') ? 'active' : '' }}"
+                        href="{{ route('bookings.index') }}">
+                        <i class="bi bi-calendar3"></i>
+                        All Bookings
+                    </a>
+                </li>
+                <li class="nav-item d-lg-none">
+                    <a class="sidebar-link {{ request()->routeIs('availability.*') ? 'active' : '' }}"
+                        href="{{ route('availability.index') }}">
+                        <i class="bi bi-clock"></i>
+                        Availability
+                    </a>
+                </li>
+                <!-- TEAM Section -->
+                <li class="nav-item d-lg-none"><hr class="dropdown-divider my-2"></li>
+                <li class="nav-item d-lg-none">
+                    <small class="text-muted text-uppercase fw-semibold px-3">TEAM</small>
+                </li>
+                <li class="nav-item d-lg-none">
+                    <a href="{{ route('teams.index') }}"
+                        class="sidebar-link {{ request()->routeIs('teams.*') ? 'active' : '' }}">
+                        <i class="bi bi-people"></i>
+                        Teams
+                    </a>
+                </li>
+                <li class="nav-item d-lg-none">
+                    <a href="{{ route('contacts.index') }}"
+                        class="sidebar-link {{ request()->routeIs('contacts.*') ? 'active' : '' }}">
+                        <i class="bi bi-person-lines-fill"></i>
+                        Contacts
+                    </a>
+                </li>
+                <li class="nav-item d-lg-none">
+                    <a href="{{ route('groups.index') }}"
+                        class="sidebar-link {{ request()->routeIs('groups.*') ? 'active' : '' }}">
+                        <i class="bi bi-collection"></i>
+                        Groups
+                    </a>
                 </li>
 
                 <li class="nav-item dropdown">

@@ -105,6 +105,57 @@
     </div>
     </div>
 
+
+    {{-- Add to existing dashboard.blade.php after line 50 --}}
+
+@if(auth()->user()->teams->isNotEmpty())
+<!-- Team Overview -->
+<div class="mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="h4 fw-bold mb-0">Team Overview</h2>
+        <a href="{{ route('teams.index') }}" class="text-decoration-none">View All Teams</a>
+    </div>
+
+    <div class="row">
+        @foreach(auth()->user()->teams->take(2) as $team)
+        <div class="col-md-6 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="team-avatar me-3">
+                            <div class="bg-primary text-white rounded d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                {{ substr($team->name, 0, 2) }}
+                            </div>
+                        </div>
+                        <div>
+                            <h6 class="mb-0">{{ $team->name }}</h6>
+                            <small class="text-muted">{{ auth()->user()->getRoleInTeam($team) }}</small>
+                        </div>
+                    </div>
+
+                    <div class="row text-center">
+                        <div class="col-4">
+                            <div class="fw-bold">{{ $team->activeMembers->count() }}</div>
+                            <small class="text-muted">Members</small>
+                        </div>
+                        <div class="col-4">
+                            <div class="fw-bold">{{ $team->eventTypes->count() }}</div>
+                            <small class="text-muted">Events</small>
+                        </div>
+                        <div class="col-4">
+                            <div class="fw-bold">{{ $team->contacts->count() }}</div>
+                            <small class="text-muted">Contacts</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @endforeach
+    </div>
+</div>
+@endif
+
+
     <!-- Event Types -->
     <div class="mb-5 animate-fade-in animate-delay-3">
       <div class="d-flex justify-content-between align-items-center mb-4">

@@ -146,4 +146,60 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->email;
     }
+
+    /**
+     * Get teams where user is a member
+     */
+    public function teams()
+    {
+        return $this->belongsToMany(Team::class, 'team_members')
+            ->withPivot(['role', 'status', 'joined_at', 'permissions'])
+            ->withTimestamps()
+            ->wherePivot('status', 'active');
+    }
+
+    /**
+     * Get user's default team
+     */
+    public function defaultTeam()
+    {
+        return $this->belongsTo(Team::class, 'default_team_id');
+    }
+
+    /**
+     * Get team memberships
+     */
+    public function teamMemberships()
+    {
+        return $this->hasMany(TeamMember::class);
+    }
+
+    /**
+     * Get contacts created by this user
+     */
+    public function contacts()
+    {
+        return $this->hasMany(Contact::class, 'created_by');
+    }
+
+    /**
+     * Check if user is member of a team
+     */
+    public function isMemberOf(Team $team): bool
+    {
+        return $this->teams()->where('teams.id', $team->id)->exists();
+    }
+
+    /**
+     * Get user's role in a team
+     */
+    public function getRoleInTeam(Team $team): ?string
+    {
+        $membership = $this->teamMemberships()
+            ->where('team_id', $team->id)
+            ->where('status', 'active')
+            ->first();
+
+        return $membership?->role;
+    }
 }

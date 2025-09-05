@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use App\Models\Timezone;
+use App\Models\Team;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
@@ -35,6 +36,8 @@ class UserFactory extends Factory
             'timezone_id' => Timezone::inRandomOrder()->first()->id,
             'bio' => fake()->optional()->sentence(10),
             'avatar' => fake()->optional()->imageUrl(200, 200, 'people'),
+            'default_team_id' => null,
+
         ];
 
         // return [
@@ -54,5 +57,13 @@ class UserFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
         ]);
+    }
+
+    public function withDefaultTeam(): static
+    {
+        return $this->afterCreating(function ($user) {
+            $team = Team::factory()->create(['owner_id' => $user->id]);
+            $user->update(['default_team_id' => $team->id]);
+        });
     }
 }

@@ -28,13 +28,19 @@ class EventType extends Model
         'requires_confirmation',
         'max_events_per_day',
         'color',
+        'is_team_event',
+        'allow_multiple_attendees',
+        'max_attendees',
+        'assignment_method',
     ];
 
     protected function casts(): array
     {
         return [
-            'is_active' => 'boolean',
-            'requires_confirmation' => 'boolean',
+            'is_team_event',
+            'allow_multiple_attendees',
+            'max_attendees',
+            'assignment_method',
         ];
     }
 
@@ -44,6 +50,14 @@ class EventType extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Get the team this event type belongs to
+     */
+    public function team()
+    {
+        return $this->belongsTo(Team::class);
     }
 
     /**

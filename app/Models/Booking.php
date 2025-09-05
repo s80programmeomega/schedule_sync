@@ -115,4 +115,63 @@ class Booking extends Model
     {
         return $this->full_start_time?->format('M j, Y \a\t g:i A');
     }
+
+
+    /**
+     * Get booking attendees
+     */
+    public function attendees()
+    {
+        return $this->hasMany(BookingAttendee::class);
+    }
+
+    /**
+     * Get organizer attendee
+     */
+    public function organizer()
+    {
+        return $this->attendees()->where('role', 'organizer')->first();
+    }
+
+    /**
+     * Get required attendees
+     */
+    public function requiredAttendees()
+    {
+        return $this->attendees()->where('role', 'required');
+    }
+
+    /**
+     * Get optional attendees
+     */
+    public function optionalAttendees()
+    {
+        return $this->attendees()->where('role', 'optional');
+    }
+
+    /**
+     * Check if booking has multiple attendees
+     */
+    public function hasMultipleAttendees(): bool
+    {
+        return $this->attendees()->count() > 1;
+    }
+
+    /**
+     * Add attendee to booking
+     */
+    public function addAttendee($attendee, string $role = 'required', array $data = []): BookingAttendee
+    {
+        $attendeeData = array_merge([
+            'attendee_id' => $attendee->id,
+            'attendee_type' => get_class($attendee),
+            'name' => $attendee->name,
+            'email' => $attendee->email,
+            'phone' => $attendee->phone ?? null,
+            'role' => $role,
+            'status' => 'pending',
+        ], $data);
+
+        return $this->attendees()->create($attendeeData);
+    }
 }

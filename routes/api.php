@@ -10,6 +10,8 @@ use App\Http\Controllers\Api\v1\AvailabilityController;
 use App\Http\Controllers\Api\v1\BookingController;
 use App\Http\Controllers\Api\v1\PublicBookingController;
 use App\Http\Controllers\Api\v1\DashboardController;
+use App\Http\Controllers\Api\v1\TeamController;
+use App\Http\Controllers\Api\v1\ContactController;
 
 /*
 |--------------------------------------------------------------------------
@@ -90,4 +92,11 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'throttle:api'])->group(functio
     Route::patch('bookings/{booking}/complete', [BookingController::class, 'complete']);
     Route::patch('bookings/{booking}/no-show', [BookingController::class, 'markNoShow']);
     Route::get('bookings/{booking}/meeting-link', [BookingController::class, 'getMeetingLink']);
+
+    // Team management
+    Route::apiResource('teams', TeamController::class);
+    Route::apiResource('contacts', ContactController::class);
+
+    // Enhanced bookings
+    Route::post('bookings/with-attendees', [BookingController::class, 'storeWithAttendees']);
 });

@@ -15,7 +15,8 @@ class StoreTeamMemberRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => 'required|email|exists:users,email',
+            'email' => 'required|email',
+            // 'email' => 'required|email|exists:users,email',
             'role' => 'required|in:admin,member,viewer',
         ];
     }

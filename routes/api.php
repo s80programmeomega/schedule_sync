@@ -11,8 +11,10 @@ use App\Http\Controllers\Api\v1\BookingController;
 use App\Http\Controllers\Api\v1\PublicBookingController;
 use App\Http\Controllers\Api\v1\DashboardController;
 use App\Http\Controllers\Api\v1\TeamController;
+use App\Http\Controllers\Api\v1\TeamMemberController;
 use App\Http\Controllers\Api\v1\ContactController;
-
+use App\Http\Controllers\Api\v1\GroupController;
+use App\Http\Controllers\Api\v1\GroupMemberController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -95,7 +97,23 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'throttle:api'])->group(functio
 
     // Team management
     Route::apiResource('teams', TeamController::class);
+    Route::apiResource('teams.members', TeamMemberController::class)
+        ->parameters(['members' => 'teamMember']);
     Route::apiResource('contacts', ContactController::class);
+
+    // Groups management
+    Route::apiResource('groups', GroupController::class);
+    Route::apiResource('groups.members', GroupMemberController::class)
+        ->parameters(['members' => 'groupMember']);
+
+    // Team invitation management
+    Route::post('teams/{team}/invite', [TeamMemberController::class, 'invite']);
+    Route::post('teams/{team}/members/{member}/resend-invitation', [TeamMemberController::class, 'resendInvitation']);
+    Route::get('invitations/{token}', [TeamMemberController::class, 'getInvitation']);
+    Route::post('invitations/{token}/accept', [TeamMemberController::class, 'acceptInvitationApi']);
+    Route::post('invitations/{token}/decline', [TeamMemberController::class, 'declineInvitationApi']);
+
+
 
     // Enhanced bookings
     Route::post('bookings/with-attendees', [BookingController::class, 'storeWithAttendees']);

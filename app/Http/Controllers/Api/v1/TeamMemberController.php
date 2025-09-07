@@ -62,4 +62,23 @@ class TeamMemberController extends Controller
         $member->delete();
         return response()->json(['message' => 'Member removed successfully']);
     }
+
+    public function invite(StoreTeamMemberRequest $request, Team $team)
+    {
+        $user = User::firstOrCreate(
+            ['email' => $request->email],
+            ['name' => explode('@', $request->email)[0]]
+        );
+
+        $teamMember = $team->members()->create([
+            'user_id' => $user->id,
+            'role' => $request->role,
+            'status' => 'pending',
+            'invited_by' => auth()->id(),
+        ]);
+
+        Mail::to($user)->send(new TeamInvitation($teamMember));
+
+        return new TeamMemberResource($teamMember->load(['user', 'team', 'invitedBy']));
+    }
 }

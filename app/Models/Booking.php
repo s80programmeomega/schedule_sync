@@ -19,9 +19,9 @@ class Booking extends Model
     protected $fillable = [
         'event_type_id',
         'user_id',
-        'attendee_name',
-        'attendee_email',
-        'attendee_notes',
+        // 'attendee_name',
+        // 'attendee_email',
+        // 'attendee_notes',
         'booking_date',
         'start_time',
         // 'end_time',
@@ -29,7 +29,7 @@ class Booking extends Model
         'status',
         'meeting_link',
         'cancellation_reason',
-        'cancelled_at',
+        // 'cancelled_at',
     ];
 
     protected static function boot()
@@ -52,8 +52,6 @@ class Booking extends Model
     {
         return [
             'booking_date' => 'date',
-            // 'start_time' => 'datetime:H:i',
-            // 'end_time' => 'datetime:H:i',
             'cancelled_at' => 'datetime',
             'reminder_24h_sent_at' => 'datetime',
             'reminder_1h_sent_at' => 'datetime',

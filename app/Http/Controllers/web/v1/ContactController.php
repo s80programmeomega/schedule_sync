@@ -83,4 +83,36 @@ class ContactController extends Controller
         return redirect()->route('contacts.index')
             ->with('success', 'Contact archived successfully!');
     }
+
+    /**
+     * Get all contacts for attendee import
+     *
+     * Fetches all contacts accessible to the current user for use in
+     * the booking attendee import functionality.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getAllContacts()
+    {
+        // Get contacts accessible to the user (own contacts + team contacts)
+        $contacts = Contact::where(function ($query) {
+            $query->where('created_by', auth()->id())
+                ->orWhereHas('team', function ($teamQuery) {
+                    $teamQuery->whereHas('members', function ($memberQuery) {
+                        $memberQuery->where('user_id', auth()->id())
+                            ->where('status', 'active');
+                    });
+                });
+        })
+            ->where('is_active', true)
+            ->select(['id', 'name', 'email', 'company', 'job_title'])
+            ->orderBy('name')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'contacts' => $contacts,
+            'total' => $contacts->count()
+        ]);
+    }
 }

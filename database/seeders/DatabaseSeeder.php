@@ -61,6 +61,11 @@ class DatabaseSeeder extends Seeder
         $this->call([BookingSeeder::class]);
         $this->command->info('✅ Bookings seeded');
 
+        // 10. Seed booking attendees (depends on bookings)
+        $this->call([BookingAttendeeSeeder::class]);
+        $this->command->info('✅ Booking attendees seeded');
+
+
         $this->command->info('🎉 Database seeding completed successfully!');
         $this->command->table(
             ['Metric', 'Count'],

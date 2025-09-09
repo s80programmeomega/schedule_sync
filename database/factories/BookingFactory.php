@@ -31,9 +31,6 @@ class BookingFactory extends Factory
         return [
             'event_type_id' => EventType::factory(),
             'user_id' => User::factory(),
-            'attendee_name' => fake()->name(),
-            'attendee_email' => fake()->safeEmail(),
-            'attendee_notes' => fake()->optional()->paragraph(),
             'booking_date' => $booking_date,
             'timezone_id' => $timezone_id,
             'start_time' => $startTime->format('H:i'),

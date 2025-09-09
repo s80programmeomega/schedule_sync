@@ -113,6 +113,10 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'throttle:api'])->group(functio
     Route::post('invitations/{token}/accept', [TeamMemberController::class, 'acceptInvitationApi']);
     Route::post('invitations/{token}/decline', [TeamMemberController::class, 'declineInvitationApi']);
 
+    Route::get('/teams/{team}/members', [TeamController::class, 'getMembers']);
+    Route::get('/groups/{group}/members', [GroupController::class, 'getMembers']);
+
+
 
 
     // Enhanced bookings

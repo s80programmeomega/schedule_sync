@@ -199,8 +199,8 @@ class PublicBookingController extends ApiController
                 'attendee_email' => $validated['attendee_email'],
                 'attendee_notes' => $validated['attendee_notes'],
                 'booking_date' => $validated['booking_date'],
-                'start_time' => $startTime,
-                'end_time' => $endTime,
+                'start_time' => $startTime->format('H:i:s'),
+                'end_time' => $endTime->format('H:i:s'),
                 'status' => $eventType->requires_confirmation ? 'pending' : 'scheduled',
                 'meeting_link' => $this->generateMeetingLink($eventType)
             ]);
@@ -407,8 +407,8 @@ class PublicBookingController extends ApiController
 
         $booking->update([
             'booking_date' => $booking_date->toDateString(),
-            'start_time' => $startTime->toTimeString(),
-            'end_time' => $endTime->toTimeString(),
+            'start_time' => $startTime->format('H:i:s'),
+            'end_time' => $endTime->format('H:i:s'),
         ]);
 
         return redirect()->route('bookings.update', $booking)

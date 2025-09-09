@@ -31,18 +31,35 @@ calendarDays.forEach(day => {
 });
 
 // Sidebar toggle
-document.getElementById('sidebarToggle').addEventListener('click', function () {
-    if (window.innerWidth >= 992) { // Bootstrap lg breakpoint
-        const sidebar = document.getElementById('sidebar');
-        if (sidebar.classList.contains('d-none')) {
-            sidebar.classList.remove('d-none');
-            sidebar.classList.add('d-lg-block');
+const sidebarToggle = document.getElementById('sidebarToggle');
+if (sidebarToggle) {
+    sidebarToggle.addEventListener('click', function () {
+        if (window.innerWidth >= 992) {
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar.classList.contains('d-none')) {
+                sidebar.classList.remove('d-none');
+                sidebar.classList.add('d-lg-block');
             } else {
                 sidebar.classList.add('d-none');
                 sidebar.classList.remove('d-lg-block');
             }
         }
-});
+    });
+}
+
+
+// document.getElementById('sidebarToggle').addEventListener('click', function () {
+//     if (window.innerWidth >= 992) { // Bootstrap lg breakpoint
+//         const sidebar = document.getElementById('sidebar');
+//         if (sidebar.classList.contains('d-none')) {
+//             sidebar.classList.remove('d-none');
+//             sidebar.classList.add('d-lg-block');
+//             } else {
+//                 sidebar.classList.add('d-none');
+//                 sidebar.classList.remove('d-lg-block');
+//             }
+//         }
+// });
 // Sidebar toggle
 // document.addEventListener('DOMContentLoaded', function() {
 //     const toggleBtn = document.getElementById('sidebarToggle');

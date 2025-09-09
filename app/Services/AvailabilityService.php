@@ -78,6 +78,7 @@ class AvailabilityService
     //     if (!$hasAvailability) {
     //         return false;
     //     }
+    // amazonq-ignore-next-line
 
     //     // Check for booking conflicts
     //     // $hasConflict = Booking::where('user_id', $userId)
@@ -115,7 +116,7 @@ class AvailabilityService
      * @param int $duration - How long the appointment is in minutes (e.g., 30)
      * @return bool - true if slot is available, false if not
      */
-    public function isSlotAvailable(int $userId, string $date, string $startTime, int $duration, $excludeBookingId=null): bool
+    public function isSlotAvailable(int $userId, string $date, string $startTime, int $duration, $excludeBookingId = null): bool
     {
         // Step 1: Convert the input time to proper format
         $requestedStartTime = Carbon::parse($startTime)->format('H:i'); // e.g., '14:30'
@@ -130,44 +131,56 @@ class AvailabilityService
 
         // Step 2: Check if user is available during this time on this day of week
         $userHasAvailability = Availability::where('user_id', $userId)
+            // ->where('availability_date', $date)
             ->where('day_of_week', $dayOfWeek)
             ->where('is_available', true)
             ->where('start_time', '<=', $requestedStartTime)  // User starts work before or at requested time
             ->where('end_time', '>=', $requestedEndTime)      // User ends work after or at requested end time
             ->where('is_available', true)
             ->exists();
-
         // If user is not available during this time, return false immediately
         if (!$userHasAvailability) {
             return false; // User doesn't work during this time
         }
 
         // Step 3: Check if there are any existing bookings that conflict
+        // $conflictingBookings = Booking::where('user_id', $userId)
+        //     ->whereDate('booking_date', $date)  // Only check bookings on the same date
+        //     ->where('status', 'scheduled')      // Only check confirmed bookings
+        //     ->when($excludeBookingId, function ($query) use ($excludeBookingId) {
+        //         $query->where('id', '!=', $excludeBookingId);
+        //     })
+        //     ->where(function ($query) use ($requestedStartTime, $requestedEndTime) {
+        //         // Check for overlapping time slots
+        //         $query->where(function ($subQuery) use ($requestedStartTime, $requestedEndTime) {
+        //             // Existing booking starts before requested ends AND existing booking ends after requested starts
+        //             $subQuery->where('start_time', '<', $requestedEndTime)
+        //                 ->where('end_time', '>', $requestedStartTime);
+        //         });
+        //     })
+        //     ->get();
+
+        // Check for booking conflicts with proper time parsing
         $conflictingBookings = Booking::where('user_id', $userId)
-            ->whereDate('booking_date', $date)  // Only check bookings on the same date
-            ->where('status', 'scheduled')      // Only check confirmed bookings
-            ->where('id' != $excludeBookingId) // exclude the current booking.
-            ->where(function ($query) use ($requestedStartTime, $requestedEndTime) {
-                // Check for 3 types of conflicts:
-
-                // Conflict Type 1: Existing booking starts during our requested time
-                $query->whereBetween('start_time', [$requestedStartTime, $requestedEndTime])
-
-                    // Conflict Type 2: Existing booking ends during our requested time
-                    ->orWhereBetween('end_time', [$requestedStartTime, $requestedEndTime])
-
-                    // Conflict Type 3: Existing booking completely covers our requested time
-                    ->orWhere(function ($subQuery) use ($requestedStartTime, $requestedEndTime) {
-                        $subQuery->where('start_time', '<=', $requestedStartTime)
-                            ->where('end_time', '>=', $requestedEndTime);
-                    });
+            ->whereDate('booking_date', $date)
+            ->where('status', 'scheduled')
+            ->when($excludeBookingId, function ($query) use ($excludeBookingId) {
+                $query->where('id', '!=', $excludeBookingId);
             })
-            ->get();
+            ->get()
+            ->filter(function ($booking) use ($requestedStartTime, $requestedEndTime) {
+                // Normalize both times to H:i format for proper comparison
+                $bookingStart = Carbon::parse($booking->start_time)->format('H:i');
+                $bookingEnd = Carbon::parse($booking->end_time)->format('H:i');
+
+                // Check for time overlap
+                return $bookingStart < $requestedEndTime && $bookingEnd > $requestedStartTime;
+            });
+
+        // dd($conflictingBookings->toArray());
 
         // Step 4: Return true if NO conflicts found, false if conflicts exist
-        $hasNoConflicts = $conflictingBookings->isEmpty();
-
-        return $hasNoConflicts;
+        return $conflictingBookings->isEmpty();
     }
 
 

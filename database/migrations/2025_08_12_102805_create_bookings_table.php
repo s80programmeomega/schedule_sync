@@ -15,9 +15,9 @@ return new class extends Migration
 			$table->id();
 			$table->foreignId('event_type_id')->constrained()->onDelete('cascade');
 			$table->foreignId('user_id')->constrained()->onDelete('cascade'); // Event owner
-			$table->string('attendee_name');
-			$table->string('attendee_email');
-			$table->text('attendee_notes')->nullable();
+			// $table->string('attendee_name');
+			// $table->string('attendee_email');
+			// $table->text('attendee_notes')->nullable();
 			$table->date('booking_date');
             $table->foreignId('timezone_id')->constrained();
             $table->time('start_time');

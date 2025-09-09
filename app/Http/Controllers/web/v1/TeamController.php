@@ -85,4 +85,54 @@ class TeamController extends Controller
         return redirect()->route('teams.index')
             ->with('success', 'Team deleted successfully!');
     }
+
+    // public function getMembers(Team $team)
+    // {
+    //     $members = $team->activeMembers()->with('user')->get();
+    //     return response()->json(['members' => $members]);
+    // }
+
+
+    /**
+     * Get team members for attendee import
+     *
+     * This method fetches all active team members with their user information
+     * for use in the booking attendee import functionality.
+     *
+     * @param Team $team The team to fetch members from
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getMembers(Team $team)
+    {
+        // Verify user has access to this team
+        if (!$team->hasMember(auth()->user())) {
+            abort(403, 'You do not have access to this team');
+        }
+
+        // Fetch active team members with user data
+        $members = $team->activeMembers()
+            ->with(['user:id,name,email'])
+            ->get()
+            ->map(function ($member) {
+                return [
+                    'id' => $member->id,
+                    'user_id' => $member->user_id,
+                    'role' => $member->role,
+                    'user' => [
+                        'id' => $member->user->id,
+                        'name' => $member->user->name,
+                        'email' => $member->user->email,
+                    ]
+                ];
+            });
+
+        return response()->json([
+            'success' => true,
+            'members' => $members,
+            'team' => [
+                'id' => $team->id,
+                'name' => $team->name,
+            ]
+        ]);
+    }
 }

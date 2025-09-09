@@ -97,13 +97,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('teams', TeamController::class);
     Route::resource('teams.members', TeamMemberController::class)->except(['show']);
     Route::get('/teams/{team}/members', [TeamMemberController::class, 'index'])->name('teams.members.index');
-    Route::resource('contacts', ContactController::class);
     Route::resource('groups', GroupController::class);
 
     Route::resource('groups.members', GroupMemberController::class)->except(['show']);
     Route::get('/groups/{group}/members', [GroupMemberController::class, 'index'])->name('groups.members.index');
 
+    // AJAX endpoints for member fetching
+    Route::get('/teams/{team}/members-json', [TeamController::class, 'getMembers'])->name('teams.members.json');
+    Route::get('/groups/{group}/members-json', [GroupController::class, 'getMembers'])->name('groups.members.json');
 
+    // Enhanced contact endpoints
+    Route::get('/contacts/all-json', [ContactController::class, 'getAllContacts'])->name('contacts.all.json');
+
+    Route::resource('contacts', ContactController::class);
 });
 
 // Public team invitation acceptance

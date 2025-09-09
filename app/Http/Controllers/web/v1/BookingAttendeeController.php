@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\web\v1;
 
 use App\Http\Requests\StoreBookingAttendeeRequest;
 use App\Http\Requests\UpdateBookingAttendeeRequest;
 use App\Models\BookingAttendee;
+use App\Http\Controllers\Controller;
 
 class BookingAttendeeController extends Controller
 {

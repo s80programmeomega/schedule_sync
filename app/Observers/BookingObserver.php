@@ -49,26 +49,26 @@ class BookingObserver
     {
         if ($booking->status === 'scheduled') {
             try {
-                // Send confirmation email to attendee
-                Mail::to($booking->attendee_email)
-                    ->send(new BookingConfirmation($booking));
+                foreach ($booking->attendees as $attendee) {
+                    // Send confirmation email to attendee
+                    Mail::to($attendee->email)
+                        ->send(new BookingConfirmation($booking,$attendee));
+                    Log::info('Booking confirmation emails sent', [
+                        'booking_id' => $booking->id,
+                        'attendee_email' => $attendee->email,
+                        'host_email' => $booking->eventType->user->email,
+                    ]);
+                }
 
                 // send notification to host
                 Mail::to($booking->eventType->user->email)
                     ->send(new BookingConfirmation($booking));
-
-                Log::info('Booking confirmation emails sent', [
-                    'booking_id' => $booking->id,
-                    'attendee_email' => $booking->attendee_email,
-                    'host_email' => $booking->eventType->user->email,
-                ]);
             } catch (\Exception $e) {
-                Log::error('Failed to send booking confirmation emails', [
+                Log::error('An error occurred while sending booking confirmation emails', [
                     'booking_id' => $booking->id,
                     'error' => $e->getMessage(),
                 ]);
             }
-
         }
     }
 
@@ -119,7 +119,6 @@ class BookingObserver
                 $this->sendRescheduleEmail($booking);
             }
         }
-
     }
 
 
@@ -136,9 +135,14 @@ class BookingObserver
                 ? 'host'
                 : 'attendee';
 
+            foreach ($booking->attendees as $attendee) {
+                // Send cancellation email to attendee
+                Mail::to($attendee->email)
+                    ->send(new BookingCancellation($booking, $cancelledBy));
+            }
             // Send to attendee
-            Mail::to($booking->attendee_email)
-                ->send(new BookingCancellation($booking, $cancelledBy));
+            // Mail::to($booking->attendee_email)
+            //     ->send(new BookingCancellation($booking, $cancelledBy));
 
             // Send to host
             $eventType = EventType::where('id', $booking->event_type_id)->first();
@@ -151,7 +155,7 @@ class BookingObserver
                 'cancelled_by' => $cancelledBy,
             ]);
         } catch (\Exception $e) {
-            Log::error('Failed to send cancellation emails', [
+            Log::error('An error occurred while trying to send cancellation emails', [
                 'booking_id' => $booking->id,
                 'error' => $e->getMessage(),
             ]);
@@ -166,8 +170,10 @@ class BookingObserver
     private function sendRescheduleEmail(Booking $booking): void
     {
         try {
-            Mail::to($booking->attendee_email)
-                ->send(new BookingRescheduled($booking));
+            foreach ($booking->attendees as $attendee) {
+                Mail::to($attendee->email)
+                    ->send(new BookingRescheduled($booking));
+            }
 
             Mail::to($booking->eventType->user->email)
                 ->send(new BookingRescheduled($booking));
@@ -176,7 +182,7 @@ class BookingObserver
                 'booking_id' => $booking->id,
             ]);
         } catch (\Exception $e) {
-            Log::error('Failed to send reschedule emails', [
+            Log::error('An error occurred while trying to send reschedule emails', [
                 'booking_id' => $booking->id,
                 'error' => $e->getMessage(),
             ]);

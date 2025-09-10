@@ -52,12 +52,12 @@ class Availability extends Model
     // Accessors to format time fields
     public function getStartTimeAttribute($value)
     {
-        return $value ? Carbon::parse($value)->format('g:i A') : null;
+        return $value ? Carbon::parse($value)->format('H:i') : null;
     }
 
     public function getEndTimeAttribute($value)
     {
-        return $value ? Carbon::parse($value)->format('g:i A') : null;
+        return $value ? Carbon::parse($value)->format('H:i') : null;
     }
 
 }

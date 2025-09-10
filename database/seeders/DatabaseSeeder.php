@@ -34,7 +34,7 @@ class DatabaseSeeder extends Seeder
         $this->command->info('✅ Admin user created');
 
         // 3. Create additional users
-        User::factory(35)->create();
+        User::factory(9)->create();
         $this->command->info('✅ Additional users created');
 
         // 4. Seed teams and team members
@@ -75,8 +75,10 @@ class DatabaseSeeder extends Seeder
                 ['Team Members', \App\Models\TeamMember::count()],
                 ['Contacts', \App\Models\Contact::count()],
                 ['Groups', \App\Models\Group::count()],
+                ['Group Members', \App\Models\GroupMember::count()],
                 ['Event Types', \App\Models\EventType::count()],
                 ['Bookings', \App\Models\Booking::count()],
+                ['Bookings Attendees', \App\Models\BookingAttendee::count()],
             ]
         );
     }

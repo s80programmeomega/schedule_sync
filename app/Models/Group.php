@@ -52,6 +52,21 @@ class Group extends Model
         return $this->belongsTo(User::class, 'created_by');
     }
 
+    /**
+     * Check if user has access to this group.
+     */
+    public function hasMember(User $user): bool
+    {
+        // User has access if they created the group
+        if ($this->created_by === $user->id) {
+            return true;
+        }
+
+        // Or if they're a member of the group's team
+        return $this->team && $this->team->hasMember($user);
+    }
+
+
     public function teamMembers(): MorphToMany
     {
         return $this->morphedByMany(TeamMember::class, 'member', 'group_members')

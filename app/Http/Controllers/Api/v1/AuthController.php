@@ -137,7 +137,7 @@ class AuthController extends ApiController
             // Revoke current token
             $request->user()->currentAccessToken()->delete();
 
-            return $this->successResponse(null, 'Logout successful');
+            return $this->successResponse(null, 'Logout successful', 200);
         } catch (\Exception $e) {
             return $this->errorResponse('Logout failed', 500);
         }

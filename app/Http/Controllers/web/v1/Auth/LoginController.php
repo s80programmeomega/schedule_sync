@@ -27,7 +27,7 @@ class LoginController extends Controller
             if (!$user->hasVerifiedEmail()) {
                 return redirect()->route('verification.notice');
             }
-            return redirect()->intended(default: '/dashboard');
+            return redirect()->intended(default: route('dashboard.index'));
         }
 
         return back()->withErrors([

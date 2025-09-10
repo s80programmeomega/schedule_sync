@@ -70,7 +70,7 @@ Route::post('/reset-password', [PasswordResetController::class, 'reset'])->name(
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('dashboard', DashboardController::class)->only(['index']);
-});
+})->name('dashboard');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('event-types', EventTypeController::class);
@@ -80,6 +80,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('bookings/scheduled', [BookingController::class, 'scheduled'])->name('bookings.scheduled');
     Route::get('bookings/completed', [BookingController::class, 'completed'])->name('bookings.completed');
     Route::get('bookings/cancelled', [BookingController::class, 'cancelled'])->name('bookings.cancelled');
+
+    // Attendee management routes
+    Route::post('bookings/{booking}/attendees', [BookingController::class, 'addAttendee'])->name('bookings.attendees.add');
+    Route::delete('bookings/{booking}/attendees/{attendee}', [BookingController::class, 'removeAttendee'])->name('bookings.attendees.remove');
+    Route::patch('bookings/{booking}/attendees/{attendee}', [BookingController::class, 'updateAttendee'])->name('bookings.attendees.update');
+    Route::get('bookings/{booking}/attendees', [BookingController::class, 'getAttendees'])->name('bookings.attendees.get');
+
 
     // Resource Routes come always at the end
     Route::resource('bookings', BookingController::class);

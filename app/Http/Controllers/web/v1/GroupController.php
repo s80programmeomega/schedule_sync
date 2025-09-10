@@ -146,12 +146,15 @@ class GroupController extends Controller
     public function getMembers(Group $group)
     {
         // Verify user has access to this group
-        if (
-            $group->created_by !== auth()->id() &&
-            !$group->team?->hasMember(auth()->user())
-        ) {
-            abort(403, 'You do not have access to this group');
-        }
+        // if (
+        //     $group->created_by !== auth()->id() &&
+        //     !$group->team?->hasMember(auth()->user())
+        // ) {
+        //     abort(403, 'You do not have access to this group');
+        // }
+        // Verify user has access to this group
+        $this->authorize('view', $group);
+
 
         // Fetch all group members with their related data
         $groupMembers = $group->members()

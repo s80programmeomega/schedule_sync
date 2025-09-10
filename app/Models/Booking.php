@@ -19,12 +19,9 @@ class Booking extends Model
     protected $fillable = [
         'event_type_id',
         'user_id',
-        // 'attendee_name',
-        // 'attendee_email',
-        // 'attendee_notes',
         'booking_date',
         'start_time',
-        // 'end_time',
+        'end_time',
         'timezone_id',
         'status',
         'meeting_link',
@@ -52,6 +49,8 @@ class Booking extends Model
     {
         return [
             'booking_date' => 'date',
+            'start_time' => 'datetime:H:i',
+            'end_time' => 'datetime:H:i',
             'cancelled_at' => 'datetime',
             'reminder_24h_sent_at' => 'datetime',
             'reminder_1h_sent_at' => 'datetime',
@@ -96,6 +95,17 @@ class Booking extends Model
         return Carbon::parse($this->booking_date->toDateString() . ' ' . $this->end_time);
     }
 
+    // Accessors to format time fields
+    public function getStartTimeAttribute($value)
+    {
+        return $value ? Carbon::parse($value)->format('H:i') : null;
+    }
+
+    public function getEndTimeAttribute($value)
+    {
+        return $value ? Carbon::parse($value)->format('H:i') : null;
+    }
+
     public function getIsUpcomingAttribute(): bool
     {
         return $this->full_start_time?->isFuture() && $this->status === 'scheduled';
@@ -111,7 +121,7 @@ class Booking extends Model
 
     public function getFormattedDateTimeAttribute(): ?string
     {
-        return $this->full_start_time?->format('M j, Y \a\t g:i A');
+        return $this->full_start_time?->format('M j, Y \a\t H:i');
     }
 
 
@@ -158,8 +168,19 @@ class Booking extends Model
     /**
      * Add attendee to booking
      */
-    public function addAttendee($attendee, string $role = 'required', array $data = []): BookingAttendee
+
+    public function addAttendee($attendee, string $role = 'required', array $data = []): ?BookingAttendee
     {
+        // Check if attendee already exists
+        $existing = $this->attendees()
+            ->where('attendee_id', $attendee->id)
+            ->where('attendee_type', get_class($attendee))
+            ->first();
+
+        if ($existing) {
+            return $existing;
+        }
+
         $attendeeData = array_merge([
             'attendee_id' => $attendee->id,
             'attendee_type' => get_class($attendee),
@@ -172,4 +193,20 @@ class Booking extends Model
 
         return $this->attendees()->create($attendeeData);
     }
+
+
+    // public function addAttendee($attendee, string $role = 'required', array $data = []): BookingAttendee
+    // {
+    //     $attendeeData = array_merge([
+    //         'attendee_id' => $attendee->id,
+    //         'attendee_type' => get_class($attendee),
+    //         'name' => $attendee->name,
+    //         'email' => $attendee->email,
+    //         'phone' => $attendee->phone ?? null,
+    //         'role' => $role,
+    //         'status' => 'pending',
+    //     ], $data);
+
+    //     return $this->attendees()->create($attendeeData);
+    // }
 }

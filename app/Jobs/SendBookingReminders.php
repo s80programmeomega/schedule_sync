@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Models\Booking;
+use App\Models\BookingAttendee;
 use App\Mail\BookingReminder;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -11,6 +12,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
+
 
 /**
  * Send Booking Reminders Job
@@ -54,30 +56,41 @@ class SendBookingReminders implements ShouldQueue
         ]);
 
         foreach ($bookings as $booking) {
-            try {
-                // Send to attendee
-                Mail::to($booking->attendee_email)
-                    ->send(new BookingReminder($booking, $this->reminderType));
 
+            try {
+                foreach ($booking->attendees as $attendee) {
+                    // Send to attendee
+                    Mail::to($attendee->email)
+                        ->send(new BookingReminder($booking, $this->reminderType));
+
+                    Log::info('Reminder sent successfully', [
+                        'booking_id' => $booking->id,
+                        'attendee_name' => $attendee->name,
+                        'attendee_email' => $attendee->email,
+                        'reminder_type' => $this->reminderType,
+                    ]);
+                }
                 // Send to host
                 Mail::to($booking->eventType->user->email)
                     ->send(new BookingReminder($booking, $this->reminderType));
 
-                // Mark reminder as sent to avoid duplicates
-                $this->markReminderSent($booking);
 
                 Log::info('Reminder sent successfully', [
                     'booking_id' => $booking->id,
+                    'host' => $booking->eventType->user->email,
                     'reminder_type' => $this->reminderType,
                 ]);
             } catch (\Exception $e) {
                 Log::error('Failed to send reminder', [
                     'booking_id' => $booking->id,
+                    'host' => $booking->eventType->user->email,
                     'reminder_type' => $this->reminderType,
                     'error' => $e->getMessage(),
                 ]);
             }
         }
+        // Mark reminder as sent to avoid duplicates
+        $this->markReminderSent($booking);
     }
 
     /**

@@ -15,175 +15,118 @@ use App\Models\Team;
 use App\Models\TeamMember;
 use App\Models\Group;
 use App\Models\GroupMember;
+use App\Models\BookingAttendee;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
-
-/**
- * Booking Controller
- * Handles CRUD operations for bookings
- */
 class BookingController extends Controller
 {
-
     public function __construct(
         private AvailabilityService $availabilityService
     ) {}
 
-    /**
-     * Display a listing of all bookings
-     */
+    private function getBookingsByStatus($status = null)
+    {
+        $query = Booking::with(['eventType', 'user', 'attendees.attendee', 'timezone'])
+            ->where('user_id', auth()->id());
+
+        if ($status) {
+            $query->where('status', $status);
+        }
+
+        return $query->latest('start_time')->paginate(10);
+    }
+
     public function index()
     {
-        $bookings = Booking::with(['eventType', 'user'])
-            ->where('user_id', auth()->user()->id)
-            ->latest('start_time')
-            ->paginate(10);
-
+        $bookings = $this->getBookingsByStatus();
         return view('bookings.index', compact('bookings'))->with('viewType', 'all');
     }
 
-    /**
-     * Display scheduled bookings only
-     */
     public function scheduled()
     {
-        $bookings = Booking::with(['eventType', 'user'])
-            ->where('user_id', auth()->user()->id)
-            ->where('status', 'scheduled')
-            ->latest('start_time')
-            ->paginate(10);
-
+        $bookings = $this->getBookingsByStatus('scheduled');
         return view('bookings.index', compact('bookings'))->with('viewType', 'scheduled');
     }
 
-
-    /**
-     * Display completed bookings only
-     */
     public function completed()
     {
-        $bookings = Booking::with(['eventType', 'user'])
-            ->where('user_id', auth()->user()->id)
-            ->where('status', 'completed')
-            ->latest('start_time')
-            ->paginate(10);
-
+        $bookings = $this->getBookingsByStatus('completed');
         return view('bookings.index', compact('bookings'))->with('viewType', 'completed');
     }
 
-    /**
-     * Display cancelled bookings only
-     */
     public function cancelled()
     {
-        $bookings = Booking::with(['eventType', 'user'])
-            ->where('user_id', auth()->user()->id)
-            ->where('status', 'cancelled')
-            ->latest('start_time')
-            ->paginate(10);
-
+        $bookings = $this->getBookingsByStatus('cancelled');
         return view('bookings.index', compact('bookings'))->with('viewType', 'cancelled');
     }
 
-
-    /**
-     * Show the form for creating a new booking
-     */
-    // public function create()
-    // {
-    //     $eventTypes = EventType::where('user_id', auth()->user()->id)
-    //         ->where('is_active', true)
-    //         ->get();
-
-    //         $contacts = Contact::where('user_id', auth()->user()->id)
-    //             ->where('is_active', true)
-    //             ->get();
-
-    //     $timezones = Timezone::orderBy('display_name')->get();
-
-    //     return view('bookings.create', compact('eventTypes', 'contacts', 'timezones'));
-    // }
-
-    /**
-     * Store a newly created booking
-     */
-    // public function store(StoreBookingRequest $request)
-    // {
-    //     $validated = $request->validated();
-
-    //     // dd($validated);
-
-    //     // ✅ Get duration from the event type
-    //     $eventType = EventType::findOrFail($validated['event_type_id']);
-
-    //     // ✅ Validate slot availability before creating
-    //     if (!$this->availabilityService->isSlotAvailable(
-    //         auth()->id(),
-    //         $validated['booking_date'],
-    //         $validated['start_time'],
-    //         $eventType->duration
-    //     )) {
-    //         return back()->withErrors(['start_time' => 'Selected time slot is not available'])
-    //             ->withInput();
-    //     }
-
-    //     $bookingData = collect($validated)->except(['full_start_time', 'full_end_time'])->all();
-    //     $bookingData['user_id'] = auth()->id();
-    //     $bookingData['status'] = 'scheduled';
-
-    //     Booking::create($bookingData);
-
-    //     return redirect()->route('bookings.index')
-    //         ->with('success', 'Booking created successfully!');
-    // }
-
-    /**
-     * Display the specified booking
-     */
-    public function show(Booking $booking)
+    public function create()
     {
-        if ($booking->user_id !== auth()->user()->id) {
-            abort(403);
-        }
-
-        return view('bookings.show', compact('booking'));
-    }
-    // amazonq-ignore-next-line
-
-    /**
-     * Show the form for editing a booking
-     */
-    public function edit(Booking $booking)
-    {
-        if ($booking->user_id !== auth()->user()->id) {
-            abort(403);
-        }
-
-        $eventTypes = EventType::where('user_id', auth()->user()->id)
-            ->where('is_active', true)
-            ->get();
-
+        $eventTypes = EventType::where('user_id', auth()->id())->where('is_active', true)->get();
+        $contacts = Contact::where('created_by', auth()->id())->where('is_active', true)->get();
+        $teams = Team::whereHas('members', function ($query) {
+            $query->where('user_id', auth()->id())->where('status', 'active');
+        })->with(['members.user'])->get();
+        $groups = Group::where('created_by', auth()->id())->where('is_active', true)->get();
         $timezones = Timezone::orderBy('display_name')->get();
 
-
-        return view('bookings.edit', compact('booking', 'eventTypes', 'timezones'));
+        return view('bookings.create', compact('eventTypes', 'contacts', 'teams', 'groups', 'timezones'));
     }
 
-    /**
-     * Update the specified booking
-     */
-    public function update(UpdateBookingRequest $request, Booking $booking)
+    public function store(StoreBookingRequest $request)
     {
-        if ($booking->user_id !== auth()->user()->id) {
-            abort(403);
-        }
-
         $validated = $request->validated();
-
-        // Get duration from the event type
         $eventType = EventType::findOrFail($validated['event_type_id']);
 
-        // Validate slot availability before updating
+        if (!$this->availabilityService->isSlotAvailable(
+            auth()->id(),
+            $validated['booking_date'],
+            $validated['start_time'],
+            $eventType->duration
+        )) {
+            return back()->withErrors(['start_time' => 'Selected time slot is not available'])->withInput();
+        }
+
+        $bookingData = collect($validated)->except(['full_start_time', 'full_end_time'])->all();
+        $bookingData['user_id'] = auth()->id();
+        $bookingData['status'] = 'scheduled';
+
+        Booking::create($bookingData);
+
+        return redirect()->route('bookings.index')->with('success', 'Booking created successfully!');
+    }
+
+    public function show(Booking $booking)
+    {
+        $this->authorizeBookingAccess($booking);
+        $booking->load(['attendees.attendee', 'eventType', 'timezone']);
+        return view('bookings.show', compact('booking'));
+    }
+
+    public function edit(Booking $booking)
+    {
+        $this->authorizeBookingAccess($booking);
+
+        $booking->load(['attendees.attendee']);
+        $eventTypes = EventType::where('user_id', auth()->id())->where('is_active', true)->get();
+        $timezones = Timezone::orderBy('display_name')->get();
+        $contacts = Contact::where('created_by', auth()->id())->where('is_active', true)->get();
+        $teams = Team::whereHas('members', function ($query) {
+            $query->where('user_id', auth()->id())->where('status', 'active');
+        })->with(['members.user'])->get();
+        $groups = Group::where('created_by', auth()->id())->where('is_active', true)->get();
+
+        return view('bookings.edit', compact('booking', 'eventTypes', 'timezones', 'contacts', 'teams', 'groups'));
+    }
+
+    public function update(UpdateBookingRequest $request, Booking $booking)
+    {
+        $this->authorizeBookingAccess($booking);
+
+        $validated = $request->validated();
+        $eventType = EventType::findOrFail($validated['event_type_id']);
+
         if (!$this->availabilityService->isSlotAvailable(
             auth()->id(),
             $validated['booking_date'],
@@ -191,48 +134,31 @@ class BookingController extends Controller
             $eventType->duration,
             $booking->id,
         )) {
-            return back()->withErrors(['start_time' => 'Selected time slot is not available'])
-                ->withInput();
+            return back()->withErrors(['start_time' => 'Selected time slot is not available'])->withInput();
         }
 
         if ($validated['status'] === 'cancelled' && !$booking->cancelled_at) {
             $validated['cancelled_at'] = now();
         }
 
-        // amazonq-ignore-next-line
         $booking->update($validated);
 
-        return redirect()->route('bookings.index')
-            ->with('success', 'Booking updated successfully!');
+        return redirect()->route('bookings.index')->with('success', 'Booking updated successfully!');
     }
-    // amazonq-ignore-next-line
 
-    /**
-     * Remove the specified booking
-     */
     public function destroy(Request $request, Booking $booking)
     {
-        if ($booking->user_id !== auth()->user()->id) {
-            abort(403);
-        }
+        $this->authorizeBookingAccess($booking);
 
         $booking->delete();
-
         $redirectRoute = $request->redirect_to === 'scheduled' ? 'bookings.scheduled' : 'bookings.index';
 
-
-        return redirect()->route($redirectRoute)
-            ->with('success', 'Booking deleted successfully!');
+        return redirect()->route($redirectRoute)->with('success', 'Booking deleted successfully!');
     }
 
-    /**
-     * Cancel the specified booking
-     */
     public function cancel(Request $request, Booking $booking)
     {
-        if ($booking->user_id !== auth()->user()->id) {
-            abort(403);
-        }
+        $this->authorizeBookingAccess($booking);
 
         $validated = $request->validate([
             'cancellation_reason' => 'nullable|string|max:500',
@@ -247,60 +173,129 @@ class BookingController extends Controller
         return back()->with('success', 'Booking cancelled successfully!');
     }
 
-    public function create()
+    public function addAttendee(Request $request, Booking $booking)
     {
-        $eventTypes = EventType::where(function ($query) {
-            $query->where('user_id', auth()->id())
-                ->orWhereHas('team', function ($teamQuery) {
-                    $teamQuery->whereHas('members', function ($memberQuery) {
-                        $memberQuery->where('user_id', auth()->id())
-                            ->where('status', 'active');
-                    });
-                });
-        })->where('is_active', true)->get();
+        $this->authorizeBookingAccess($booking);
 
-        $contacts = Contact::where(function ($query) {
-            $query->where('created_by', auth()->id())
-                ->orWhereHas('team', function ($teamQuery) {
-                    $teamQuery->whereHas('members', function ($memberQuery) {
-                        $memberQuery->where('user_id', auth()->id())
-                            ->where('status', 'active');
-                    });
-                });
-        })->where('is_active', true)->get();
+        try {
+            $type = $request->input('type');
+            $role = $request->input('role', 'required');
 
-        // Get teams where user is a member
-        $teams = Team::whereHas('members', function ($query) {
-            $query->where('user_id', auth()->id())
-                ->where('status', 'active');
-        })->with(['members.user'])->get();
+            if (!in_array($type, ['contact', 'email', 'team', 'group'])) {
+                return response()->json(['success' => false, 'message' => 'Invalid attendee type'], 422);
+            }
 
-        // Get groups where user has access
-        $groups = Group::where(function ($query) {
-            $query->where('created_by', auth()->id())
-                ->orWhereHas('team', function ($teamQuery) {
-                    $teamQuery->whereHas('members', function ($memberQuery) {
-                        $memberQuery->where('user_id', auth()->id())
-                            ->where('status', 'active');
-                    });
-                });
-        })->where('is_active', true)->get();
+            switch ($type) {
+                case 'contact':
+                    $contactId = $request->input('contact_id');
+                    if (!$contactId) {
+                        return response()->json(['success' => false, 'message' => 'Contact is required'], 422);
+                    }
+                    $contact = Contact::findOrFail($contactId);
+                    $booking->addAttendee($contact, $role);
+                    break;
 
-        $timezones = Timezone::orderBy('display_name')->get();
+                case 'team':
+                    $memberId = $request->input('member_id');
+                    if (!$memberId) {
+                        return response()->json(['success' => false, 'message' => 'Team member is required'], 422);
+                    }
+                    $teamMember = TeamMember::with('user')->find($memberId);
+                    if (!$teamMember) {
+                        return response()->json(['success' => false, 'message' => 'Team member not found'], 422);
+                    }
+                    $booking->addAttendee($teamMember->user, $role);
 
-        return view('bookings.create', compact('eventTypes', 'contacts', 'teams', 'groups', 'timezones'));
+                    break;
+
+                case 'group':
+                    $memberId = $request->input('member_id');
+                    if (!$memberId) {
+                        return response()->json(['success' => false, 'message' => 'Group member is required'], 422);
+                    }
+                    $groupMember = GroupMember::with('member')->find($memberId);
+                    if (!$groupMember) {
+                        return response()->json(['success' => false, 'message' => 'Group member not found'], 422);
+                    }
+                    $booking->addAttendee($groupMember->member, $role);
+
+                    break;
+
+                case 'email':
+                    $name = $request->input('name');
+                    $email = $request->input('email');
+                    if (!$name || !$email) {
+                        return response()->json(['success' => false, 'message' => 'Name and email are required'], 422);
+                    }
+
+                    // Create or find existing contact
+                    $contact = Contact::firstOrCreate(
+                        ['email' => $email, 'created_by' => auth()->id()],
+                        [
+                            'name' => $name,
+                            'created_by' => auth()->id(),
+                            'is_active' => true,
+                        ]
+                    );
+
+                    // Add contact as attendee
+                    $booking->addAttendee($contact, $role);
+
+                    // $booking->attendees()->create([
+                    //     'attendee_id' => null,
+                    //     'attendee_type' => 'guest',
+                    //     'name' => $name,
+                    //     'email' => $email,
+                    //     'role' => $role,
+                    //     'status' => 'pending',
+                    // ]);
+                    break;
+            }
+
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            Log::error('Add attendee error: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+        }
     }
 
-    // public function storeWithAttendees(Request $request)
-    // {
-    //     // Debug what's being submitted
-    //     dd([
-    //         'all_input' => $request->all(),
-    //         'attendees' => $request->input('attendees'),
-    //         'has_attendees' => $request->has('attendees'),
-    //     ]);
-    // }
 
+    public function removeAttendee(Booking $booking, BookingAttendee $attendee)
+    {
+        $this->authorizeBookingAccess($booking);
+
+        if ($attendee->booking_id !== $booking->id) {
+            abort(403);
+        }
+
+        $attendee->delete();
+        return back()->with('success', 'Attendee removed successfully!');
+    }
+
+    public function updateAttendee(Request $request, Booking $booking, BookingAttendee $attendee)
+    {
+        $this->authorizeBookingAccess($booking);
+
+        if ($attendee->booking_id !== $booking->id) {
+            abort(403);
+        }
+
+        $validated = $request->validate([
+            'role' => 'required|in:organizer,required,optional',
+            'status' => 'required|in:pending,accepted,declined',
+        ]);
+
+        $attendee->update($validated);
+        return response()->json(['success' => true]);
+    }
+
+    public function getAttendees(Booking $booking)
+    {
+        $this->authorizeBookingAccess($booking);
+
+        $attendees = $booking->attendees()->with('attendee')->get();
+        return response()->json($attendees);
+    }
 
     public function storeWithAttendees(Request $request)
     {
@@ -313,34 +308,25 @@ class BookingController extends Controller
             'meeting_link' => 'nullable|url|max:500',
             'attendees' => 'required|array|min:1',
             'attendees.*.type' => 'required|in:contact,email,team,group',
-            'attendees.*.contact_id' => 'required_if:attendees.*.type,contact|exists:contacts,id',
-            'attendees.*.member_id' => 'required_if:attendees.*.type,team|required_if:attendees.*.type,group|string',
-            'attendees.*.name' => 'required_if:attendees.*.type,email|string',
-            'attendees.*.email' => 'required_if:attendees.*.type,email|email',
+            'attendees.*.contact_id' => 'required_if:attendees.*.type,contact|nullable|exists:contacts,id',
+            'attendees.*.member_id' => 'required_if:attendees.*.type,team,group|nullable|string',
+            'attendees.*.name' => 'required_if:attendees.*.type,email|nullable|string',
+            'attendees.*.email' => 'required_if:attendees.*.type,email|nullable|email',
             'attendees.*.role' => 'required|in:organizer,required,optional',
         ]);
-
-        // dd($validated);
-        // Temporary debugging - remove after fixing
-        if (empty($validated['attendees'])) {
-            return back()->withErrors(['attendees' => 'At least one attendee is required'])->withInput();
-        }
 
 
         $eventType = EventType::findOrFail($validated['event_type_id']);
 
-        // Validate slot availability
         if (!$this->availabilityService->isSlotAvailable(
             auth()->id(),
             $validated['booking_date'],
             $validated['start_time'],
             $eventType->duration
         )) {
-            return back()->withErrors(['start_time' => 'Selected time slot is not available'])
-                ->withInput();
+            return back()->withErrors(['start_time' => 'Selected time slot is not available'])->withInput();
         }
 
-        // Calculate end time
         $startTime = Carbon::parse($validated['start_time']);
         $endTime = $startTime->copy()->addMinutes($eventType->duration);
 
@@ -354,8 +340,6 @@ class BookingController extends Controller
             'meeting_link' => $validated['meeting_link'],
         ]);
 
-
-        // Add attendees with error handling
         foreach ($validated['attendees'] as $attendeeData) {
             try {
                 switch ($attendeeData['type']) {
@@ -363,23 +347,22 @@ class BookingController extends Controller
                         $contact = Contact::findOrFail($attendeeData['contact_id']);
                         $booking->addAttendee($contact, $attendeeData['role']);
                         break;
-
                     case 'team':
-                        if (!isset($attendeeData['member_id'])) {
-                            throw new \Exception('Member ID is required for team attendees');
+                        $teamMember = TeamMember::with('user')->find($attendeeData['member_id']);
+                        if (!$teamMember) {
+                            throw new \Exception("Team member not found");
                         }
-                        $teamMember = TeamMember::with('user')->findOrFail($attendeeData['member_id']);
                         $booking->addAttendee($teamMember->user, $attendeeData['role']);
-                        break;
 
+                        break;
                     case 'group':
-                        if (!isset($attendeeData['member_id'])) {
-                            throw new \Exception('Member ID is required for group attendees');
+                        $groupMember = GroupMember::with('member')->find($attendeeData['member_id']);
+                        if (!$groupMember) {
+                            throw new \Exception("Group member not found");
                         }
-                        $groupMember = GroupMember::with('member')->findOrFail($attendeeData['member_id']);
                         $booking->addAttendee($groupMember->member, $attendeeData['role']);
-                        break;
 
+                        break;
                     case 'email':
                         $booking->attendees()->create([
                             'attendee_type' => 'guest',
@@ -391,14 +374,422 @@ class BookingController extends Controller
                         break;
                 }
             } catch (\Exception $e) {
-                return back()->withErrors(['attendees' => 'Error adding attendee: ' . $e->getMessage()])
-                    ->withInput();
+                return back()->withErrors(['attendees' => 'Error adding attendee: ' . $e->getMessage()])->withInput();
             }
         }
 
-        return redirect()->route('bookings.index')
-            ->with('success', 'Booking created with attendees successfully!');
+        return redirect()->route('bookings.index')->with('success', 'Booking created with attendees successfully!');
     }
+
+    private function authorizeBookingAccess(Booking $booking)
+    {
+        if ($booking->user_id !== auth()->id()) {
+            abort(403);
+        }
+    }
+}
+
+
+
+// namespace App\Http\Controllers\web\v1;
+
+// use App\Models\Booking;
+// use App\Models\EventType;
+// use Illuminate\Http\Request;
+// use App\Models\Contact;
+// use App\Http\Controllers\Controller;
+// use App\Http\Requests\v1\StoreBookingRequest;
+// use App\Http\Requests\v1\UpdateBookingRequest;
+// use App\Models\Timezone;
+// use App\Services\AvailabilityService;
+// use App\Models\Team;
+// use App\Models\TeamMember;
+// use App\Models\Group;
+// use App\Models\GroupMember;
+// use Carbon\Carbon;
+
+
+/**
+ * Booking Controller
+ * Handles CRUD operations for bookings
+ */
+// class BookingController extends Controller
+// {
+
+//     public function __construct(
+//         private AvailabilityService $availabilityService
+//     ) {}
+
+//     /**
+//      * Display a listing of all bookings
+//      */
+//     public function index()
+//     {
+//         $bookings = Booking::with(['eventType', 'user'])
+//             ->where('user_id', auth()->user()->id)
+//             ->latest('start_time')
+//             ->paginate(10);
+
+//         return view('bookings.index', compact('bookings'))->with('viewType', 'all');
+//     }
+
+//     /**
+//      * Display scheduled bookings only
+//      */
+//     public function scheduled()
+//     {
+//         $bookings = Booking::with(['eventType', 'user'])
+//             ->where('user_id', auth()->user()->id)
+//             ->where('status', 'scheduled')
+//             ->latest('start_time')
+//             ->paginate(10);
+
+//         return view('bookings.index', compact('bookings'))->with('viewType', 'scheduled');
+//     }
+
+
+//     /**
+//      * Display completed bookings only
+//      */
+//     public function completed()
+//     {
+//         $bookings = Booking::with(['eventType', 'user'])
+//             ->where('user_id', auth()->user()->id)
+//             ->where('status', 'completed')
+//             ->latest('start_time')
+//             ->paginate(10);
+
+//         return view('bookings.index', compact('bookings'))->with('viewType', 'completed');
+//     }
+
+//     /**
+//      * Display cancelled bookings only
+//      */
+//     public function cancelled()
+//     {
+//         $bookings = Booking::with(['eventType', 'user'])
+//             ->where('user_id', auth()->user()->id)
+//             ->where('status', 'cancelled')
+//             ->latest('start_time')
+//             ->paginate(10);
+
+//         return view('bookings.index', compact('bookings'))->with('viewType', 'cancelled');
+//     }
+
+
+/**
+ * Show the form for creating a new booking
+ */
+// public function create()
+// {
+//     $eventTypes = EventType::where('user_id', auth()->user()->id)
+//         ->where('is_active', true)
+//         ->get();
+
+//         $contacts = Contact::where('user_id', auth()->user()->id)
+//             ->where('is_active', true)
+//             ->get();
+
+//     $timezones = Timezone::orderBy('display_name')->get();
+
+//     return view('bookings.create', compact('eventTypes', 'contacts', 'timezones'));
+// }
+
+/**
+ * Store a newly created booking
+ */
+// public function store(StoreBookingRequest $request)
+// {
+//     $validated = $request->validated();
+
+//     // dd($validated);
+
+//     // ✅ Get duration from the event type
+//     $eventType = EventType::findOrFail($validated['event_type_id']);
+
+//     // ✅ Validate slot availability before creating
+//     if (!$this->availabilityService->isSlotAvailable(
+//         auth()->id(),
+//         $validated['booking_date'],
+//         $validated['start_time'],
+//         $eventType->duration
+//     )) {
+//         return back()->withErrors(['start_time' => 'Selected time slot is not available'])
+//             ->withInput();
+//     }
+
+//     $bookingData = collect($validated)->except(['full_start_time', 'full_end_time'])->all();
+//     $bookingData['user_id'] = auth()->id();
+//     $bookingData['status'] = 'scheduled';
+
+//     Booking::create($bookingData);
+
+//     return redirect()->route('bookings.index')
+//         ->with('success', 'Booking created successfully!');
+// }
+
+/**
+ * Display the specified booking
+ */
+    // public function show(Booking $booking)
+    // {
+    //     if ($booking->user_id !== auth()->user()->id) {
+    //         abort(403);
+    //     }
+
+    //     return view('bookings.show', compact('booking'));
+    // }
+    // // amazonq-ignore-next-line
+
+    // /**
+    //  * Show the form for editing a booking
+    //  */
+    // public function edit(Booking $booking)
+    // {
+    //     if ($booking->user_id !== auth()->user()->id) {
+    //         abort(403);
+    //     }
+
+    //     $eventTypes = EventType::where('user_id', auth()->user()->id)
+    //         ->where('is_active', true)
+    //         ->get();
+
+    //     $timezones = Timezone::orderBy('display_name')->get();
+
+
+    //     return view('bookings.edit', compact('booking', 'eventTypes', 'timezones'));
+    // }
+
+    // /**
+    //  * Update the specified booking
+    //  */
+    // public function update(UpdateBookingRequest $request, Booking $booking)
+    // {
+    //     if ($booking->user_id !== auth()->user()->id) {
+    //         abort(403);
+    //     }
+
+    //     $validated = $request->validated();
+
+    //     // Get duration from the event type
+    //     $eventType = EventType::findOrFail($validated['event_type_id']);
+
+    //     // Validate slot availability before updating
+    //     if (!$this->availabilityService->isSlotAvailable(
+    //         auth()->id(),
+    //         $validated['booking_date'],
+    //         $validated['start_time'],
+    //         $eventType->duration,
+    //         $booking->id,
+    //     )) {
+    //         return back()->withErrors(['start_time' => 'Selected time slot is not available'])
+    //             ->withInput();
+    //     }
+
+    //     if ($validated['status'] === 'cancelled' && !$booking->cancelled_at) {
+    //         $validated['cancelled_at'] = now();
+    //     }
+
+    //     // amazonq-ignore-next-line
+    //     $booking->update($validated);
+
+    //     return redirect()->route('bookings.index')
+    //         ->with('success', 'Booking updated successfully!');
+    // }
+    // // amazonq-ignore-next-line
+
+    // /**
+    //  * Remove the specified booking
+    //  */
+    // public function destroy(Request $request, Booking $booking)
+    // {
+    //     if ($booking->user_id !== auth()->user()->id) {
+    //         abort(403);
+    //     }
+
+    //     $booking->delete();
+
+    //     $redirectRoute = $request->redirect_to === 'scheduled' ? 'bookings.scheduled' : 'bookings.index';
+
+
+    //     return redirect()->route($redirectRoute)
+    //         ->with('success', 'Booking deleted successfully!');
+    // }
+
+    // /**
+    //  * Cancel the specified booking
+    //  */
+    // public function cancel(Request $request, Booking $booking)
+    // {
+    //     if ($booking->user_id !== auth()->user()->id) {
+    //         abort(403);
+    //     }
+
+    //     $validated = $request->validate([
+    //         'cancellation_reason' => 'nullable|string|max:500',
+    //     ]);
+
+    //     $booking->update([
+    //         'status' => 'cancelled',
+    //         'cancellation_reason' => $validated['cancellation_reason'],
+    //         'cancelled_at' => now(),
+    //     ]);
+
+    //     return back()->with('success', 'Booking cancelled successfully!');
+    // }
+
+    // public function create()
+    // {
+    //     $eventTypes = EventType::where(function ($query) {
+    //         $query->where('user_id', auth()->id())
+    //             ->orWhereHas('team', function ($teamQuery) {
+    //                 $teamQuery->whereHas('members', function ($memberQuery) {
+    //                     $memberQuery->where('user_id', auth()->id())
+    //                         ->where('status', 'active');
+    //                 });
+    //             });
+    //     })->where('is_active', true)->get();
+
+    //     $contacts = Contact::where(function ($query) {
+    //         $query->where('created_by', auth()->id())
+    //             ->orWhereHas('team', function ($teamQuery) {
+    //                 $teamQuery->whereHas('members', function ($memberQuery) {
+    //                     $memberQuery->where('user_id', auth()->id())
+    //                         ->where('status', 'active');
+    //                 });
+    //             });
+    //     })->where('is_active', true)->get();
+
+    //     // Get teams where user is a member
+    //     $teams = Team::whereHas('members', function ($query) {
+    //         $query->where('user_id', auth()->id())
+    //             ->where('status', 'active');
+    //     })->with(['members.user'])->get();
+
+    //     // Get groups where user has access
+    //     $groups = Group::where(function ($query) {
+    //         $query->where('created_by', auth()->id())
+    //             ->orWhereHas('team', function ($teamQuery) {
+    //                 $teamQuery->whereHas('members', function ($memberQuery) {
+    //                     $memberQuery->where('user_id', auth()->id())
+    //                         ->where('status', 'active');
+    //                 });
+    //             });
+    //     })->where('is_active', true)->get();
+
+    //     $timezones = Timezone::orderBy('display_name')->get();
+
+    //     return view('bookings.create', compact('eventTypes', 'contacts', 'teams', 'groups', 'timezones'));
+    // }
+
+    // public function storeWithAttendees(Request $request)
+    // {
+    //     // Debug what's being submitted
+    //     dd([
+    //         'all_input' => $request->all(),
+    //         'attendees' => $request->input('attendees'),
+    //         'has_attendees' => $request->has('attendees'),
+    //     ]);
+    // }
+
+
+    // public function storeWithAttendees(Request $request)
+    // {
+    //     $validated = $request->validate([
+    //         'event_type_id' => 'required|exists:event_types,id',
+    //         'booking_date' => 'required|date',
+    //         'start_time' => 'required',
+    //         'timezone' => 'nullable|string|exists:timezones,name',
+    //         'status' => 'required|in:scheduled,pending,confirmed,cancelled,completed',
+    //         'meeting_link' => 'nullable|url|max:500',
+    //         'attendees' => 'required|array|min:1',
+    //         'attendees.*.type' => 'required|in:contact,email,team,group',
+    //         'attendees.*.contact_id' => 'required_if:attendees.*.type,contact|exists:contacts,id',
+    //         'attendees.*.member_id' => 'required_if:attendees.*.type,team|required_if:attendees.*.type,group|string',
+    //         'attendees.*.name' => 'required_if:attendees.*.type,email|string',
+    //         'attendees.*.email' => 'required_if:attendees.*.type,email|email',
+    //         'attendees.*.role' => 'required|in:organizer,required,optional',
+    //     ]);
+
+    //     // dd($validated);
+    //     // Temporary debugging - remove after fixing
+    //     if (empty($validated['attendees'])) {
+    //         return back()->withErrors(['attendees' => 'At least one attendee is required'])->withInput();
+    //     }
+
+
+    //     $eventType = EventType::findOrFail($validated['event_type_id']);
+
+    //     // Validate slot availability
+    //     if (!$this->availabilityService->isSlotAvailable(
+    //         auth()->id(),
+    //         $validated['booking_date'],
+    //         $validated['start_time'],
+    //         $eventType->duration
+    //     )) {
+    //         return back()->withErrors(['start_time' => 'Selected time slot is not available'])
+    //             ->withInput();
+    //     }
+
+    //     // Calculate end time
+    //     $startTime = Carbon::parse($validated['start_time']);
+    //     $endTime = $startTime->copy()->addMinutes($eventType->duration);
+
+    //     $booking = Booking::create([
+    //         'event_type_id' => $validated['event_type_id'],
+    //         'user_id' => auth()->id(),
+    //         'booking_date' => $validated['booking_date'],
+    //         'start_time' => $validated['start_time'],
+    //         'end_time' => $endTime->format('H:i'),
+    //         'status' => $validated['status'] ?? 'scheduled',
+    //         'meeting_link' => $validated['meeting_link'],
+    //     ]);
+
+
+    //     // Add attendees with error handling
+    //     foreach ($validated['attendees'] as $attendeeData) {
+    //         try {
+    //             switch ($attendeeData['type']) {
+    //                 case 'contact':
+    //                     $contact = Contact::findOrFail($attendeeData['contact_id']);
+    //                     $booking->addAttendee($contact, $attendeeData['role']);
+    //                     break;
+
+    //                 case 'team':
+    //                     if (!isset($attendeeData['member_id'])) {
+    //                         throw new \Exception('Member ID is required for team attendees');
+    //                     }
+    //                     $teamMember = TeamMember::with('user')->findOrFail($attendeeData['member_id']);
+    //                     $booking->addAttendee($teamMember->user, $attendeeData['role']);
+    //                     break;
+
+    //                 case 'group':
+    //                     if (!isset($attendeeData['member_id'])) {
+    //                         throw new \Exception('Member ID is required for group attendees');
+    //                     }
+    //                     $groupMember = GroupMember::with('member')->findOrFail($attendeeData['member_id']);
+    //                     $booking->addAttendee($groupMember->member, $attendeeData['role']);
+    //                     break;
+
+    //                 case 'email':
+    //                     $booking->attendees()->create([
+    //                         'attendee_type' => 'guest',
+    //                         'name' => $attendeeData['name'],
+    //                         'email' => $attendeeData['email'],
+    //                         'role' => $attendeeData['role'],
+    //                         'status' => 'pending',
+    //                     ]);
+    //                     break;
+    //             }
+    //         } catch (\Exception $e) {
+    //             return back()->withErrors(['attendees' => 'Error adding attendee: ' . $e->getMessage()])
+    //                 ->withInput();
+    //         }
+    //     }
+
+    //     return redirect()->route('bookings.index')
+    //         ->with('success', 'Booking created with attendees successfully!');
+    // }
 
 
 
@@ -429,31 +820,31 @@ class BookingController extends Controller
     //     return view('bookings.create', compact('eventTypes', 'contacts', 'timezones'));
     // }
 
-    public function createWithAttendees()
-    {
-        $eventTypes = EventType::where('allow_multiple_attendees', true)
-            ->where(function ($query) {
-                $query->where('user_id', auth()->id())
-                    ->orWhereHas('team', function ($teamQuery) {
-                        $teamQuery->whereHas('members', function ($memberQuery) {
-                            $memberQuery->where('user_id', auth()->id())
-                                ->where('status', 'active');
-                        });
-                    });
-            })->where('is_active', true)->get();
+    // public function createWithAttendees()
+    // {
+    //     $eventTypes = EventType::where('allow_multiple_attendees', true)
+    //         ->where(function ($query) {
+    //             $query->where('user_id', auth()->id())
+    //                 ->orWhereHas('team', function ($teamQuery) {
+    //                     $teamQuery->whereHas('members', function ($memberQuery) {
+    //                         $memberQuery->where('user_id', auth()->id())
+    //                             ->where('status', 'active');
+    //                     });
+    //                 });
+    //         })->where('is_active', true)->get();
 
-        $contacts = Contact::where(function ($query) {
-            $query->where('created_by', auth()->id())
-                ->orWhereHas('team', function ($teamQuery) {
-                    $teamQuery->whereHas('members', function ($memberQuery) {
-                        $memberQuery->where('user_id', auth()->id())
-                            ->where('status', 'active');
-                    });
-                });
-        })->where('is_active', true)->get();
+    //     $contacts = Contact::where(function ($query) {
+    //         $query->where('created_by', auth()->id())
+    //             ->orWhereHas('team', function ($teamQuery) {
+    //                 $teamQuery->whereHas('members', function ($memberQuery) {
+    //                     $memberQuery->where('user_id', auth()->id())
+    //                         ->where('status', 'active');
+    //                 });
+    //             });
+    //     })->where('is_active', true)->get();
 
-        return view('bookings.create', compact('eventTypes', 'contacts'));
-    }
+    //     return view('bookings.create', compact('eventTypes', 'contacts'));
+    // }
 
 
     // amazonq-ignore-next-line
@@ -505,4 +896,4 @@ class BookingController extends Controller
 
     //     return response()->json(['data' => $booking->load('attendees')], 201);
     // }
-}
+// }

@@ -48,48 +48,14 @@ if (sidebarToggle) {
 }
 
 
-// document.getElementById('sidebarToggle').addEventListener('click', function () {
-//     if (window.innerWidth >= 992) { // Bootstrap lg breakpoint
-//         const sidebar = document.getElementById('sidebar');
-//         if (sidebar.classList.contains('d-none')) {
-//             sidebar.classList.remove('d-none');
-//             sidebar.classList.add('d-lg-block');
-//             } else {
-//                 sidebar.classList.add('d-none');
-//                 sidebar.classList.remove('d-lg-block');
-//             }
-//         }
-// });
-// Sidebar toggle
-// document.addEventListener('DOMContentLoaded', function() {
-//     const toggleBtn = document.getElementById('sidebarToggle');
-//     const sidebar = document.getElementById('sidebar');
-
-//     if (toggleBtn && sidebar) {
-//         toggleBtn.addEventListener('click', function() {
-//             sidebar.style.display = sidebar.style.display === 'none' ? 'block' : 'none';
-//         });
-//     }
-// });
-// Sidebar toggle
-// document.addEventListener('DOMContentLoaded', function() {
-//     const toggleBtn = document.getElementById('sidebarToggle');
-//     const sidebar = document.getElementById('sidebar');
-
-//     if (toggleBtn && sidebar) {
-//         let isHidden = false;
-//         toggleBtn.addEventListener('click', function() {
-//             if (isHidden) {
-//                 sidebar.classList.remove('d-none');
-//                 sidebar.classList.add('d-lg-block');
-//                 isHidden = false;
-//             } else {
-//                 sidebar.classList.remove('d-lg-block');
-//                 sidebar.classList.add('d-none');
-//                 isHidden = true;
-//             }
-//         });
-//     }
-// });
+// Format input time into 24h
+document.querySelectorAll('input[type="time"]').forEach(input => {
+    input.addEventListener('input', function () {
+        // Ensure 24h format
+        if (this.value.includes('AM') || this.value.includes('PM')) {
+            this.value = this.value.replace(/\s?(AM|PM)/i, '');
+        }
+    });
+});
 
 

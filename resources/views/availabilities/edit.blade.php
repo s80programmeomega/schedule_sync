@@ -49,7 +49,7 @@
                             <div class="col-md-6">
                                 <label for="start_time" class="form-label">Start Time *</label>
                                 <input type="time" class="form-control @error('start_time') is-invalid @enderror"
-                                    id="start_time" name="start_time"
+                                    id="start_time" name="start_time" data-format="24"
                                     value="{{ old('start_time', \Carbon\Carbon::parse($availability->start_time)->format('H:i')) }}">
                                 @error('start_time')
                                 <div class="invalid-feedback">{{ $message }}</div>

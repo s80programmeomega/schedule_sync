@@ -3,6 +3,7 @@
 namespace App\Mail;
 
 use App\Models\Booking;
+use App\Models\BookingAttendee;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
@@ -24,9 +25,16 @@ class BookingConfirmation extends Mailable
     // use SerializesModels;
     use Queueable, SerializesModels;
 
+    protected $booking;
+    protected $attendee;
+
     public function __construct(
-        public Booking $booking
-    ) {}
+        Booking $booking,
+        ?BookingAttendee $attendee = null
+    ) {
+        $this->booking = $booking;
+        $this->attendee = $attendee;
+    }
 
     /**
      * Get the message envelope
@@ -56,8 +64,8 @@ class BookingConfirmation extends Mailable
                 'booking' => $this->booking,
                 'eventType' => $this->booking->eventType,
                 'attendee' => [
-                    'name' => $this->booking->attendee_name,
-                    'email' => $this->booking->attendee_email,
+                    'name' => $this->attendee->name,
+                    'email' => $this->attendee->email,
                 ],
                 'host' => $this->booking->eventType->user,
                 'meetingDetails' => [

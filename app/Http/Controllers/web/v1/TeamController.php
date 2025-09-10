@@ -105,9 +105,12 @@ class TeamController extends Controller
     public function getMembers(Team $team)
     {
         // Verify user has access to this team
-        if (!$team->hasMember(auth()->user())) {
-            abort(403, 'You do not have access to this team');
-        }
+        // if (!$team->hasMember(auth()->user())) {
+        //     abort(403, 'You do not have access to this team');
+        // }
+        // Verify user has access to this team
+        $this->authorize('view', $team);
+
 
         // Fetch active team members with user data
         $members = $team->activeMembers()

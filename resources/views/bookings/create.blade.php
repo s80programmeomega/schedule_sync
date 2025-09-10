@@ -56,7 +56,7 @@
                 <div class="col-md-6 mb-3">
                   <label for="start_time" class="form-label fw-semibold">Start Time</label>
                   <input type="time" class="form-control @error('start_time') is-invalid @enderror" id="start_time"
-                    name="start_time" value="{{ old('start_time') }}" required>
+                    name="start_time" value="{{ old('start_time') }}" data-format="24" required>
                   @error('start_time')
                     <div class="invalid-feedback">{{ $message }}</div>
                   @enderror
@@ -545,7 +545,9 @@
 
       let importedCount = 0;
       allMembers.forEach(member => {
-        addAttendeeRow(member.name, member.email, 'required', 'group', member.member_id || member.id);
+        // addAttendeeRow(member.name, member.email, 'required', 'group', member.member_id || member.id);
+        addAttendeeRow(member.name, member.email, 'required', 'group', member.id);
+
         importedCount++;
       });
 
@@ -601,7 +603,8 @@
       members.forEach(member => {
         const name = member.user ? member.user.name : member.name;
         const email = member.user ? member.user.email : member.email;
-        const memberId = member.member_id || member.id;
+        // const memberId = member.member_id || member.id;
+        const memberId = member.id;
         const role = member.role || '';
         const company = member.company || '';
         const jobTitle = member.job_title || '';
@@ -820,27 +823,27 @@
         </div>
         <div class="col-md-4 mb-2">
             ${type === 'contact' ? `
-                  <select class="form-select contact-select" name="attendees[${attendeeCount}][contact_id]" ${isImported ? 'disabled' : ''}>
-                      <option value="">Select Contact</option>
-                      @foreach ($contacts as $contact)
-                      <option value="{{ $contact->id }}" ${contactId == '{{ $contact->id }}' ? 'selected' : ''}>{{ $contact->name }} ({{ $contact->email }})</option>
-                      @endforeach
-                  </select>
-                  ${isImported && contactId ? `<input type="hidden" name="attendees[${attendeeCount}][contact_id]" value="${contactId}">` : ''}
-              ` : `
-                  <input type="text" class="form-control name-input"
-                         name="attendees[${attendeeCount}][name]" placeholder="Full Name" value="${name}"
-                         ${isImported ? 'readonly' : ''} ${type === 'email' ? 'required' : ''}>
-              `}
+                    <select class="form-select contact-select" name="attendees[${attendeeCount}][contact_id]" ${isImported ? 'disabled' : ''}>
+                        <option value="">Select Contact</option>
+                        @foreach ($contacts as $contact)
+                        <option value="{{ $contact->id }}" ${contactId == '{{ $contact->id }}' ? 'selected' : ''}>{{ $contact->name }} ({{ $contact->email }})</option>
+                        @endforeach
+                    </select>
+                    ${isImported && contactId ? `<input type="hidden" name="attendees[${attendeeCount}][contact_id]" value="${contactId}">` : ''}
+                ` : `
+                    <input type="text" class="form-control name-input"
+                           name="attendees[${attendeeCount}][name]" placeholder="Full Name" value="${name}"
+                           ${isImported ? 'readonly' : ''} ${type === 'email' ? 'required' : ''}>
+                `}
             ${type === 'team' && memberId ? `<input type="hidden" name="attendees[${attendeeCount}][member_id]" value="${memberId}">` : ''}
             ${type === 'group' && memberId ? `<input type="hidden" name="attendees[${attendeeCount}][member_id]" value="${memberId}">` : ''}
         </div>
         <div class="col-md-3 mb-2">
             ${type !== 'contact' ? `
-                  <input type="email" class="form-control email-input"
-                         name="attendees[${attendeeCount}][email]" placeholder="Email Address" value="${email}"
-                         ${isImported ? 'readonly' : ''} ${type === 'email' ? 'required' : ''}>
-              ` : ''}
+                    <input type="email" class="form-control email-input"
+                           name="attendees[${attendeeCount}][email]" placeholder="Email Address" value="${email}"
+                           ${isImported ? 'readonly' : ''} ${type === 'email' ? 'required' : ''}>
+                ` : ''}
         </div>
         <div class="col-md-1 mb-2">
             <select class="form-select" name="attendees[${attendeeCount}][role]">
@@ -935,5 +938,47 @@
         addAttendee();
       }
     });
+
+  // Filter out empty attendees before form submission
+  document.getElementById('bookingForm').addEventListener('submit', function(e) {
+  const attendeeRows = document.querySelectorAll('.attendee-row');
+
+  attendeeRows.forEach((row, index) => {
+  const typeSelect = row.querySelector('select[name*="[type]"]');
+  const nameInput = row.querySelector('input[name*="[name]"]');
+  const emailInput = row.querySelector('input[name*="[email]"]');
+  const contactSelect = row.querySelector('select[name*="[contact_id]"]');
+
+  if (!typeSelect) return;
+
+  const type = typeSelect.value;
+  let isEmpty = false;
+
+  // Check if row is empty based on type
+  if (type === 'contact') {
+  isEmpty = !contactSelect || !contactSelect.value;
+  } else if (type === 'email') {
+  isEmpty = !nameInput?.value || !emailInput?.value;
+  } else if (type === 'team' || type === 'group') {
+  const memberIdInput = row.querySelector('input[name*="[member_id]"]');
+  isEmpty = !memberIdInput?.value;
+  }
+
+  // Remove empty rows
+  if (isEmpty) {
+  row.remove();
+  }
+  });
+
+  // Check if at least one attendee remains
+  const remainingRows = document.querySelectorAll('.attendee-row');
+  if (remainingRows.length === 0) {
+  e.preventDefault();
+  showNotification('Please add at least one attendee', 'error');
+  return false;
+  }
+  });
+
+
   </script>
 @endsection

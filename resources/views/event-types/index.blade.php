@@ -21,6 +21,64 @@
             </div>
         @endif
 
+        @include('partials.filters', [
+    'filters' => [
+        [
+            'name' => 'search',
+            'type' => 'search',
+            'placeholder' => 'Search name, description...',
+            'width' => 4
+        ],
+        [
+            'name' => 'status',
+            'type' => 'select',
+            'placeholder' => 'All Statuses',
+            'options' => ['active' => 'Active', 'inactive' => 'Inactive'],
+            'width' => 2
+        ],
+        [
+            'name' => 'location_type',
+            'type' => 'select',
+            'placeholder' => 'All Locations',
+            'options' => [
+                'zoom' => 'Zoom',
+                'google_meet' => 'Google Meet',
+                'phone' => 'Phone',
+                'whatsapp' => 'WhatsApp'
+            ],
+            'width' => 2
+        ],
+        [
+            'name' => 'duration_min',
+            'type' => 'search',
+            'placeholder' => 'Min duration',
+            'width' => 1
+        ],
+        [
+            'name' => 'duration_max',
+            'type' => 'search',
+            'placeholder' => 'Max duration',
+            'width' => 1
+        ],
+        [
+            'name' => 'requires_confirmation',
+            'type' => 'select',
+            'placeholder' => 'Confirmation',
+            'options' => ['yes' => 'Required', 'no' => 'Not Required'],
+            'width' => 1
+        ],
+        [
+            'name' => 'bookings_count_min',
+            'type' => 'search',
+            'placeholder' => 'Min bookings',
+            'width' => 1
+        ]
+    ]
+])
+
+
+
+
         <div class="row">
             @forelse($eventTypes as $eventType)
                 <div class="col-md-4 mb-4">
@@ -94,8 +152,7 @@
                 <div class="col-12">
                     <div class="text-center py-5">
                         <i class="bi bi-calendar-event text-muted" style="font-size: 4rem;"></i>
-                        <h4 class="mt-3 mb-2">No Event Types Yet</h4>
-                        <p class="text-muted mb-4">Create your first event type to start accepting bookings</p>
+                        <h4 class="mt-3 mb-2 py-4">No Event Types!</h4>
                         <a href="{{ route('event-types.create') }}" class="btn btn-primary">
                             <i class="bi bi-plus me-2"></i> Create Event Type
                         </a>

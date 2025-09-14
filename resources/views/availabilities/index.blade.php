@@ -21,37 +21,87 @@
     </div>
     @endif
 
+    <!-- Filters -->
+    @include('partials.filters', [
+    'filters' => [
+        [
+            'name' => 'search',
+            'type' => 'search',
+            'placeholder' => 'Search time slots...',
+            'width' => 3
+        ],
+        [
+            'name' => 'date_from',
+            'type' => 'date',
+            'placeholder' => 'From Date',
+            'width' => 2
+        ],
+        [
+            'name' => 'date_to',
+            'type' => 'date',
+            'placeholder' => 'To Date',
+            'width' => 2
+        ],
+        [
+            'name' => 'timezone_id',
+            'type' => 'select',
+            'placeholder' => 'All Timezones',
+            'options' => $timezones->pluck('display_name', 'id')->toArray(),
+            'width' => 2
+        ],
+        [
+            'name' => 'is_available',
+            'type' => 'select',
+            'placeholder' => 'All Status',
+            'options' => ['yes' => 'Available', 'no' => 'Unavailable'],
+            'width' => 2
+        ],
+        [
+            'name' => 'time_range',
+            'type' => 'select',
+            'placeholder' => 'All Times',
+            'options' => [
+                'morning' => 'Morning (Before 12 PM)',
+                'afternoon' => 'Afternoon (12-5 PM)',
+                'evening' => 'Evening (After 5 PM)'
+            ],
+            'width' => 3
+        ]
+    ]
+])
+
+
     <div class="card border-0 shadow-sm">
         <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="bg-light">
+                <table class="table table-hover table-striped align-middle mb-0">
+                    <thead>
                         <tr>
-                            <th class="ps-4">Date</th>
-                            <th class="">Timezone</th>
-                            <th class="">Day</th>
-                            <th>Start Time</th>
-                            <th>End Time</th>
-                            <th>Status</th>
-                            <th class="pe-4">Actions</th>
+                            <th class="ps-4 py-md-3">Date</th>
+                            <th class="py-md-3">Timezone</th>
+                            <th class="py-md-3">Day</th>
+                            <th class="py-md-3">Start Time</th>
+                            <th class="py-md-3">End Time</th>
+                            <th class="py-md-3">Status</th>
+                            <th class="pe-4 py-md-3">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($availabilities as $availability)
                         <tr>
-                            <td class="ps-4">{{ \Carbon\Carbon::parse(ucfirst($availability->availability_date))->format('F d, Y') }}</td>
-                            <td>
+                            <td class="ps-4 py-md-3">{{ \Carbon\Carbon::parse(ucfirst($availability->availability_date))->format('F d, Y') }}</td>
+                            <td class="py-md-3">
                                 {{ $timezones->firstWhere('id', $availability->timezone_id)->display_name ?? '' }}
                             </td>
-                            <td class="">{{ \Carbon\Carbon::parse(ucfirst($availability->day_of_week))->format('l') }}</td>
-                            <td>{{ $availability->start_time }}</td>
-                            <td>{{ $availability->end_time }}</td>
+                            <td class="py-md-3">{{ \Carbon\Carbon::parse(ucfirst($availability->day_of_week))->format('l') }}</td>
+                            <td class="py-md-3">{{ $availability->start_time }}</td>
+                            <td class="py-md-3">{{ $availability->end_time }}</td>
                             <td>
                                 <span class="badge {{ $availability->is_available ? 'bg-success' : 'bg-secondary' }}">
                                     {{ $availability->is_available ? 'Available' : 'Unavailable' }}
                                 </span>
                             </td>
-                            <td class="pe-4">
+                            <td class="pe-4 py-md-3">
                                 <div class="d-flex gap-2">
                                     <a href="{{ route('availability.slots', $availability) }}" class="btn btn-sm btn-light" data-toggle="tooltip"
                                         title="View Slots">
@@ -78,10 +128,12 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="5" class="text-center py-5">
+                            <td colspan="7" class="text-center py-5">
                                 <i class="bi bi-calendar-week text-muted" style="font-size: 3rem;"></i>
-                                <h5 class="mt-3 mb-2">No Availability Set</h5>
-                                <p class="text-muted">Add your available time slots</p>
+                                <h5 class="mt-3 mb-2 py-4">No Availability!</h5>
+                                <a href="{{ route('availability.create') }}" class="btn btn-primary">
+                                    <i class="bi bi-plus me-2"></i> Add Availability
+                                </a>
                             </td>
                         </tr>
                         @endforelse

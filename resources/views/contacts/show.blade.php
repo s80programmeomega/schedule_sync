@@ -1,7 +1,7 @@
 @extends('layout.base')
 
 @section('content')
-<div class="col-lg-10 col-12 py-4 px-4 px-lg-5">
+<div class="col-lg-10 col-12 col-lg-10 py-4 px-4 px-lg-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h1 class="h3 mb-0 fw-bold">{{ $contact->name }}</h1>
@@ -18,7 +18,7 @@
     </div>
 
     <div class="row">
-        <div class="col-lg-8">
+        <div class="col-12 col-lg-10">
             <!-- Contact Info -->
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-body p-4">
@@ -53,8 +53,8 @@
                         </div>
                         @endif
                         <div class="col-md-6 mb-3">
-                            <label class="form-label fw-semibold text-muted">Total Bookings</label>
-                            <p class="mb-0">{{ $contact->total_bookings }}</p>
+                            <label class="form-label fw-semibold text-muted ">Total Bookings</label>
+                            <p class="mb-0 text-danger fw-bold">{{ $contact->total_bookings }}</p>
                         </div>
                     </div>
 
@@ -80,14 +80,20 @@
                                 <tr>
                                     <th class="ps-4">Event</th>
                                     <th>Date</th>
+                                    <th>Start Time</th>
+                                    <th>Duration</th>
                                     <th>Status</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach($contact->bookingAttendances->take(5) as $attendance)
                                 <tr>
-                                    <td class="ps-4">{{ $attendance->booking->title }}</td>
-                                    <td>{{ $attendance->booking->start_time->format('M j, Y g:i A') }}</td>
+                                    <td class="ps-4">{{ $attendance->booking->eventType->name }}</td>
+                                    <td>
+                                        {{ $attendance->booking->booking_date->format('Y-d-m') }}
+                                    </td>
+                                    <td>{{ $attendance->booking->start_time}}</td>
+                                    <td>{{ $attendance->booking->eventType->duration}} min</td>
                                     <td>
                                         <span class="badge bg-{{ $attendance->booking->status === 'confirmed' ? 'success' : 'warning' }}">
                                             {{ ucfirst($attendance->booking->status) }}

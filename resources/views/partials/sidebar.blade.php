@@ -53,15 +53,10 @@
                 <i class="bi bi-calendar-event"></i>
                 Event Types
             </a>
-            <a href="{{ route('bookings.scheduled') }}"
-                class="sidebar-link {{ request()->routeIs('bookings.scheduled') ? 'active' : '' }}">
-                <i class="bi bi-calendar-check"></i>
-                Scheduled Events
-            </a>
             <a href="{{ route('bookings.index') }}"
                 class="sidebar-link {{ request()->routeIs('bookings.index') ? 'active' : '' }}">
                 <i class="bi bi-calendar3"></i>
-                All Bookings
+                Meetings
             </a>
             <a href="{{ route('availability.index') }}"
                 class="sidebar-link {{ request()->routeIs('availability.*') ? 'active' : '' }}">

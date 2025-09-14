@@ -17,16 +17,69 @@ class AvailabilityController extends Controller
         private AvailabilityService $availabilityService
     ) {}
 
-    public function index()
+    public function index(Request $request)
     {
-        $availabilities = Availability::where('user_id', auth()->user()->id)
-            ->orderBy('availability_date')
+        $query = Availability::where('user_id', auth()->user()->id);
+
+        // Apply filters
+        if ($request->filled('search')) {
+            $query->where(function ($q) use ($request) {
+                $q->where('start_time', 'like', '%' . $request->search . '%')
+                    ->orWhere('end_time', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        if ($request->filled('date_from')) {
+            $query->whereDate('availability_date', '>=', $request->date_from);
+        }
+
+        if ($request->filled('date_to')) {
+            $query->whereDate('availability_date', '<=', $request->date_to);
+        }
+
+        if ($request->filled('timezone_id')) {
+            $query->where('timezone_id', $request->timezone_id);
+        }
+
+        if ($request->filled('is_available')) {
+            $query->where('is_available', $request->is_available === 'yes');
+        }
+
+        if ($request->filled('time_range')) {
+            switch ($request->time_range) {
+                case 'morning':
+                    $query->where('start_time', '<', '12:00');
+                    break;
+                case 'afternoon':
+                    $query->where('start_time', '>=', '12:00')->where('start_time', '<', '17:00');
+                    break;
+                case 'evening':
+                    $query->where('start_time', '>=', '17:00');
+                    break;
+            }
+        }
+
+        $availabilities = $query->orderBy('availability_date')
             ->orderBy('start_time')
-            ->paginate(10);
+            ->paginate(10)
+            ->appends(request()->query());
+
         $timezones = Timezone::orderBy('display_name')->get();
 
         return view('availabilities.index', compact('availabilities', 'timezones'));
     }
+
+
+    // public function index()
+    // {
+    //     $availabilities = Availability::where('user_id', auth()->user()->id)
+    //         ->orderBy('availability_date')
+    //         ->orderBy('start_time')
+    //         ->paginate(10);
+    //     $timezones = Timezone::orderBy('display_name')->get();
+
+    //     return view('availabilities.index', compact('availabilities', 'timezones'));
+    // }
 
     public function create()
     {

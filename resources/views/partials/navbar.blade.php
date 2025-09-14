@@ -28,17 +28,10 @@
                     </a>
                 </li>
                 <li class="nav-item d-lg-none">
-                    <a class="sidebar-link {{ request()->routeIs('bookings.scheduled') ? 'active' : '' }}"
-                        href="{{ route('bookings.scheduled') }}">
-                        <i class="bi bi-calendar-check"></i>
-                        Scheduled Events
-                    </a>
-                </li>
-                <li class="nav-item d-lg-none">
                     <a class="sidebar-link {{ request()->routeIs('bookings.index') ? 'active' : '' }}"
                         href="{{ route('bookings.index') }}">
                         <i class="bi bi-calendar3"></i>
-                        All Bookings
+                        Meetings
                     </a>
                 </li>
                 <li class="nav-item d-lg-none">

@@ -15,15 +15,82 @@ class EventTypeController extends Controller
     /**
      * Display a listing of event types
      */
-    public function index()
+
+    public function index(Request $request)
     {
-        $eventTypes = EventType::where('user_id', auth()->user()->id)
-            ->withCount('bookings')
-            ->latest()
-            ->paginate(6);
+        $query = EventType::where('user_id', auth()->user()->id)->withCount('bookings');
+
+        if ($request->filled('search')) {
+            $query->where(function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->search . '%')
+                    ->orWhere('description', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        if ($request->filled('status')) {
+            $query->where('is_active', $request->status === 'active');
+        }
+
+        if ($request->filled('location_type')) {
+            $query->where('location_type', $request->location_type);
+        }
+
+        if ($request->filled('duration_min')) {
+            $query->where('duration', '>=', $request->duration_min);
+        }
+
+        if ($request->filled('duration_max')) {
+            $query->where('duration', '<=', $request->duration_max);
+        }
+
+        if ($request->filled('requires_confirmation')) {
+            $query->where('requires_confirmation', $request->requires_confirmation === 'yes');
+        }
+
+        if ($request->filled('bookings_count_min')) {
+            $query->having('bookings_count', '>=', $request->bookings_count_min);
+        }
+
+        $eventTypes = $query->latest()->paginate(6)->appends(request()->query());
 
         return view('event-types.index', compact('eventTypes'));
     }
+
+
+
+    // public function index(Request $request)
+    // {
+    //     $query = EventType::where('user_id', auth()->user()->id)->withCount('bookings');
+
+    //     // Apply filters
+    //     if ($request->filled('status')) {
+    //         $query->where('is_active', $request->status === 'active');
+    //     }
+
+    //     if ($request->filled('location_type')) {
+    //         $query->where('location_type', $request->location_type);
+    //     }
+
+    //     if ($request->filled('search')) {
+    //         $query->where('name', 'like', '%' . $request->search . '%');
+    //     }
+
+    //     $eventTypes = $query->latest()->paginate(6)->appends(request()->query());
+
+    //     return view('event-types.index', compact('eventTypes'));
+    // }
+
+
+
+    // public function index()
+    // {
+    //     $eventTypes = EventType::where('user_id', auth()->user()->id)
+    //         ->withCount('bookings')
+    //         ->latest()
+    //         ->paginate(6);
+
+    //     return view('event-types.index', compact('eventTypes'));
+    // }
 
     /**
      * Show the form for creating a new event type

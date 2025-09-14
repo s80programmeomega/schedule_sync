@@ -16,11 +16,14 @@ use App\Models\Team;
 use App\Models\Group;
 use App\Models\GroupMember;
 use App\Models\TeamMember;
+use App\Models\BookingAttendee;
 use App\Policies\v1\TeamPolicy;
 use App\Policies\v1\ContactPolicy;
 use App\Policies\v1\GroupPolicy;
 use App\Policies\v1\GroupMemberPolicy;
 use App\Policies\v1\TeamMemberPolicy;
+use App\Observers\BookingAttendeeObserver;
+use App\Services\BookingEmailService;
 
 
 class AppServiceProvider extends ServiceProvider
@@ -30,8 +33,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        // Register the email service
+        $this->app->singleton(BookingEmailService::class);
         // Register the Timezone service provider
         // $this->app->register(TimezoneServiceProvider::class);
+
     }
 
     /**
@@ -41,7 +47,10 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->configureRateLimiting();
         Availability::observe(AvailabilityObserver::class);
+        // Register observers
         Booking::observe(BookingObserver::class);
+        BookingAttendee::observe(BookingAttendeeObserver::class);
+
 
         Gate::policy(Team::class, TeamPolicy::class);
         Gate::policy(TeamMember::class, TeamMemberPolicy::class);

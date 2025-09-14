@@ -135,17 +135,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 
-// Public Booking Routes
-Route::prefix('book')->name('public.booking.')->group(function () {
-    Route::get('{username}', function ($username) {
-        return view('public.booking.create', ['username' => $username]);
-    })->name('create');
+// // Public Booking Routes
+// Route::prefix('book')->name('public.booking.')->group(function () {
+//     Route::get('{username}', function ($username) {
+//         return view('public.booking.create', ['username' => $username]);
+//     })->name('create');
 
-    Route::get('{booking}/cancel', function ($booking) {
-        return view('public.booking.cancel', ['booking' => $booking]);
-    })->name('cancel');
+//     Route::get('{booking}/cancel', function ($booking) {
+//         return view('public.booking.cancel', ['booking' => $booking]);
+//     })->name('cancel');
 
-    Route::get('{booking}/reschedule', function ($booking) {
-        return view('public.booking.reschedule', ['booking' => $booking]);
-    })->name('reschedule');
-});
+//     Route::get('{booking}/reschedule', function ($booking) {
+//         return view('public.booking.reschedule', ['booking' => $booking]);
+//     })->name('reschedule');
+// });

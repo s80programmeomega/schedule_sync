@@ -12,23 +12,72 @@
         </a>
     </div>
 
-    <!-- Team Filter -->
-    <div class="card border-0 shadow-sm mb-4">
-        <div class="card-body">
-            <form method="GET" class="row g-3">
-                <div class="col-md-4">
-                    <select name="team_id" class="form-select" onchange="this.form.submit()">
-                        <option value="">Personal Contacts</option>
-                        @foreach($teams as $team)
-                        <option value="{{ $team->id }}" {{ $teamId == $team->id ? 'selected' : '' }}>
-                            {{ $team->name }}
-                        </option>
-                        @endforeach
-                    </select>
-                </div>
-            </form>
-        </div>
-    </div>
+    <!-- Filter -->
+    @include('partials.filters', [
+    'filters' => [
+        [
+            'name' => 'search',
+            'type' => 'search',
+            'placeholder' => 'Search name, email, company, job title...',
+            'width' => 3
+        ],
+        [
+            'name' => 'team_id',
+            'type' => 'select',
+            'placeholder' => 'Personal Contacts',
+            'options' => $teams->pluck('name', 'id')->toArray(),
+            'width' => 2
+        ],
+        [
+            'name' => 'company',
+            'type' => 'select',
+            'placeholder' => 'All Companies',
+            'options' => $companies->toArray(),
+            'width' => 2
+        ],
+        [
+            'name' => 'job_title',
+            'type' => 'select',
+            'placeholder' => 'All Job Titles',
+            'options' => $jobTitles->toArray(),
+            'width' => 2
+        ],
+        [
+            'name' => 'timezone',
+            'type' => 'select',
+            'placeholder' => 'All Timezones',
+            'options' => $timezones->pluck('display_name', 'id')->toArray(),
+            'width' => 2
+        ],
+        [
+            'name' => 'email_notifications',
+            'type' => 'select',
+            'placeholder' => 'Email Notifications',
+            'options' => ['yes' => 'Enabled', 'no' => 'Disabled'],
+            'width' => 2
+        ],
+        [
+            'name' => 'total_bookings_min',
+            'type' => 'search',
+            'placeholder' => 'Min bookings',
+            'width' => 1
+        ],
+        [
+            'name' => 'last_contacted',
+            'type' => 'select',
+            'placeholder' => 'Last Contacted',
+            'options' => [
+                '7' => 'Last 7 days',
+                '30' => 'Last 30 days',
+                '90' => 'Last 90 days'
+            ],
+            'width' => 2
+        ]
+    ]
+])
+
+
+
 
     <!-- Contacts List -->
     <div class="card border-0 shadow-sm">
@@ -90,9 +139,11 @@
                         @empty
                         <tr>
                             <td colspan="5" class="text-center py-4">
-                                <i class="bi bi-person-plus text-muted" style="font-size: 3rem;"></i>
-                                <h5 class="mt-3">No contacts found</h5>
-                                <p class="text-muted">Add your first contact to get started</p>
+                                <i class="bi bi-person-x text-muted" style="font-size: 3rem;"></i>
+                                <h5 class="mt-3 py-4">No contacts found!</h5>
+                                <a href="{{ route('contacts.create') }}" class="btn btn-primary">
+                                    <i class="bi bi-plus me-2"></i> Add Contact
+                                </a>
                             </td>
                         </tr>
                         @endforelse

@@ -7,20 +7,10 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h1 class="h3 mb-0 fw-bold">
-                @switch($viewType)
-                    @case('scheduled') Scheduled Events @break
-                    @case('completed') Completed Events @break
-                    @case('cancelled') Cancelled Events @break
-                    @default All Bookings
-                @endswitch
+                Your Bookings
             </h1>
             <p class="text-muted mb-0">
-                @switch($viewType)
-                    @case('scheduled') Manage your upcoming appointments @break
-                    @case('completed') View your completed appointments @break
-                    @case('cancelled') View your cancelled appointments @break
-                    @default Manage all your appointments
-                @endswitch
+                Manage your appointments
             </p>
         </div>
         <a href="{{ route('bookings.create') }}" class="btn btn-primary d-flex align-items-center">
@@ -35,7 +25,64 @@
     </div>
     @endif
 
+
+
     <div class="card border-0 shadow-sm">
+        <div class="card-header">
+            <!-- Booking filters -->
+            @include('partials.filters', [
+    'filters' => [
+        [
+            'name' => 'search',
+            'type' => 'search',
+            'placeholder' => 'Search event type, meeting link...',
+            'width' => 3
+        ],
+        [
+            'name' => 'event_type_id',
+            'type' => 'select',
+            'placeholder' => 'All Event Types',
+            'options' => $eventTypes->pluck('name', 'id')->toArray(),
+            'width' => 2
+        ],
+        [
+            'name' => 'date_from',
+            'type' => 'date',
+            'placeholder' => 'From Date',
+            'width' => 2
+        ],
+        [
+            'name' => 'date_to',
+            'type' => 'date',
+            'placeholder' => 'To Date',
+            'width' => 2
+        ],
+        [
+            'name' => 'timezone_id',
+            'type' => 'select',
+            'placeholder' => 'All Timezones',
+            'options' => $timezones->pluck('display_name', 'id')->toArray(),
+            'width' => 2
+        ],
+        [
+            'name' => 'status',
+            'type' => 'select',
+            'placeholder' => 'All Statuses',
+            'options' => [
+                'pending' => 'Pending',
+                'scheduled' => 'Scheduled',
+                'completed' => 'Completed',
+                'cancelled' => 'Cancelled',
+                'no_show' => 'No Show'
+            ],
+            'width' => 2
+        ]
+    ]
+])
+
+
+
+        </div>
         <div class="card-body p-0">
             @forelse($bookings as $booking)
             <div class="booking-item border-bottom p-4">
@@ -109,20 +156,9 @@
             <div class="text-center py-5">
                 <i class="bi bi-calendar-x text-muted" style="font-size: 4rem;"></i>
                 <h4 class="mt-3 mb-2">
-                    @switch($viewType)
-                        @case('scheduled') No Scheduled Events @break
-                        @case('completed') No Completed Events @break
-                        @case('cancelled') No Cancelled Events @break
-                        @default No Bookings Yet
-                    @endswitch
+                    No Bookings !
                 </h4>
                 <p class="text-muted mb-4">
-                    @switch($viewType)
-                        @case('scheduled') You have no upcoming appointments @break
-                        @case('completed') You have no completed appointments @break
-                        @case('cancelled') You have no cancelled appointments @break
-                        @default Create your first booking to get started
-                    @endswitch
                 </p>
                 <a href="{{ route('bookings.create') }}" class="btn btn-primary">
                     <i class="bi bi-calendar-plus me-2"></i> New Booking

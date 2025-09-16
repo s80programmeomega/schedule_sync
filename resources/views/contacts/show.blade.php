@@ -1,5 +1,9 @@
 @extends('layout.base')
 
+@section('title')
+View Contact
+@endsection
+
 @section('content')
 <div class="col-lg-10 col-12 col-lg-10 py-4 px-4 px-lg-5">
     <div class="d-flex justify-content-between align-items-center mb-4">

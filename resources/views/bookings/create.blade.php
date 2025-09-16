@@ -1,5 +1,8 @@
-{{-- Enhanced booking creation with comprehensive member import --}}
 @extends('layout.base')
+
+@section('title')
+Add Booking
+@endsection
 
 @section('content')
   <div class="col-lg-10 col-12 py-4 px-4 px-lg-5">

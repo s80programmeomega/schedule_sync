@@ -39,6 +39,10 @@ class User extends Authenticatable implements MustVerifyEmail
         'timezone_id',
         'bio',
         'avatar',
+        'provider',
+        'provider_id',
+        'provider_token',
+        'provider_refresh_token'
     ];
 
     /**
@@ -49,6 +53,8 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $hidden = [
         'password',
         'remember_token',
+        'provider_token',
+        'provider_refresh_token'
     ];
 
     /**

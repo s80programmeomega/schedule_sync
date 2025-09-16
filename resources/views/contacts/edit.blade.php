@@ -1,5 +1,9 @@
 @extends('layout.base')
 
+@section('title')
+Edit Contact
+@endsection
+
 @section('content')
 <div class="col-lg-10 col-12 py-4 px-4 px-lg-5">
     <div class="mb-4">

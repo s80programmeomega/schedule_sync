@@ -63,7 +63,7 @@ class ContactController extends Controller
 
         $contacts = $query->where('is_active', true)
             ->orderBy('name')
-            ->paginate(20)
+            ->paginate(8)
             ->appends(request()->query());
 
         $teams = auth()->user()->teams;

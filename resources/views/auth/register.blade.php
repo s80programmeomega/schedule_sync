@@ -11,8 +11,38 @@
                 <div class="card">
                     <div class="card-header">Register</div>
                     <div class="card-body">
+                        <!-- Social Registration Buttons -->
+                        <div class="mb-4">
+                            <div class="d-grid gap-2">
+                                <a href="{{ route('social.redirect', 'google') }}" class="btn btn-outline-danger">
+                                    <i class="fab fa-google me-2"></i>Sign up with Google
+                                </a>
+                                <a href="{{ route('social.redirect', 'linkedin') }}" class="btn btn-outline-info">
+                                    <i class="fab fa-linkedin me-2"></i>Sign up with LinkedIn
+                                </a>
+                                <a href="{{ route('social.redirect', 'github') }}" class="btn btn-outline-dark">
+                                    <i class="fab fa-github me-2"></i>Sign up with GitHub
+                                </a>
+                                {{-- <a href="{{ route('social.redirect', 'facebook') }}" class="btn btn-outline-primary">
+                                    <i class="fab fa-facebook me-2"></i>Sign up with Facebook
+                                </a> --}}
+                            </div>
+
+                            <div class="text-center my-3">
+                                <span class="text-muted">or</span>
+                            </div>
+                        </div>
+
+                        <!-- Regular Registration Form -->
                         <form method="POST" action="{{ route('register') }}">
                             @csrf
+
+                            @if ($errors->has('social'))
+                                <div class="alert alert-danger">
+                                    {{ $errors->first('social') }}
+                                </div>
+                            @endif
+
                             <div class="mb-3">
                                 <label for="name" class="form-label">Name</label>
                                 <input type="text" class="form-control @error('name') is-invalid @enderror"

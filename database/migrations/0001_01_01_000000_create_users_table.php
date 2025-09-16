@@ -22,6 +22,10 @@ return new class extends Migration
             $table->text('bio')->nullable();
             $table->string('avatar')->nullable();
             $table->string('original_avatar_name')->nullable();
+            // $table->string('provider')->nullable();
+            // $table->string('provider_id')->nullable();
+            // $table->text('provider_token')->nullable();
+            // $table->text('provider_refresh_token')->nullable();
 
             $table->rememberToken();
             $table->timestamps();

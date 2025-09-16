@@ -1,5 +1,9 @@
 @extends('layout.base')
 
+@section('title')
+    Contacts - ScheduleSync
+@endsection
+
 @section('content')
 <div class="col-lg-10 col-12 py-4 px-4 px-lg-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -83,7 +87,7 @@
     <div class="card border-0 shadow-sm">
         <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-hover mb-0">
+                <table class="table table-hover table-striped mb-0">
                     <thead class="bg-light">
                         <tr>
                             <th class="ps-4">Contact</th>
@@ -129,7 +133,7 @@
                                         <li>
                                             <form method="POST" action="{{ route('contacts.destroy', $contact) }}">
                                                 @csrf @method('DELETE')
-                                                <button type="submit" class="dropdown-item text-danger">Archive</button>
+                                                <button type="submit" class="dropdown-item text-danger">Delete</button>
                                             </form>
                                         </li>
                                     </ul>
@@ -156,7 +160,7 @@
     <!-- Pagination -->
     @if($contacts->hasPages())
     <div class="d-flex justify-content-center mt-4">
-        {{ $contacts->links() }}
+        {{ $contacts->links('pagination.bootstrap') }}
     </div>
     @endif
 </div>

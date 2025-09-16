@@ -15,6 +15,7 @@ use App\Http\Controllers\web\v1\TeamMemberController;
 use App\Http\Controllers\web\v1\ContactController;
 use App\Http\Controllers\web\v1\GroupController;
 use App\Http\Controllers\web\v1\GroupMemberController;
+use App\Http\Controllers\web\v1\Auth\SocialAuthController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -51,6 +52,11 @@ Route::middleware('auth')->group(function () {
         ->middleware('throttle:6,1')
         ->name('verification.send');
 });
+
+// Social Authentication Routes
+Route::get('/auth/{provider}', [SocialAuthController::class, 'redirect'])->name('social.redirect');
+Route::get('/auth/{provider}/callback', [SocialAuthController::class, 'callback'])->name('social.callback');
+
 
 // Profile Routes
 Route::middleware(['auth', 'verified'])->group(function () {

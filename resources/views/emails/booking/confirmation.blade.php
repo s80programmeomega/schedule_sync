@@ -1,4 +1,3 @@
-{{-- In resources/views/emails/booking/confirmation.blade.php --}}
 
 @extends('emails.layout.base')
 

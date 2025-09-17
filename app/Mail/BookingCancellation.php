@@ -45,7 +45,7 @@ class BookingCancellation extends Mailable
                 'booking' => $this->booking,
                 'cancelledBy' => $this->cancelledBy,
                 'reason' => $this->booking->cancellation_reason,
-                'rebookLink' => route('public.booking.create', $this->booking->eventType->user->username),
+                'rebookLink' => route('bookings.create', $this->booking->eventType->user->username),
             ]
         );
     }

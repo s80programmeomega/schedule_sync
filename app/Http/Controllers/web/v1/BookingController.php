@@ -18,12 +18,17 @@ use App\Models\GroupMember;
 use App\Models\BookingAttendee;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
+use App\Services\BookingEmailService;
+use Illuminate\Support\Facades\DB;
 
 class BookingController extends Controller
 {
+    private $availabilityService;
     public function __construct(
-        private AvailabilityService $availabilityService
-    ) {}
+        AvailabilityService $availabilityService
+    ) {
+        $this->availabilityService = $availabilityService;
+    }
 
     private function getBookingsByStatus($status = null, $filters = [])
     {
@@ -162,8 +167,46 @@ class BookingController extends Controller
 
         $booking->update($validated);
 
+        // Manual email trigger for updates if observer fails
+        // if ($booking->attendees()->exists()) {
+        //     $emailService = app(BookingEmailService::class);
+
+        //     if ($booking->wasChanged('status') && $booking->status === 'cancelled') {
+        //         $emailService->sendCancellationEmails($booking, 'host');
+        //     } elseif ($booking->wasChanged(['booking_date', 'start_time']) && $booking->status === 'scheduled') {
+        //         $emailService->sendRescheduleEmails($booking);
+        //     }
+        // }
+
         return redirect()->route('bookings.index')->with('success', 'Booking updated successfully!');
     }
+
+
+    // public function update(UpdateBookingRequest $request, Booking $booking)
+    // {
+    //     $this->authorizeBookingAccess($booking);
+
+    //     $validated = $request->validated();
+    //     $eventType = EventType::findOrFail($validated['event_type_id']);
+
+    //     if (!$this->availabilityService->isSlotAvailable(
+    //         auth()->id(),
+    //         $validated['booking_date'],
+    //         $validated['start_time'],
+    //         $eventType->duration,
+    //         $booking->id,
+    //     )) {
+    //         return back()->withErrors(['start_time' => 'Selected time slot is not available'])->withInput();
+    //     }
+
+    //     if ($validated['status'] === 'cancelled' && !$booking->cancelled_at) {
+    //         $validated['cancelled_at'] = now();
+    //     }
+
+    //     $booking->update($validated);
+
+    //     return redirect()->route('bookings.index')->with('success', 'Booking updated successfully!');
+    // }
 
     public function destroy(Request $request, Booking $booking)
     {
@@ -189,8 +232,30 @@ class BookingController extends Controller
             'cancelled_at' => now(),
         ]);
 
+        // Manual email trigger for cancellation if observer fails
+        if ($booking->attendees()->exists()) {
+            app(BookingEmailService::class)->sendCancellationEmails($booking, 'host');
+        }
+
         return back()->with('success', 'Booking cancelled successfully!');
     }
+
+    // public function cancel(Request $request, Booking $booking)
+    // {
+    //     $this->authorizeBookingAccess($booking);
+
+    //     $validated = $request->validate([
+    //         'cancellation_reason' => 'nullable|string|max:500',
+    //     ]);
+
+    //     $booking->update([
+    //         'status' => 'cancelled',
+    //         'cancellation_reason' => $validated['cancellation_reason'],
+    //         'cancelled_at' => now(),
+    //     ]);
+
+    //     return back()->with('success', 'Booking cancelled successfully!');
+    // }
 
     public function addAttendee(Request $request, Booking $booking)
     {
@@ -395,6 +460,11 @@ class BookingController extends Controller
             } catch (\Exception $e) {
                 return back()->withErrors(['attendees' => 'Error adding attendee: ' . $e->getMessage()])->withInput();
             }
+        }
+
+        // Manually trigger confirmation emails after everything is set up
+        if ($booking->status === 'scheduled' && $booking->attendees()->exists()) {
+            app(BookingEmailService::class)->sendConfirmationEmails($booking);
         }
 
         return redirect()->route('bookings.index')->with('success', 'Booking created with attendees successfully!');

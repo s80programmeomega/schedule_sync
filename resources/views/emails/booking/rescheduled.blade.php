@@ -44,8 +44,8 @@
           <i class="bi bi-calendar3 text-success me-2"></i>
           <div>
             <small class="text-muted d-block">Date</small>
-            <strong>{{ $booking->start_time->format('l, F j, Y') }}</strong>
-          </div>
+            <strong>{{ $booking->full_start_time->format('l, F j, Y') }}</strong>
+        </div>
         </div>
       </div>
       <div class="col-sm-6">
@@ -53,7 +53,7 @@
           <i class="bi bi-clock text-info me-2"></i>
           <div>
             <small class="text-muted d-block">Time</small>
-            <strong>{{ $booking->start_time->format('g:i A') }} - {{ $booking->end_time->format('g:i A') }}</strong>
+            <strong>{{ $booking->full_start_time->format('g:i A') }} - {{ $booking->full_end_time->format('g:i A') }}</strong>
           </div>
         </div>
       </div>
@@ -62,7 +62,7 @@
           <i class="bi bi-globe text-secondary me-2"></i>
           <div>
             <small class="text-muted d-block">Timezone</small>
-            <strong>{{ $booking->timezone }}</strong>
+            <strong>{{ $booking->timezone->display_name }}</strong>
           </div>
         </div>
       </div>
@@ -72,11 +72,11 @@
   <!-- Action Buttons -->
   <div class="text-center mt-4">
     <a href="{{ route('bookings.show', $booking) }}" class="btn btn-primary me-2">
-      <i class="bi bi-calendar-event me-1"></i>View Details
-    </a>
-    <a href="{{ route('bookings.reschedule', $booking) }}" class="btn btn-outline-primary">
-      <i class="bi bi-calendar-week me-1"></i>Reschedule Again
-    </a>
+        <i class="bi bi-calendar-event me-1"></i>View Details
+      </a>
+      <a href="{{ route('bookings.edit', $booking) }}" class="btn btn-outline-primary">
+        <i class="bi bi-calendar-week me-1"></i>Edit Booking
+      </a>
   </div>
 
   <hr class="my-4">

@@ -22,7 +22,12 @@ class BookingObserver
     public function created(Booking $booking): void
     {
         if ($booking->status === 'scheduled') {
-            $this->emailService->sendConfirmationEmails($booking);
+            // Load attendees to ensure they're available
+            $booking->load('attendees');
+
+            if ($booking->attendees()->exists()) {
+                $this->emailService->sendConfirmationEmails($booking);
+            }
         }
     }
 
@@ -35,6 +40,11 @@ class BookingObserver
 
     public function updated(Booking $booking): void
     {
+        // Only proceed if booking has attendees
+        if (!$booking->attendees()->exists()) {
+            return;
+        }
+
         $originalStatus = $booking->getOriginal('status');
         $currentStatus = $booking->status;
 
@@ -62,6 +72,37 @@ class BookingObserver
             $this->emailService->sendRescheduleEmails($booking);
         }
     }
+
+
+    // public function updated(Booking $booking): void
+    // {
+    //     $originalStatus = $booking->getOriginal('status');
+    //     $currentStatus = $booking->status;
+
+    //     // Handle cancellation
+    //     if ($booking->wasChanged('status') && $currentStatus === 'cancelled') {
+    //         $cancelledBy = $this->determineCancelledBy($booking);
+    //         $this->emailService->sendCancellationEmails($booking, $cancelledBy);
+    //         return;
+    //     }
+
+    //     // Handle reschedule scenarios
+    //     $isReschedule = false;
+
+    //     // Scenario 1: Status changed from cancelled back to scheduled
+    //     if ($booking->wasChanged('status') && $originalStatus === 'cancelled' && $currentStatus === 'scheduled') {
+    //         $isReschedule = true;
+    //     }
+
+    //     // Scenario 2: Status is scheduled and time/date changed
+    //     if ($currentStatus === 'scheduled' && $booking->wasChanged(['booking_date', 'start_time'])) {
+    //         $isReschedule = true;
+    //     }
+
+    //     if ($isReschedule) {
+    //         $this->emailService->sendRescheduleEmails($booking);
+    //     }
+    // }
 
     private function determineCancelledBy(Booking $booking): string
     {

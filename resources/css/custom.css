@@ -73,7 +73,7 @@ body {
     min-height: 120px;
     border: 1px solid var(--gray-light);
     transition: all 0.2s ease;
-    cursor: pointer;
+    /* cursor: pointer; */
 }
 
 .calendar-day:hover {
@@ -113,11 +113,21 @@ body {
     background-color: rgba(99, 102, 241, 0.05);
 }
 
-.time-slot.selected {
+/* .time-slot.selected {
     background-color: var(--primary);
     color: white;
     border-color: var(--primary);
-}
+} */
+.time-slot.active {
+    background-color: #28a745;
+    color: white;
+  }
+
+  .time-slot.upcoming {
+    background-color: #ffc107;
+    color: #212529;
+  }
+
 
 /* Event Types */
 .event-type-card {

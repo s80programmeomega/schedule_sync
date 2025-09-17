@@ -28,20 +28,17 @@
         <i class="bi bi-plus me-2"></i> Create Event Type
       </a>
       {{--
-        <button
-            class="btn btn-primary d-flex align-items-center"
-            id="createEventBtn"
-        >
-            <i class="bi bi-plus me-2"></i> Create Event Type
-        </button>
-        --}}
+            <button class="btn btn-primary d-flex align-items-center" id="createEventBtn">
+                <i class="bi bi-plus me-2"></i> Create Event Type
+            </button>
+            --}}
     </div>
 
 
     <!-- Statistics Cards -->
     <div class="row mb-4">
       <div class="col-md-4 mb-3 mb-md-0">
-        <a href="{{ route('bookings.scheduled') }}" class="text-decoration-none">
+        <a href="{{ route('bookings.index', ['status' => 'scheduled']) }}" class="text-decoration-none">
           <div class="card border-0 shadow-sm animate-fade-in">
             <div class="card-body p-4">
               <div class="d-flex align-items-center">
@@ -62,8 +59,8 @@
         </a>
       </div>
       <div class="col-md-4 mb-3 mb-md-0">
-        <a href="{{ route('bookings.completed') }}" class="text-decoration-none">
-          <div class="card border-0 shadow-sm animate-fade-in animate-delay-1">
+        <a href="{{ route('bookings.index', ['status' => 'completed']) }}" class="text-decoration-none">
+            <div class="card border-0 shadow-sm animate-fade-in animate-delay-1">
             <div class="card-body p-4">
               <div class="d-flex align-items-center">
                 <div class="me-3 p-3 rounded-circle bg-success bg-opacity-10">
@@ -83,8 +80,8 @@
         </a>
       </div>
       <div class="col-md-4 mb-3 mb-md-0">
-        <a href="{{ route('bookings.cancelled') }}" class="text-decoration-none">
-          <div class="card border-0 shadow-sm animate-fade-in animate-delay-2">
+        <a href="{{ route('bookings.index', ['status' => 'cancelled']) }}" class="text-decoration-none">
+            <div class="card border-0 shadow-sm animate-fade-in animate-delay-2">
             <div class="card-body p-4">
               <div class="d-flex align-items-center">
                 <div class="me-3 p-3 rounded-circle bg-danger bg-opacity-10">
@@ -118,31 +115,47 @@
             <div class="col-md-6 mb-4">
               <div class="card border-0 shadow-sm">
                 <div class="card-body">
-                  <div class="d-flex align-items-center mb-3">
-                    <div class="team-avatar me-3">
-                      <div class="bg-primary text-white rounded d-flex align-items-center justify-content-center"
-                        style="width: 40px; height: 40px;">
-                        {{ substr($team->name, 0, 2) }}
-                      </div>
-                    </div>
-                    <div>
-                      <h6 class="mb-0">{{ $team->name }}</h6>
-                      <small class="text-muted">{{ auth()->user()->getRoleInTeam($team) }}</small>
-                    </div>
-                  </div>
-
+                    <a href="{{ route('teams.show', $team) }}" class="text-decoration-none">
+                        <div class="d-flex align-items-center mb-3">
+                          <div class="team-avatar me-3">
+                            <div class="bg-primary text-white rounded d-flex align-items-center justify-content-center"
+                              style="width: 40px; height: 40px;">
+                              {{ substr($team->name, 0, 2) }}
+                            </div>
+                          </div>
+                          <div>
+                            <h6 class="mb-0 text-dark">{{ $team->name }}</h6>
+                            <small class="text-muted">{{ auth()->user()->getRoleInTeam($team) }}</small>
+                          </div>
+                        </div>
+                      </a>
                   <div class="row text-center">
                     <div class="col-4">
-                      <div class="fw-bold">{{ $team->activeMembers->count() }}</div>
-                      <small class="text-muted">Members</small>
+                      <a href="{{ route('teams.members.index', $team) }}" class="text-decoration-none">
+                        <div class="d-flex flex-column align-items-center">
+                          <i class="bi bi-people text-primary mb-1"></i>
+                          <div class="fw-bold">{{ $team->activeMembers->count() }}</div>
+                          <small class="text-muted">Members</small>
+                        </div>
+                      </a>
                     </div>
                     <div class="col-4">
-                      <div class="fw-bold">{{ $team->eventTypes->count() }}</div>
-                      <small class="text-muted">Events</small>
+                      <a href="{{ route('event-types.index', ['team' => $team->id]) }}" class="text-decoration-none">
+                        <div class="d-flex flex-column align-items-center">
+                          <i class="bi bi-calendar-event text-success mb-1"></i>
+                          <div class="fw-bold">{{ $team->eventTypes->count() }}</div>
+                          <small class="text-muted">Events</small>
+                        </div>
+                      </a>
                     </div>
                     <div class="col-4">
-                      <div class="fw-bold">{{ $team->contacts->count() }}</div>
-                      <small class="text-muted">Contacts</small>
+                      <a href="{{ route('contacts.index', ['team' => $team->id]) }}" class="text-decoration-none">
+                        <div class="d-flex flex-column align-items-center">
+                          <i class="bi bi-person-lines-fill text-info mb-1"></i>
+                          <div class="fw-bold">{{ $team->contacts->count() }}</div>
+                          <small class="text-muted">Contacts</small>
+                        </div>
+                      </a>
                     </div>
                   </div>
                 </div>
@@ -192,9 +205,19 @@
               <div class="card-footer bg-light border-top py-3 px-4 mt-auto">
                 <div class="d-flex justify-content-between align-items-center">
                   <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="eventActive{{ $eventType->id }}"
-                      {{ $eventType->is_active ? 'checked' : '' }} onchange="toggleEventType({{ $eventType->id }})">
-                    <label class="form-check-label" for="eventActive{{ $eventType->id }}">Active</label>
+                    <form method="POST" action="{{ route('event-types.toggle', $eventType) }}"
+                      style="display: inline;">
+                      @csrf
+                      @method('PATCH')
+                      <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="eventActive{{ $eventType->id }}"
+                          {{ $eventType->is_active ? 'checked' : '' }} onchange="this.form.submit()">
+                        <input type="hidden" name="is_active" value="0">
+                        <input type="hidden" name="is_active" value="{{ $eventType->is_active ? '0' : '1' }}">
+                        <label class="form-check-label" for="eventActive{{ $eventType->id }}">Active</label>
+                      </div>
+                    </form>
+
                   </div>
                   <div class="dropdown">
                     <button class="btn btn-sm btn-light" type="button" data-bs-toggle="dropdown">
@@ -248,28 +271,6 @@
       <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="h4 fw-bold mb-0">Upcoming Meetings</h2>
         <div>
-          {{--
-                <div class="btn-group" role="group">
-                    <button
-                        type="button"
-                        class="btn btn-sm btn-outline-primary active"
-                    >
-                        Day
-                    </button>
-                    <button
-                        type="button"
-                        class="btn btn-sm btn-outline-primary"
-                    >
-                        Week
-                    </button>
-                    <button
-                        type="button"
-                        class="btn btn-sm btn-outline-primary"
-                    >
-                        Month
-                    </button>
-                </div>
-                --}}
           <div class="btn-group" role="group">
             <button type="button"
               class="btn btn-sm btn-outline-primary {{ request('filter', 'day') == 'day' ? 'filter-active' : '' }}"
@@ -293,10 +294,10 @@
       <div class="card border-0 shadow-sm mb-4">
         <div class="card-body p-0">
           <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
+            <table class="table table-hover table-striped  table-responsive align-middle  mb-0">
               <thead class="bg-light">
                 <tr>
-                  <th class="ps-4">Attendee</th>
+                  <th class="ps-4">Attendees</th>
                   <th>Event Type</th>
                   <th>Date & Time</th>
                   <th>Duration</th>
@@ -308,15 +309,15 @@
                   <tr>
                     <td class="ps-4">
                       <div class="d-flex align-items-center">
-                        <img
-                          src="https://ui-avatars.com/api/?name={{ $upcomingMeeting->attendee_name }}&background=4f46e5&color=fff"
-                          class="rounded-circle me-3" width="42" height="42"
-                          alt="{{ $upcomingMeeting->attendee_name }}" />
-                        <div>
-                          <h6 class="mb-0 fw-semibold">
-                            {{ $upcomingMeeting->attendee_name }}
+                        {{-- <img
+                                                    src="https://ui-avatars.com/api/?name={{ $upcomingMeeting->attendee_name }}&background=4f46e5&color=fff"
+                                                    class="rounded-circle me-3" width="42" height="42"
+                                                    alt="{{ $upcomingMeeting->attendee_name }}" /> --}}
+                        <div class="px-4">
+                          <h6 class="badge fw-bold bg-secondary">
+                            {{ $upcomingMeeting->attendees->count() }}
                           </h6>
-                          <span class="text-muted small">{{ $upcomingMeeting->attendee_email }}</span>
+                          {{-- <span class="text-muted small">{{ $upcomingMeeting->attendee_email }}</span> --}}
                         </div>
                       </div>
                     </td>
@@ -326,10 +327,11 @@
 
                     <td>
                       <div>
-                        {{ \Carbon\Carbon::parse($upcomingMeeting->start_time)->format('l, g:i A') }}
+                        {{ \Carbon\Carbon::parse($upcomingMeeting->getFormattedDateTimeAttribute())->format('M j, Y g:i A') }}
                       </div>
                       <span class="badge bg-warning text-dark">
-                        {{ \Carbon\Carbon::parse($upcomingMeeting->start_time)->diffForHumans() }}
+                        {{ \Carbon\Carbon::parse($upcomingMeeting->booking_date)->setTimeFromTimeString($upcomingMeeting->start_time)->diffForHumans() }}
+
                       </span>
                     </td>
                     <td>
@@ -417,8 +419,21 @@
             @foreach (array_chunk($calendarData['calendar_days'], 7) as $week)
               <div class="row g-0">
                 @foreach ($week as $day)
+                  @php
+                    // Check if this day has availability and get its ID
+                    $availabilityId = null;
+                    if ($day['has_availability']) {
+                        $availability = \App\Models\Availability::where('user_id', auth()->id())
+                            ->whereDate('availability_date', $day['date'])
+                            ->first();
+                        $availabilityId = $availability?->id;
+                    }
+                  @endphp
+
                   <div
-                    class="col calendar-day {{ !$day['is_current_month'] ? 'disabled' : '' }} {{ $day['is_today'] ? 'active' : '' }}">
+                    class="col calendar-day {{ !$day['is_current_month'] ? 'disabled' : '' }} {{ $day['is_today'] ? 'active' : '' }}"
+                    @if ($availabilityId) onclick="window.location.href='{{ route('availability.show', $availabilityId) }}'"
+                                        style="cursor: pointer;" @endif>
                     <div class="p-2">
                       <div class="day-number mb-2">{{ $day['day'] }}</div>
 
@@ -429,9 +444,15 @@
                       @endif
 
                       @if ($day['bookings_count'] > 0)
-                        <div class="small py-1 px-2 bg-primary text-white rounded mb-1 text-truncate">
-                          {{ $day['bookings_count'] }} {{ $day['bookings_count'] == 1 ? 'booking' : 'bookings' }}
-                        </div>
+                        <a href="{{ route('bookings.index', [
+                            'date_from' => $day['date']->format('Y-m-d'),
+                            'date_to' => $day['date']->format('Y-m-d'),
+                        ]) }}"
+                          class="small py-1 px-2 bg-primary text-white rounded mb-1 text-truncate text-decoration-none d-block"
+                          onclick="event.stopPropagation();">
+                          {{ $day['bookings_count'] }}
+                          {{ $day['bookings_count'] == 1 ? 'booking' : 'bookings' }}
+                        </a>
                       @endif
 
                       @if ($day['has_availability'] && $day['bookings_count'] == 0)
@@ -442,6 +463,7 @@
                     </div>
                   </div>
                 @endforeach
+
               </div>
             @endforeach
           </div>
@@ -496,10 +518,33 @@
               </div>
             </div>
             @forelse($availableSlots as $slot)
-              <a href="#" class="time-slot text-decoration-none">{{ $slot['formatted_time'] }}</a>
+              @php
+                $now = now();
+                // dd($now);
+                $slotStart = \Carbon\Carbon::parse(today()->toDateString() . ' ' . $slot['start_time']);
+                $slotEnd = \Carbon\Carbon::parse(today()->toDateString() . ' ' . $slot['end_time']);
+
+                // Skip past slots
+                if ($slotEnd->lt($now)) {
+                    continue;
+                }
+
+                $cssClass = 'time-slot text-decoration-none';
+                if ($slot['is_occupied']) {
+                    if ($now->between($slotStart, $slotEnd)) {
+                        $cssClass .= ' active';
+                    } else {
+                        $cssClass .= ' upcoming';
+                    }
+                }
+              @endphp
+
+              <a href="#" class="{{ $cssClass }}">{{ $slot['formatted_time'] }}</a>
             @empty
               <p class="text-muted small">No available slots for today</p>
             @endforelse
+
+
           </div>
 
           <div class="text-center mt-3">
@@ -511,51 +556,51 @@
       </div>
 
       <!-- <div class="col-lg-4 mb-4">
-                      <div class="card border-0 shadow-sm h-100">
-                        <div class="card-header border-bottom bg-white py-3">
-                          <h5 class="card-title mb-0 fw-semibold">Today's Schedule</h5>
-                        </div>
-                        <div class="card-body">
-                          <div class="d-flex align-items-center mb-3">
-                            <div class="bg-primary text-white rounded-circle p-2 me-3">
-                              <i class="bi bi-calendar-check"></i>
-                            </div>
-                            <div>
-                              <h6 class="mb-0 fw-semibold">Sarah Johnson</h6>
-                              <p class="text-muted mb-0 small">30 Minute Consultation • 2:30 PM</p>
-                            </div>
-                          </div>
+                                      <div class="card border-0 shadow-sm h-100">
+                                        <div class="card-header border-bottom bg-white py-3">
+                                          <h5 class="card-title mb-0 fw-semibold">Today's Schedule</h5>
+                                        </div>
+                                        <div class="card-body">
+                                          <div class="d-flex align-items-center mb-3">
+                                            <div class="bg-primary text-white rounded-circle p-2 me-3">
+                                              <i class="bi bi-calendar-check"></i>
+                                            </div>
+                                            <div>
+                                              <h6 class="mb-0 fw-semibold">Sarah Johnson</h6>
+                                              <p class="text-muted mb-0 small">30 Minute Consultation • 2:30 PM</p>
+                                            </div>
+                                          </div>
 
-                          <div class="d-flex align-items-center mb-3">
-                            <div class="bg-primary text-white rounded-circle p-2 me-3">
-                              <i class="bi bi-calendar-check"></i>
-                            </div>
-                            <div>
-                              <h6 class="mb-0 fw-semibold">Michael Chen</h6>
-                              <p class="text-muted mb-0 small">15 Minute Meeting • 4:00 PM</p>
-                            </div>
-                          </div>
+                                          <div class="d-flex align-items-center mb-3">
+                                            <div class="bg-primary text-white rounded-circle p-2 me-3">
+                                              <i class="bi bi-calendar-check"></i>
+                                            </div>
+                                            <div>
+                                              <h6 class="mb-0 fw-semibold">Michael Chen</h6>
+                                              <p class="text-muted mb-0 small">15 Minute Meeting • 4:00 PM</p>
+                                            </div>
+                                          </div>
 
-                          <div class="border-top my-4 pt-4">
-                            <h6 class="fw-semibold mb-3">Available Time Slots</h6>
+                                          <div class="border-top my-4 pt-4">
+                                            <h6 class="fw-semibold mb-3">Available Time Slots</h6>
 
-                            <div class="mb-3">
-                              <a href="#" class="time-slot">10:00 AM - 10:30 AM</a>
-                              <a href="#" class="time-slot">11:30 AM - 12:00 PM</a>
-                              <a href="#" class="time-slot">1:00 PM - 1:30 PM</a>
-                              <a href="#" class="time-slot selected">2:30 PM - 3:00 PM</a>
-                              <a href="#" class="time-slot">4:30 PM - 5:00 PM</a>
-                            </div>
-                          </div>
+                                            <div class="mb-3">
+                                              <a href="#" class="time-slot">10:00 AM - 10:30 AM</a>
+                                              <a href="#" class="time-slot">11:30 AM - 12:00 PM</a>
+                                              <a href="#" class="time-slot">1:00 PM - 1:30 PM</a>
+                                              <a href="#" class="time-slot selected">2:30 PM - 3:00 PM</a>
+                                              <a href="#" class="time-slot">4:30 PM - 5:00 PM</a>
+                                            </div>
+                                          </div>
 
-                          <div class="text-center mt-3">
-                            <button class="btn btn-primary w-100">
-                              <i class="bi bi-plus-circle me-2"></i> Add Event
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </div> -->
+                                          <div class="text-center mt-3">
+                                            <button class="btn btn-primary w-100">
+                                              <i class="bi bi-plus-circle me-2"></i> Add Event
+                                            </button>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div> -->
     </div>
   </div>
 
@@ -577,10 +622,10 @@
         form.method = 'POST';
         form.action = `/bookings/${id}/cancel`;
         form.innerHTML = `
-                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                    <input type="hidden" name="_method" value="PATCH">
-                    <input type="hidden" name="cancellation_reason" value="${reason}">
-                `;
+                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                        <input type="hidden" name="_method" value="PATCH">
+                        <input type="hidden" name="cancellation_reason" value="${reason}">
+                    `;
         document.body.appendChild(form);
         form.submit();
       }

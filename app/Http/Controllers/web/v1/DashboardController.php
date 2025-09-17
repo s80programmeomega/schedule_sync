@@ -28,15 +28,21 @@ class DashboardController extends Controller
      */
     public function index(Request $request)
     {
+        if ($request->user()->id !== auth()->user()->id) {
+            abort(403);
+        }
         $user = auth()->user();
         $duration = $request->get('duration', 30);
         $filter = $request->get('filter', 'day');
 
+        $todaysAvailability = Availability::where('user_id', $user->id)
+            ->whereDate('availability_date', today())
+            ->first();
+
         // Apply filter logic
         $query = Booking::where('user_id', $user->id)
             ->with('eventType')
-            ->where('status', 'scheduled')
-            ->where('start_time', '>', now());
+            ->where('status', 'scheduled');
 
 
         switch ($filter) {
@@ -57,7 +63,9 @@ class DashboardController extends Controller
                 });
                 break;
             default: // day
-                $query = $query->whereDate('booking_date', today());
+                // $query = $query->whereDate('booking_date', today())->whereTime('start_time', '>=', now()->format('H:i'));
+                $query = $todaysAvailability->bookings()
+                ->where('start_time', '>=', now()->format('H:i'));
                 break;
         }
 
@@ -67,13 +75,9 @@ class DashboardController extends Controller
         $calendarData = $this->generateCalendarData($user, $currentMonth);
 
         // Get booking statistics
-        $upcomingMeetings = Booking::where('user_id', $user->id)
-            ->with('eventType')
-            ->where('status', 'scheduled')
-            ->where('start_time', '>', now())
-            ->get();
+        $upcomingMeetings = $query->with('user.availability')->get();
+        // dd($upcomingMeetings->toArray());
 
-        // dd($upcomingMeetings);
 
         $completedMeetings = Booking::where('user_id', $user->id)
             ->where('status', 'completed')
@@ -91,19 +95,10 @@ class DashboardController extends Controller
             ->get();
 
         // Get today's meetings
-        $todaysBookings = Booking::where('user_id', $user->id)
-            ->whereDate('booking_date', today())
-            ->where('status', 'scheduled')
-            ->whereTime('start_time', '>=', now()->format('H:i A'))
+        $todaysBookings = $query->whereDate('booking_date', today())
+            ->whereTime('start_time', '>=', now()->format('H:i'))
             ->orderBy('start_time')
             ->get();
-
-        $todaysAvailability = Availability::whereDate('availability_date', today())->first();
-        // $availableSlots = $this->availabilityService->getAvailableSlots(
-        //     $user->id,
-        //     today()->toDateString(),
-        //     $duration // Use the selected duration instead of hardcoded 30
-        // );
 
         $availableSlots = $todaysAvailability->getTimeSlots($duration);
 
@@ -139,7 +134,10 @@ class DashboardController extends Controller
 
         // Get bookings for the month
         $monthlyBookings = Booking::where('user_id', $user->id)
-            ->whereBetween('booking_date', [$startOfMonth, $endOfMonth])
+            ->whereBetween('booking_date', [
+                $startOfMonth->toDateString(),
+                $endOfMonth->toDateString()
+            ])
             ->where('status', 'scheduled')
             ->with('eventType')
             ->get()
@@ -149,7 +147,10 @@ class DashboardController extends Controller
 
         // Get availabilities for the month
         $monthlyAvailabilities = Availability::where('user_id', $user->id)
-            ->whereBetween('availability_date', [$startOfMonth, $endOfMonth])
+            ->whereBetween('availability_date', [
+                $startOfMonth->toDateString(),
+                $endOfMonth->toDateString()
+            ])
             ->where('is_available', true)
             ->get()
             ->groupBy(function ($availability) {
@@ -161,17 +162,30 @@ class DashboardController extends Controller
         $startOfCalendar = $startOfMonth->copy()->startOfWeek();
         $endOfCalendar = $endOfMonth->copy()->endOfWeek();
 
+
         for ($date = $startOfCalendar->copy(); $date->lte($endOfCalendar); $date->addDay()) {
             $dateKey = $date->format('Y-m-d');
             $bookings = $monthlyBookings->get($dateKey, collect());
             $availabilities = $monthlyAvailabilities->get($dateKey, collect());
+
+            $todaysAvailabilities = Availability::where('user_id', $user->id)
+                ->whereDate('availability_date', $date->toDateString())
+                ->where('is_available', true)
+                ->get();
+
+            $todays_booking_count = 0;
+            if ($todaysAvailabilities->isNotEmpty()) {
+                $todaysAvailabilities->each(function ($availability) use (&$todays_booking_count) {
+                    $todays_booking_count += $availability->getBookingCountAttribute();
+                });
+            }
 
             $calendarDays[] = [
                 'date' => $date->copy(),
                 'day' => $date->day,
                 'is_current_month' => $date->month === $currentMonth->month,
                 'is_today' => $date->isToday(),
-                'bookings_count' => $bookings->count(),
+                'bookings_count' => $todays_booking_count,
                 'has_availability' => $availabilities->isNotEmpty(),
                 'bookings' => $bookings->take(3), // Limit for display
             ];

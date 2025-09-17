@@ -80,6 +80,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('event-types', EventTypeController::class);
+    Route::post('/event-types/{eventType}/toggle', [EventTypeController::class, 'toggle'])->name('event-types.toggle');
+
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {

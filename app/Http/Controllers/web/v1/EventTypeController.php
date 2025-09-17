@@ -201,6 +201,12 @@ class EventTypeController extends Controller
     /**
      * Toggle active status of event type
      */
+    // public function toggle(EventType $eventType)
+    // {
+    //     $eventType->update(['is_active' => request('is_active')]);
+    //     return response()->json(['success' => true]);
+    // }
+
     public function toggle(EventType $eventType)
     {
         if ($eventType->user_id !== auth()->user()->id) {

@@ -99,7 +99,7 @@
                   <td class="py-md-3">{{ $availability->start_time }}</td>
                   <td class="py-md-3">{{ $availability->end_time }}</td>
                   <td class="py-md-3">
-                    <span class="badge bg-info">{{ $availability->getBookingCountAttribute() }}</span>
+                    <span class="badge bg-primary">{{ $availability->getBookingCountAttribute() }}</span>
                   </td>
                   <td>
                     <span class="badge {{ $availability->is_available ? 'bg-success' : 'bg-secondary' }}">

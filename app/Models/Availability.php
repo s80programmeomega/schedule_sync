@@ -66,6 +66,7 @@ class Availability extends Model
 
         return $this->hasMany(Booking::class, 'user_id', 'user_id')
             ->whereDate('booking_date', $this->availability_date)
+            ->where('status', 'scheduled')
             ->where(function ($query) {
                 $query->whereBetween('start_time', [$this->getRawOriginal('start_time'), $this->getRawOriginal('end_time')])
                     ->orWhereBetween('end_time', [$this->getRawOriginal('start_time'), $this->getRawOriginal('end_time')]);

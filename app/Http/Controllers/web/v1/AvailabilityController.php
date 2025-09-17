@@ -7,19 +7,20 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\v1\StoreAvailabilityRequest;
 use App\Http\Requests\v1\UpdateAvailabilityRequest;
+use App\Models\Booking;
 use App\Models\Timezone;
-use App\Services\AvailabilityService;
 
 class AvailabilityController extends Controller
 {
 
     public function __construct(
-        private AvailabilityService $availabilityService
     ) {}
 
     public function index(Request $request)
     {
-        $query = Availability::where('user_id', auth()->user()->id);
+        $query = Availability::with(['timezone'])
+        ->withCount(['bookings'])
+        ->where('user_id', auth()->user()->id);
 
         // Apply filters
         if ($request->filled('search')) {
@@ -100,13 +101,21 @@ class AvailabilityController extends Controller
             ->with('success', 'Availability added successfully!');
     }
 
-    public function show(Availability $availability)
+    public function show(Availability $availability, Request $request)
     {
         if ($availability->user_id !== auth()->user()->id) {
             abort(403);
         }
+        if (!$availability->is_available){
+            return $this->index($request)->with(key: "Warning", value:"The selected availability is not available.");
+        }
 
-        return view('availabilities.show', compact('availability'));
+        $duration = (int)($request->get('duration', 30)); // Get duration from request
+        $availability->load(['timezone', 'bookings.eventType']);
+        $timeSlots = $availability->getTimeSlots($duration);
+
+        return view('availabilities.show', compact('availability', 'timeSlots', "duration"));
+
     }
 
     public function edit(Availability $availability)
@@ -152,12 +161,7 @@ class AvailabilityController extends Controller
 
         $duration = $request->get('duration', 30); // Default 30 minutes
 
-
-        $slots = $this->availabilityService->getAvailableSlots(
-            auth()->user()->id,
-            $availability->availability_date->toDateString(),
-            $duration
-        );
+        $slots = $availability->getTimeSlots($duration);
 
         return view('availabilities.slots', compact('availability', 'slots', 'duration'));
     }

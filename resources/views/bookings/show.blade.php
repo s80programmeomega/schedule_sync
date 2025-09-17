@@ -31,6 +31,10 @@
                         <div class="col-sm-3 fw-semibold">Event Type:</div>
                         <div class="col-sm-9">{{ $booking->eventType->name }}</div>
                     </div>
+                    <div class="row mb-4">
+                        <div class="col-sm-3 fw-semibold">Duration:</div>
+                        <div class="col-sm-9">{{ $booking->eventType->duration }} minutes</div>
+                    </div>
 
                     <div class="row mb-4">
                         <div class="col-sm-3 fw-semibold">Attendees:</div>

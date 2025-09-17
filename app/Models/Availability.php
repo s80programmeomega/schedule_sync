@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
+use App\Services\TimeSlotService;
 
 
 /**
@@ -58,6 +59,27 @@ class Availability extends Model
     public function getEndTimeAttribute($value)
     {
         return $value ? Carbon::parse($value)->format('H:i') : null;
+    }
+
+    public function bookings()
+    {
+
+        return $this->hasMany(Booking::class, 'user_id', 'user_id')
+            ->whereDate('booking_date', $this->availability_date)
+            ->where(function ($query) {
+                $query->whereBetween('start_time', [$this->getRawOriginal('start_time'), $this->getRawOriginal('end_time')])
+                    ->orWhereBetween('end_time', [$this->getRawOriginal('start_time'), $this->getRawOriginal('end_time')]);
+            });
+    }
+
+    public function getBookingCountAttribute()
+    {
+        return $this->bookings()->get()->count();
+    }
+
+    public function getTimeSlots($duration = 30)
+    {
+        return app(TimeSlotService::class)->generateTimeSlots($this, $duration);
     }
 
 }

@@ -17,9 +17,9 @@
                                 <a href="{{ route('social.redirect', 'google') }}" class="btn btn-outline-danger">
                                     <i class="fab fa-google me-2"></i>Sign up with Google
                                 </a>
-                                <a href="{{ route('social.redirect', 'linkedin') }}" class="btn btn-outline-info">
+                                {{-- <a href="{{ route('social.redirect', 'linkedin') }}" class="btn btn-outline-info">
                                     <i class="fab fa-linkedin me-2"></i>Sign up with LinkedIn
-                                </a>
+                                </a> --}}
                                 <a href="{{ route('social.redirect', 'github') }}" class="btn btn-outline-dark">
                                     <i class="fab fa-github me-2"></i>Sign up with GitHub
                                 </a>

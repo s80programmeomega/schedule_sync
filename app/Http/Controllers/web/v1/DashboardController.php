@@ -99,12 +99,13 @@ class DashboardController extends Controller
             ->get();
 
         $todaysAvailability = Availability::whereDate('availability_date', today())->first();
-        $availableSlots = $this->availabilityService->getAvailableSlots(
-            $user->id,
-            today()->toDateString(),
-            $duration // Use the selected duration instead of hardcoded 30
-        );
+        // $availableSlots = $this->availabilityService->getAvailableSlots(
+        //     $user->id,
+        //     today()->toDateString(),
+        //     $duration // Use the selected duration instead of hardcoded 30
+        // );
 
+        $availableSlots = $todaysAvailability->getTimeSlots($duration);
 
         // Get upcoming meetings for the table
         $upcomingBookings = Booking::where('user_id', $user->id)

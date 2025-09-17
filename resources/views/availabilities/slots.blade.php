@@ -22,12 +22,12 @@
                 class="d-flex align-items-center gap-3">
                 <label class="form-label mb-0 fw-semibold">Slot Duration:</label>
                 <select name="duration" class="form-select pe-5" style="width: auto;" onchange="this.form.submit()">
-                    <option  value="15" {{ $duration==15 ? 'selected' : '' }}>15 minutes</option>
-                    <option  value="30" {{ $duration==30 ? 'selected' : '' }}>30 minutes</option>
-                    <option  value="45" {{ $duration==45 ? 'selected' : '' }}>45 minutes</option>
-                    <option  value="60" {{ $duration==60 ? 'selected' : '' }}>1 hour</option>
-                    <option  value="90" {{ $duration==90 ? 'selected' : '' }}>1.5 hours</option>
-                    <option  value="120" {{ $duration==120 ? 'selected' : '' }}>2 hours</option>
+                    <option  value="15" {{ $duration==15 ? 'selected' : '' }}>15 Minutes</option>
+                    <option  value="30" {{ $duration==30 ? 'selected' : '' }}>30 Minutes</option>
+                    <option  value="45" {{ $duration==45 ? 'selected' : '' }}>45 Minutes</option>
+                    <option  value="60" {{ $duration==60 ? 'selected' : '' }}>1 Hour</option>
+                    <option  value="90" {{ $duration==90 ? 'selected' : '' }}>1 Hour 30 Minutes</option>
+                    <option  value="120" {{ $duration==120 ? 'selected' : '' }}>2 Hours</option>
                 </select>
             </form>
         </div>
@@ -40,7 +40,7 @@
                     @if(count($slots) > 0)
                     <div class="row g-3">
                         @foreach($slots as $slot)
-                        <div class="col-md-6 col-lg-4">
+                        <div class="col-12 col-md-6 col-lg-4">
                             <div class="card border border-primary-subtle">
                                 <div class="card-body text-center py-3">
                                     <i class="bi bi-clock text-primary mb-2" style="font-size: 1.5rem;"></i>

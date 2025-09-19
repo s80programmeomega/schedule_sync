@@ -63,9 +63,13 @@ class DashboardController extends Controller
                 });
                 break;
             default: // day
-                // $query = $query->whereDate('booking_date', today())->whereTime('start_time', '>=', now()->format('H:i'));
-                $query = $todaysAvailability->bookings()
-                ->where('start_time', '>=', now()->format('H:i'));
+                if ($todaysAvailability) {
+                    $query = $query->whereDate('booking_date', today())
+                        ->whereTime('start_time', '>=', now()->format('H:i'));
+                } else {
+                    $query = $query->whereDate('booking_date', today())
+                        ->whereTime('start_time', '>=', now()->format('H:i'));
+                }
                 break;
         }
 
@@ -100,7 +104,8 @@ class DashboardController extends Controller
             ->orderBy('start_time')
             ->get();
 
-        $availableSlots = $todaysAvailability->getTimeSlots($duration);
+        $availableSlots = $todaysAvailability ? $todaysAvailability->getTimeSlots($duration) : [];
+
 
         // Get upcoming meetings for the table
         $upcomingBookings = Booking::where('user_id', $user->id)

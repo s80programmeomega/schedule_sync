@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
-
+use App\Events\AttendeeAddedToBooking;
 
 /**
  * Booking Model
@@ -191,7 +191,13 @@ class Booking extends Model
             'status' => 'pending',
         ], $data);
 
-        return $this->attendees()->create($attendeeData);
+        $bookingAttendee = $this->attendees()->create($attendeeData);
+
+        if ($this->status === 'scheduled' && $attendee->email && $attendee->email_notifications) {
+            AttendeeAddedToBooking::dispatch($bookingAttendee);
+        }
+
+        return $bookingAttendee;
     }
 
 

@@ -3,6 +3,7 @@
 namespace App\Mail;
 
 use App\Models\Booking;
+use App\Models\BookingAttendee;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
@@ -22,7 +23,8 @@ class BookingCancellation extends Mailable
 
     public function __construct(
         public Booking $booking,
-        public string $cancelledBy = 'attendee' // 'attendee' or 'host'
+        public ?BookingAttendee $attendee = null,
+        public string $cancelledBy = 'host' // 'attendee' or 'host'
     ) {}
 
     public function envelope(): Envelope
@@ -43,6 +45,7 @@ class BookingCancellation extends Mailable
             view: 'emails.booking.cancellation',
             with: [
                 'booking' => $this->booking,
+                'attendee' => $this->attendee,
                 'cancelledBy' => $this->cancelledBy,
                 'reason' => $this->booking->cancellation_reason,
                 'rebookLink' => route('bookings.create', $this->booking->eventType->user->username),

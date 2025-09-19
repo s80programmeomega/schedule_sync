@@ -16,7 +16,11 @@
     </div>
   </div>
 
-  <p class="mb-4">Hi <strong>{{ $attendee['name'] }}</strong>,</p>
+    @if ($attendee)
+        <p class="mb-4">Hi <strong>{{ $attendee->name }}</strong>,</p>
+    @else
+        <p class="mb-4">Hi <strong>{{ $booking->user->username }}</strong>,</p>
+    @endif
 
   <p>Your meeting with <strong>{{ $host->name }}</strong> has been rescheduled to a new time.</p>
 

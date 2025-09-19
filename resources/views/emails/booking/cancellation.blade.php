@@ -19,7 +19,11 @@
     </div>
 </div>
 
-<p class="mb-4">Hi <strong>{{ $booking->attendee_name }}</strong>,</p>
+    @if ($attendee)
+        <p class="mb-4">Hi <strong>{{ $attendee->name }}</strong>,</p>
+    @else
+        <p class="mb-4">Hi <strong>{{ $booking->user->username }}</strong>,</p>
+    @endif
 
 <!-- Cancelled Meeting Details -->
 <div class="meeting-details-card">

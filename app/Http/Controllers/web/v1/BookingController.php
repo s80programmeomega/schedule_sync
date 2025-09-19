@@ -19,7 +19,7 @@ use App\Models\BookingAttendee;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use App\Services\BookingEmailService;
-use Illuminate\Support\Facades\DB;
+use App\Events\AttendeeRemovedFromBooking;
 
 class BookingController extends Controller
 {
@@ -353,6 +353,9 @@ class BookingController extends Controller
         }
 
         $attendee->delete();
+        if ($booking->status === 'scheduled' && $attendee->email && $attendee->email_notifications) {
+            AttendeeRemovedFromBooking::dispatch($booking, $attendee);
+        }
         return back()->with('success', 'Attendee removed successfully!');
     }
 

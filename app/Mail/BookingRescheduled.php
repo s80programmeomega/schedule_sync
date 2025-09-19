@@ -3,6 +3,7 @@
 namespace App\Mail;
 
 use App\Models\Booking;
+use App\Models\BookingAttendee;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
@@ -23,7 +24,7 @@ class BookingRescheduled extends Mailable
 
     public function __construct(
         public Booking $booking,
-        public ?array $originalDateTime = null
+        public ?BookingAttendee $attendee = null,
     ) {}
 
     public function envelope(): Envelope
@@ -45,17 +46,14 @@ class BookingRescheduled extends Mailable
             with: [
                 'booking' => $this->booking,
                 'eventType' => $this->booking->eventType,
-                'attendee' => [
-                    'name' => $this->booking->attendee_name,
-                    'email' => $this->booking->attendee_email,
-                ],
-                'host' => $this->booking->eventType->user,
+                'attendee' => $this->attendee ,
+                'host' => $this->booking->user,
                 'newDateTime' => [
                     'date' => $this->booking->booking_date->format('l, F j, Y'),
                     'time' => \Carbon\Carbon::parse($this->booking->start_time)->format('g:i A T'),
                     'duration' => $this->booking->eventType->duration . ' minutes',
                 ],
-                'originalDateTime' => $this->originalDateTime,
+                // 'originalDateTime' => $this->originalDateTime,
                 'joinLink' => $this->booking->meeting_link,
                 'cancelLink' => route('public.booking.cancel', $this->booking->id),
             ]

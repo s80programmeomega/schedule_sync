@@ -122,14 +122,14 @@ class BookingEmailService
             foreach ($booking->attendees as $attendee) {
                 if ($attendee->email && $attendee->email_notifications) {
                     Mail::to($attendee->email)
-                        ->send(new BookingCancellation($booking, $cancelledBy));
+                        ->send(new BookingCancellation($booking, $attendee,$cancelledBy));
                 }
             }
 
             // Send to host
-            if ($booking->eventType->user->email) {
-                Mail::to($booking->eventType->user->email)
-                    ->send(new BookingCancellation($booking, $cancelledBy));
+            if ($booking->user->email) {
+                Mail::to($booking->user->email)
+                    ->send(new BookingCancellation($booking, $attendee=null, $cancelledBy));
             }
 
             Log::info('Booking cancellation emails sent', [
@@ -160,7 +160,7 @@ class BookingEmailService
             foreach ($booking->attendees as $attendee) {
                 if ($attendee->email && $attendee->email_notifications) {
                     Mail::to($attendee->email)
-                        ->send(new BookingRescheduled($booking));
+                        ->send(new BookingRescheduled(booking: $booking, attendee: $attendee));
                 }
             }
 

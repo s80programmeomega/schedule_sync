@@ -60,7 +60,7 @@ class BookingConfirmation extends Mailable
                     'name' => $this->attendee->name,
                     'email' => $this->attendee->email,
                 ] : null,
-                'host' => $this->booking->eventType->user,
+                'host' => $this->booking->user,
                 'isForAttendee' => $isForAttendee,
                 'meetingDetails' => [
                     'date' => $this->booking->booking_date->format('l, F j, Y'),

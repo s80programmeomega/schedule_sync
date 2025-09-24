@@ -16,6 +16,8 @@ use App\Http\Controllers\web\v1\ContactController;
 use App\Http\Controllers\web\v1\GroupController;
 use App\Http\Controllers\web\v1\GroupMemberController;
 use App\Http\Controllers\web\v1\Auth\SocialAuthController;
+use App\Http\Controllers\web\v1\PublicBookingController;
+
 
 Route::get('/', function () {
     return view('welcome');
@@ -85,16 +87,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('bookings/scheduled', [BookingController::class, 'scheduled'])->name('bookings.scheduled');
-    Route::get('bookings/completed', [BookingController::class, 'completed'])->name('bookings.completed');
-    Route::get('bookings/cancelled', [BookingController::class, 'cancelled'])->name('bookings.cancelled');
-
     // Attendee management routes
     Route::post('bookings/{booking}/attendees', [BookingController::class, 'addAttendee'])->name('bookings.attendees.add');
     Route::delete('bookings/{booking}/attendees/{attendee}', [BookingController::class, 'removeAttendee'])->name('bookings.attendees.remove');
     Route::patch('bookings/{booking}/attendees/{attendee}', [BookingController::class, 'updateAttendee'])->name('bookings.attendees.update');
     Route::get('bookings/{booking}/attendees', [BookingController::class, 'getAttendees'])->name('bookings.attendees.get');
 
+    Route::get('bookings/pending', [BookingController::class, 'pending'])->name('bookings.pending');
 
     // Resource Routes come always at the end
     Route::resource('bookings', BookingController::class);
@@ -143,17 +142,22 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 
-// // Public Booking Routes
-// Route::prefix('book')->name('public.booking.')->group(function () {
-//     Route::get('{username}', function ($username) {
-//         return view('public.booking.create', ['username' => $username]);
-//     })->name('create');
 
-//     Route::get('{booking}/cancel', function ($booking) {
-//         return view('public.booking.cancel', ['booking' => $booking]);
-//     })->name('cancel');
 
-//     Route::get('{booking}/reschedule', function ($booking) {
-//         return view('public.booking.reschedule', ['booking' => $booking]);
-//     })->name('reschedule');
-// });
+// Public Booking Routes
+Route::prefix('book')->name('public.booking.')->group(function () {
+    Route::get('{username}', [PublicBookingController::class, 'index'])->name('index');
+    Route::get('{username}/{eventType}', [PublicBookingController::class, 'selectTime'])->name('select-time');
+    Route::post('{username}/{eventType}', [PublicBookingController::class, 'store'])->name('store');
+
+    Route::get('/{username}/pending/{booking}', [PublicBookingController::class, 'showDetails'])->name('pending.details');
+
+});
+
+// Booking approval routes (authenticated)
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::post('bookings/bulk-action', [BookingController::class, 'bulkAction'])->name('bookings.bulk-action');
+    Route::post('bookings/{booking}/approve', [PublicBookingController::class, 'approve'])->name('bookings.approve');
+    Route::post('bookings/{booking}/reject', [PublicBookingController::class, 'reject'])->name('bookings.reject');
+});
+

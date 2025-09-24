@@ -2,13 +2,17 @@
 
 namespace Database\Seeders;
 
+use App\Models\Availability;
+use App\Models\EventType;
+use App\Models\Booking;
+use App\Models\BookingAttendee;
 use App\Models\Timezone;
 use App\Models\User;
-
-namespace Database\Seeders;
-
-use App\Models\Timezone;
-use App\Models\User;
+use App\Models\Team;
+use App\Models\TeamMember;
+use App\Models\Group;
+use App\Models\GroupMember;
+use App\Models\Contact;
 use Illuminate\Database\Seeder;
 
 /**
@@ -34,34 +38,41 @@ class DatabaseSeeder extends Seeder
         $this->command->info('✅ Admin user created');
 
         // 3. Create additional users
-        User::factory(9)->create();
+        User::factory(random_int(4, 9))->create();
         $this->command->info('✅ Additional users created');
 
         // 4. Seed teams and team members
+        // Team::factory(random_int(3, 10))->create();
         $this->call([TeamSeeder::class]);
         $this->command->info('✅ Teams and members seeded');
 
         // 5. Seed contacts (depends on users and teams)
+        // Contact::factory(random_int(15, 75))->create();
         $this->call([ContactSeeder::class]);
         $this->command->info('✅ Contacts seeded');
 
         // 6. Seed groups (depends on teams and contacts)
+        // Group::factory(random_int(3, 10))->create();
         $this->call([GroupSeeder::class]);
         $this->command->info('✅ Groups seeded');
 
         // 7. Seed event types (depends on users and teams)
+        // EventType::factory(random_int(7, 15))->create();
         $this->call([EventTypeSeeder::class]);
         $this->command->info('✅ Event types seeded');
 
         // 8. Seed availability (depends on users)
+        // Availability::factory(random_int(15, 35))->create();
         $this->call([AvailabilitySeeder::class]);
         $this->command->info('✅ Availability seeded');
 
         // 9. Seed bookings (depends on event types and contacts)
+        // Booking::factory(random_int(30, 75))->create();
         $this->call([BookingSeeder::class]);
         $this->command->info('✅ Bookings seeded');
 
         // 10. Seed booking attendees (depends on bookings)
+        // BookingAttendee::factory(random_int(25, 100))->create();
         $this->call([BookingAttendeeSeeder::class]);
         $this->command->info('✅ Booking attendees seeded');
 
@@ -71,14 +82,15 @@ class DatabaseSeeder extends Seeder
             ['Metric', 'Count'],
             [
                 ['Users', User::count()],
-                ['Teams', \App\Models\Team::count()],
-                ['Team Members', \App\Models\TeamMember::count()],
-                ['Contacts', \App\Models\Contact::count()],
-                ['Groups', \App\Models\Group::count()],
-                ['Group Members', \App\Models\GroupMember::count()],
-                ['Event Types', \App\Models\EventType::count()],
-                ['Bookings', \App\Models\Booking::count()],
-                ['Bookings Attendees', \App\Models\BookingAttendee::count()],
+                ['Teams', Team::count()],
+                ['Team Members', TeamMember::count()],
+                ['Contacts', Contact::count()],
+                ['Groups', Group::count()],
+                ['Group Members', GroupMember::count()],
+                ['Event Types', EventType::count()],
+                ['Bookings', Booking::count()],
+                ['Bookings Attendees', BookingAttendee::count()],
+                ['Availabilities', Availability::count()],
             ]
         );
     }

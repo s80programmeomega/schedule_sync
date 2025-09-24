@@ -5,18 +5,38 @@ namespace Database\Factories;
 use App\Models\Booking;
 use App\Models\Contact;
 use App\Models\User;
+use App\Models\TeamMember;
+use App\Models\GroupMember;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class BookingAttendeeFactory extends Factory
 {
     public function definition(): array
     {
-        $attendeeType = fake()->randomElement(['App\Models\User', 'App\Models\Contact']);
+        $attendeeType = fake()->randomElement(['User', 'Contact', 'TeamMember', 'GroupMember']);
+
+        switch ($attendeeType) {
+            case 'User':
+                $attendee_id = User::factory();
+                break;
+            case 'TeamMember':
+                $attendee_id = TeamMember::factory();
+                break;
+            case 'GroupMember':
+                $attendee_id = GroupMember::factory();
+                break;
+
+            default:
+                $attendee_id = Contact::factory();
+                break;
+        }
+
+        $attendeeType = 'App\Models\\' . $attendeeType;
 
         return [
             'booking_id' => Booking::factory(),
             'attendee_type' => $attendeeType,
-            'attendee_id' => $attendeeType === 'App\Models\User' ? User::factory() : Contact::factory(),
+            'attendee_id' => $attendee_id,
             'name' => fake()->name(),
             'email' => fake()->safeEmail(),
             'phone' => fake()->optional(0.6)->phoneNumber(),

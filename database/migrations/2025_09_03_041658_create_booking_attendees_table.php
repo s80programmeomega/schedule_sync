@@ -21,7 +21,7 @@ return new class extends Migration
             $table->foreignId('booking_id')->constrained()->onDelete('cascade');
 
             // Polymorphic relationship for attendees
-            $table->morphs('attendee'); // Creates attendee_id and attendee_type columns
+            $table->nullableMorphs('attendee'); // Creates attendee_id and attendee_type columns
             /*
              * attendee_type can be:
              * - App\Models\User (for team members)

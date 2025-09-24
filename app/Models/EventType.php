@@ -26,6 +26,7 @@ class EventType extends Model
         'buffer_time_after',
         'is_active',
         'requires_confirmation',
+        'requires_approval',
         'max_events_per_day',
         'color',
         'is_team_event',
@@ -37,10 +38,11 @@ class EventType extends Model
     protected function casts(): array
     {
         return [
-            'is_team_event',
-            'allow_multiple_attendees',
-            'max_attendees',
-            'assignment_method',
+            'is_team_event' => 'boolean',
+            'allow_multiple_attendees' => 'boolean',
+            'max_attendees' => 'integer',
+            'assignment_method' => 'string',
+            'requires_approval' => 'boolean',
         ];
     }
 
@@ -113,5 +115,35 @@ class EventType extends Model
             'whatsapp' => 'WhatsApp',
             'custom' => 'Custom'
         ];
+    }
+
+
+    /**
+     * Check if this event type is available for public booking
+     *
+     * @return bool
+     */
+    public function isPubliclyBookable(): bool
+    {
+        return $this->is_active &&
+            $this->user->allowsPublicBookings();
+    }
+
+    /**
+     * Get the booking workflow status for this event type
+     *
+     * @return string
+     */
+    public function getBookingWorkflow(): string
+    {
+        if ($this->requires_approval) {
+            return 'approval_required';
+        }
+
+        if ($this->requires_confirmation) {
+            return 'confirmation_required';
+        }
+
+        return 'instant_booking';
     }
 }

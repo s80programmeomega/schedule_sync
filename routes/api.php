@@ -48,6 +48,14 @@ Route::prefix('v1')->group(function () {
         Route::get('bookings/{booking}/cancel', [PublicBookingController::class, 'cancelBooking'])->name('public.booking.cancel');
         Route::get('bookings/{booking}/reschedule', [PublicBookingController::class, 'rescheduleBooking'])->name('public.booking.reschedule');
     });
+
+    // Booking approval routes
+    Route::middleware(['auth:sanctum'])->group(function () {
+        Route::post('bookings/{booking}/approve', [PublicBookingController::class, 'approveBooking']);
+        Route::post('bookings/{booking}/reject', [PublicBookingController::class, 'rejectBooking']);
+        Route::get('bookings/pending', [PublicBookingController::class, 'getPendingBookings']);
+    });
+
 });
 
 // Protected routes - Require authentication

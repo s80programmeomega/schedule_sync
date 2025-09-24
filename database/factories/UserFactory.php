@@ -26,27 +26,33 @@ class UserFactory extends Factory
     public function definition(): array
     {
 
-        return [
-            'name' => fake()->name(),
-            'email' => fake()->unique()->safeEmail(),
-            'email_verified_at' => null,
-            'password' => static::$password ??= Hash::make('admin'),
-            'remember_token' => Str::random(10),
-            'username' => fake()->unique()->userName(),
-            'timezone_id' => Timezone::inRandomOrder()->first()->id,
-            'bio' => fake()->optional()->sentence(10),
-            'avatar' => fake()->optional()->imageUrl(200, 200, 'people'),
-            'default_team_id' => null,
-
-        ];
-
         // return [
         //     'name' => fake()->name(),
         //     'email' => fake()->unique()->safeEmail(),
-        //     'email_verified_at' => now(),
-        //     'password' => static::$password ??= Hash::make('password'),
+        //     'email_verified_at' => null,
+        //     'password' => static::$password ??= Hash::make('admin'),
         //     'remember_token' => Str::random(10),
+        //     'username' => fake()->unique()->userName(),
+        //     'timezone_id' => Timezone::inRandomOrder()->first()->id,
+        //     'bio' => fake()->optional()->sentence(10),
+        //     'avatar' => fake()->optional()->imageUrl(200, 200, 'people'),
+        //     'default_team_id' => null,
+
         // ];
+
+        return [
+            'name' => fake()->name(),
+            'username' => fake()->unique()->userName(),
+            'email' => fake()->unique()->safeEmail(),
+            'email_verified_at' => null,
+            'password' => static::$password ??= Hash::make('admin'),
+            'timezone_id' => Timezone::inRandomOrder()->first()->id,
+            'bio' => fake()->optional()->sentence(20),
+            'is_public' => fake()->boolean(70),
+            'remember_token' => Str::random(10),
+            'avatar' => fake()->optional()->imageUrl(200, 200, 'people'),
+            'default_team_id' => null,
+        ];
     }
 
     /**
@@ -54,7 +60,7 @@ class UserFactory extends Factory
      */
     public function unverified(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn(array $attributes) => [
             'email_verified_at' => null,
         ]);
     }
@@ -65,5 +71,16 @@ class UserFactory extends Factory
             $team = Team::factory()->create(['owner_id' => $user->id]);
             $user->update(['default_team_id' => $team->id]);
         });
+    }
+
+    /**
+     * User with public booking enabled
+     */
+    public function publicBooking(): static
+    {
+        return $this->state(fn(array $attributes) => [
+            'is_public' => true,
+            'email_verified_at' => now(),
+        ]);
     }
 }

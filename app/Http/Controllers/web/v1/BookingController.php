@@ -2,28 +2,33 @@
 
 namespace App\Http\Controllers\web\v1;
 
-use App\Models\Booking;
-use App\Models\EventType;
-use Illuminate\Http\Request;
-use App\Models\Contact;
+use App\Events\AttendeeRemovedFromBooking;
+use App\Events\BookingCancelled;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\v1\StoreBookingRequest;
 use App\Http\Requests\v1\UpdateBookingRequest;
-use App\Models\Timezone;
-use App\Services\AvailabilityService;
-use App\Models\Team;
-use App\Models\TeamMember;
+use App\Mail\BookingApproved;
+use App\Mail\BookingRejected;
+use App\Models\Booking;
+use App\Models\BookingAttendee;
+use App\Models\Contact;
+use App\Models\EventType;
 use App\Models\Group;
 use App\Models\GroupMember;
-use App\Models\BookingAttendee;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Log;
+use App\Models\Team;
+use App\Models\TeamMember;
+use App\Models\Timezone;
+use App\Services\AvailabilityService;
 use App\Services\BookingEmailService;
-use App\Events\AttendeeRemovedFromBooking;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class BookingController extends Controller
 {
     private $availabilityService;
+
     public function __construct(
         AvailabilityService $availabilityService
     ) {
@@ -32,7 +37,7 @@ class BookingController extends Controller
 
     private function getBookingsByStatus($status = null, $filters = [])
     {
-        $query = Booking::with(['eventType', 'user', 'attendees.attendee', 'timezone'])
+        $query = Booking::with(['eventType', 'user', 'attendees', 'timezone'])
             ->where('user_id', auth()->id());
 
         if ($status) {
@@ -42,9 +47,11 @@ class BookingController extends Controller
         // Enhanced filters
         if (!empty($filters['search'])) {
             $query->where(function ($q) use ($filters) {
-                $q->whereHas('eventType', function ($eq) use ($filters) {
-                    $eq->where('name', 'like', '%' . $filters['search'] . '%');
-                })->orWhere('meeting_link', 'like', '%' . $filters['search'] . '%')
+                $q
+                    ->whereHas('eventType', function ($eq) use ($filters) {
+                        $eq->where('name', 'like', '%' . $filters['search'] . '%');
+                    })
+                    ->orWhere('meeting_link', 'like', '%' . $filters['search'] . '%')
                     ->orWhere('cancellation_reason', 'like', '%' . $filters['search'] . '%');
             });
         }
@@ -65,7 +72,6 @@ class BookingController extends Controller
             $query->where('timezone_id', $filters['timezone_id']);
         }
 
-
         if (!empty($filters['status']) && !$status) {
             $query->where('status', $filters['status']);
         }
@@ -83,7 +89,6 @@ class BookingController extends Controller
 
         return view('bookings.index', compact('bookings', 'eventTypes', 'timezones'))->with('viewType', 'all');
     }
-
 
     public function create()
     {
@@ -180,7 +185,6 @@ class BookingController extends Controller
 
         return redirect()->route('bookings.index')->with('success', 'Booking updated successfully!');
     }
-
 
     // public function update(UpdateBookingRequest $request, Booking $booking)
     // {
@@ -343,7 +347,6 @@ class BookingController extends Controller
         }
     }
 
-
     public function removeAttendee(Booking $booking, BookingAttendee $attendee)
     {
         $this->authorizeBookingAccess($booking);
@@ -402,7 +405,6 @@ class BookingController extends Controller
             'attendees.*.role' => 'required|in:organizer,required,optional',
         ]);
 
-
         $eventType = EventType::findOrFail($validated['event_type_id']);
 
         if (!$this->availabilityService->isSlotAvailable(
@@ -437,7 +439,7 @@ class BookingController extends Controller
                     case 'team':
                         $teamMember = TeamMember::with('user')->find($attendeeData['member_id']);
                         if (!$teamMember) {
-                            throw new \Exception("Team member not found");
+                            throw new \Exception('Team member not found');
                         }
                         $booking->addAttendee($teamMember->user, $attendeeData['role']);
 
@@ -445,19 +447,21 @@ class BookingController extends Controller
                     case 'group':
                         $groupMember = GroupMember::with('member')->find($attendeeData['member_id']);
                         if (!$groupMember) {
-                            throw new \Exception("Group member not found");
+                            throw new \Exception('Group member not found');
                         }
                         $booking->addAttendee($groupMember->member, $attendeeData['role']);
 
                         break;
                     case 'email':
-                        $booking->attendees()->create([
-                            'attendee_type' => 'guest',
-                            'name' => $attendeeData['name'],
-                            'email' => $attendeeData['email'],
-                            'role' => $attendeeData['role'],
-                            'status' => 'pending',
-                        ]);
+                        $contact = Contact::firstOrCreate(
+                            ['email' => $attendeeData['email'], 'created_by' => auth()->id()],
+                            [
+                                'name' => $attendeeData['name'],
+                                'created_by' => auth()->id(),
+                                'is_active' => true,
+                            ]
+                        );
+                        $booking->addAttendee($contact, $attendeeData['role']);
                         break;
                 }
             } catch (\Exception $e) {
@@ -479,4 +483,64 @@ class BookingController extends Controller
             abort(403);
         }
     }
+
+    /**
+     * Show pending approval bookings
+     */
+    public function pending(Request $request)
+    {
+        $bookings = Booking::where('user_id', auth()->id())
+            ->where('approval_status', 'pending')
+            ->with(['eventType'])
+            ->orderBy('booking_date')
+            ->orderBy('start_time')
+            ->paginate(10);
+
+        return view('bookings.pending', compact('bookings'));
+    }
+
+    /**
+     * Bulk approve/reject bookings
+     */
+    public function bulkAction(Request $request)
+    {
+        $validated = $request->validate([
+            'action' => 'required|in:approve,reject',
+            'booking_ids' => 'required|array',
+            'booking_ids.*' => 'exists:bookings,id',
+            'rejection_reason' => 'nullable|string|max:500'
+        ]);
+
+        $bookings = Booking::where('user_id', auth()->id())
+            ->whereIn('id', $validated['booking_ids'])
+            ->where('approval_status', 'pending')
+            ->get();
+
+        foreach ($bookings as $booking) {
+            if ($validated['action'] === 'approve') {
+                $booking->approve();
+                Mail::to($booking->attendee_email)->send(new BookingApproved($booking));
+            } else {
+                $booking->reject($validated['rejection_reason']);
+                Mail::to($booking->attendee_email)->send(new BookingRejected($booking));
+            }
+        }
+
+        $message = $validated['action'] === 'approve'
+            ? 'Selected bookings approved successfully'
+            : 'Selected bookings rejected successfully';
+
+        return back()->with('success', $message);
+    }
+
+    // public function pending(Request $request, Booking $booking)
+    // {
+    //     if(auth()->id() !== $request->user()->id){
+    //         abort(403);
+
+    //     }
+    //     $pendingBookings = Booking::where('status', 'pending');
+
+    //     return view('bookings.pending', compact('pendingBookings'));
+    // }
 }

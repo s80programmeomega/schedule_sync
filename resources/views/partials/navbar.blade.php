@@ -127,4 +127,17 @@
         </div>
         @endauth
     </div>
+    @auth
+
+    <a class="nav-link px-3 {{ request()->routeIs('bookings.pending') ? 'active' : '' }}"
+    href="{{ route('bookings.pending') }}">
+     <i class="fas fa-clock"></i>
+     Pending <br> Approvals
+     @if(auth()->user()->bookings()->where('approval_status', 'pending')->count() > 0)
+         <span class="badge bg-warning ms-2">
+             {{ auth()->user()->bookings()->where('approval_status', 'pending')->count() }}
+         </span>
+     @endif
+    </a>
+    @endauth
 </nav>

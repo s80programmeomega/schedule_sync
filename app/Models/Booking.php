@@ -26,8 +26,23 @@ class Booking extends Model
         'status',
         'meeting_link',
         'cancellation_reason',
-        // 'cancelled_at',
+        'approval_status',
+        'rejection_reason',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'booking_date' => 'date',
+            'start_time' => 'datetime:H:i',
+            'end_time' => 'datetime:H:i',
+            'cancelled_at' => 'datetime',
+            'reminder_24h_sent_at' => 'datetime',
+            'reminder_1h_sent_at' => 'datetime',
+            'approved_at' => 'datetime',
+            'rejected_at' => 'datetime',
+        ];
+    }
 
     protected static function boot()
     {
@@ -43,18 +58,6 @@ class Booking extends Model
                 $booking->timezone_id = $timezone?->id ?? Timezone::where('name', 'UTC')->first()?->id;
             }
         });
-    }
-
-    protected function casts(): array
-    {
-        return [
-            'booking_date' => 'date',
-            'start_time' => 'datetime:H:i',
-            'end_time' => 'datetime:H:i',
-            'cancelled_at' => 'datetime',
-            'reminder_24h_sent_at' => 'datetime',
-            'reminder_1h_sent_at' => 'datetime',
-        ];
     }
 
     /**
@@ -201,18 +204,84 @@ class Booking extends Model
     }
 
 
-    // public function addAttendee($attendee, string $role = 'required', array $data = []): BookingAttendee
-    // {
-    //     $attendeeData = array_merge([
-    //         'attendee_id' => $attendee->id,
-    //         'attendee_type' => get_class($attendee),
-    //         'name' => $attendee->name,
-    //         'email' => $attendee->email,
-    //         'phone' => $attendee->phone ?? null,
-    //         'role' => $role,
-    //         'status' => 'pending',
-    //     ], $data);
+    /**
+     * Check if booking is pending approval
+     *
+     * @return bool
+     */
+    public function isPendingApproval(): bool
+    {
+        return $this->approval_status === 'pending';
+    }
 
-    //     return $this->attendees()->create($attendeeData);
-    // }
+    /**
+     * Check if booking is approved
+     *
+     * @return bool
+     */
+    public function isApproved(): bool
+    {
+        return $this->approval_status === 'approved';
+    }
+
+    /**
+     * Check if booking is rejected
+     *
+     * @return bool
+     */
+    public function isRejected(): bool
+    {
+        return $this->approval_status === 'rejected';
+    }
+
+    /**
+     * Approve the booking
+     *
+     * @return bool
+     */
+    public function approve(): bool
+    {
+        return $this->update([
+            'approval_status' => 'approved',
+            'status' => 'scheduled',
+            'approved_at' => now(),
+            'rejected_at' => null,
+            'rejection_reason' => null,
+        ]);
+    }
+
+    /**
+     * Reject the booking
+     *
+     * @param string|null $reason
+     * @return bool
+     */
+    public function reject(?string $reason = null): bool
+    {
+        return $this->update([
+            'approval_status' => 'rejected',
+            'status' => 'cancelled',
+            'rejection_reason' => $reason,
+            'rejected_at' => now(),
+            'approved_at' => null,
+        ]);
+    }
+
+    /**
+     * Get status display text including approval status
+     *
+     * @return string
+     */
+    public function getStatusDisplayAttribute(): string
+    {
+        if ($this->isPendingApproval()) {
+            return 'Pending Approval';
+        }
+
+        if ($this->isRejected()) {
+            return 'Rejected';
+        }
+
+        return ucfirst($this->status);
+    }
 }

@@ -58,6 +58,16 @@
                 <i class="bi bi-calendar3"></i>
                 Meetings
             </a>
+            {{-- <a class="nav-link {{ request()->routeIs('bookings.pending') ? 'active' : '' }}"
+                href="{{ route('bookings.pending') }}">
+                 <i class="fas fa-clock"></i>
+                 Pending Approvals
+                 @if(auth()->user()->bookings()->where('approval_status', 'pending')->count() > 0)
+                     <span class="badge bg-warning ms-2">
+                         {{ auth()->user()->bookings()->where('approval_status', 'pending')->count() }}
+                     </span>
+                 @endif
+             </a> --}}
             <a href="{{ route('availability.index') }}"
                 class="sidebar-link {{ request()->routeIs('availability.*') ? 'active' : '' }}">
                 <i class="bi bi-clock"></i>

@@ -39,6 +39,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'timezone_id',
         'bio',
         'avatar',
+        'is_public',
         'provider',
         'provider_id',
         'provider_token',
@@ -54,7 +55,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'password',
         'remember_token',
         'provider_token',
-        'provider_refresh_token'
+        'provider_refresh_token',
     ];
 
     /**
@@ -67,6 +68,7 @@ class User extends Authenticatable implements MustVerifyEmail
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_public' => 'boolean',
         ];
     }
 
@@ -207,5 +209,39 @@ class User extends Authenticatable implements MustVerifyEmail
             ->first();
 
         return $membership?->role;
+    }
+
+    /**
+     * Check if user allows public bookings
+     *
+     * @return bool
+     */
+    public function allowsPublicBookings(): bool
+    {
+        return $this->is_public && $this->hasVerifiedEmail();
+    }
+
+    /**
+     * Get public booking URL
+     * Only returns URL if user allows public bookings
+     *
+     * @return string|null
+     */
+    public function getPublicBookingUrlAttribute(): ?string
+    {
+        return $this->allowsPublicBookings()
+            ? url("/book/{$this->username}")
+            : null;
+    }
+
+    /**
+     * Get active public event types
+     * Only returns event types if user allows public bookings
+     */
+    public function publicEventTypes()
+    {
+        return $this->allowsPublicBookings()
+            ? $this->eventTypes()->where('is_active', true)
+            : $this->eventTypes()->whereRaw('1 = 0'); // Empty query
     }
 }

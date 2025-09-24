@@ -30,11 +30,15 @@ class ProfileController extends Controller
             'email' => 'required|email|unique:users,email,' . auth()->id(),
             'timezone_id' => 'required|exists:timezones,id',
             'bio' => 'nullable|string|max:500',
+            'is_public' => 'nullable|boolean',
             'avatar' => 'nullable|image|max:2048|mimes:png,jpg,webp',
             'clear_avatar' => 'nullable|boolean',
             'current_password' => 'nullable|current_password',
             'password' => 'nullable|min:8|confirmed',
         ]);
+
+        // Convert checkbox to boolean
+        $validated['is_public'] = $request->has('is_public');
 
         $user = auth()->user();
         $passwordChanged = false;

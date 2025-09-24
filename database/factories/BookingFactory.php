@@ -39,6 +39,8 @@ class BookingFactory extends Factory
             'meeting_link' => fake()->optional()->url(),
             'cancellation_reason' => fake()->optional()->sentence(),
             'cancelled_at' => fake()->optional()->dateTime(),
+            'approval_status' => fake()->randomElement(['approved', 'pending', 'rejected']),
+            // 'rejection_reason' => fake()->optional()->sentence(),
         ];
     }
     public function scheduled(): static
@@ -52,6 +54,29 @@ class BookingFactory extends Factory
             'status' => 'cancelled',
             'cancellation_reason' => fake()->sentence(),
             'cancelled_at' => now(),
+        ]);
+    }
+
+    /**
+     * Pending approval booking
+     */
+    public function pendingApproval(): static
+    {
+        return $this->state(fn(array $attributes) => [
+            'status' => 'pending',
+            'approval_status' => 'pending',
+        ]);
+    }
+
+    /**
+     * Approved booking
+     */
+    public function approved(): static
+    {
+        return $this->state(fn(array $attributes) => [
+            'status' => 'scheduled',
+            'approval_status' => 'approved',
+            'approved_at' => now(),
         ]);
     }
 }

@@ -113,6 +113,42 @@
             @enderror
           </div>
 
+          <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-globe"></i> Public Booking Settings
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="form-check form-switch">
+                    <input class="form-check-input"
+                           type="checkbox"
+                           id="is_public"
+                           name="is_public"
+                           value="1"
+                           {{ old('is_public', $user->is_public) ? 'checked' : '' }}>
+                    <label class="form-check-label" for="is_public">
+                        <strong>Allow Public Bookings</strong>
+                    </label>
+                </div>
+                <small class="text-muted">
+                    When enabled, external users can view your availability and request meetings through your public booking link.
+                </small>
+
+                @if($user->is_public)
+                    <div class="mt-3 p-3 bg-light rounded">
+                        <strong>Your Public Booking URL:</strong><br>
+                        <code>{{ $user->public_booking_url }}</code>
+                        <button type="button"
+                                class="btn btn-sm btn-outline-primary ms-2"
+                                onclick="copyToClipboard('{{ $user->public_booking_url }}')">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                    </div>
+                @endif
+            </div>
+        </div>
+
           <hr class="my-4">
           <h5>Change Password</h5>
 
@@ -147,4 +183,23 @@
       </div>
     </div>
   </div>
+
+  <script>
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(function() {
+            // Show success message
+            const btn = event.target;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+            btn.classList.remove('btn-outline-primary');
+            btn.classList.add('btn-success');
+
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.classList.remove('btn-success');
+                btn.classList.add('btn-outline-primary');
+            }, 2000);
+        });
+    }
+    </script>
 @endsection

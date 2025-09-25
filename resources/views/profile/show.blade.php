@@ -66,6 +66,30 @@
         </div>
       @endif
     </div>
+
+    <!-- 2FA section -->
+    <div class="card mt-4">
+      <div class="card-header">
+        <h5>Two-Factor Authentication</h5>
+      </div>
+      <div class="card-body">
+        @if ($user->has2FA())
+          <div class="d-flex align-items-center">
+            <span class="badge bg-success me-2">Enabled</span>
+            <span>Your account is protected with 2FA</span>
+            <a href="{{ route('2fa.setup') }}" class="btn btn-sm btn-outline-secondary ms-auto">Manage</a>
+          </div>
+        @else
+          <div class="d-flex align-items-center">
+            <span class="badge bg-warning me-2">Disabled</span>
+            <span>Secure your account with 2FA</span>
+            <a href="{{ route('2fa.setup') }}" class="btn btn-sm btn-primary ms-auto">Enable 2FA</a>
+          </div>
+        @endif
+      </div>
+    </div>
+
+
   </div>
-  </div>
+
 @endsection

@@ -17,6 +17,8 @@ use App\Http\Controllers\web\v1\GroupController;
 use App\Http\Controllers\web\v1\GroupMemberController;
 use App\Http\Controllers\web\v1\Auth\SocialAuthController;
 use App\Http\Controllers\web\v1\PublicBookingController;
+use App\Http\Controllers\web\v1\Auth\TwoFactorController;
+
 
 
 Route::get('/', function () {
@@ -37,6 +39,20 @@ Route::post('/login', [LoginController::class, 'login']);
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
 Route::post('/register', [RegisterController::class, 'register']);
+
+
+// 2FA Routes
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/2fa/setup', [TwoFactorController::class, 'show'])->name('2fa.setup');
+    Route::post('/2fa/enable', [TwoFactorController::class, 'enable'])->name('2fa.enable');
+    Route::post('/2fa/disable', [TwoFactorController::class, 'disable'])->name('2fa.disable');
+});
+
+Route::middleware('auth')->group(function () {
+    Route::get('/2fa/verify', [TwoFactorController::class, 'verify'])->name('2fa.verify');
+    Route::post('/2fa/verify', [TwoFactorController::class, 'validateCode'])->name('2fa.validate');
+});
+
 
 // Email Verification Routes
 Route::middleware('auth')->group(function () {
@@ -76,7 +92,7 @@ Route::post('/reset-password', [PasswordResetController::class, 'reset'])->name(
 
 
 
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth', 'verified', '2fa'])->group(function () {
     Route::resource('dashboard', DashboardController::class)->only(['index']);
 })->name('dashboard');
 
@@ -86,7 +102,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 });
 
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth', 'verified', '2fa'])->group(function () {
     // Attendee management routes
     Route::post('bookings/{booking}/attendees', [BookingController::class, 'addAttendee'])->name('bookings.attendees.add');
     Route::delete('bookings/{booking}/attendees/{attendee}', [BookingController::class, 'removeAttendee'])->name('bookings.attendees.remove');
@@ -107,7 +123,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 
 // Team management routes
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth', 'verified', '2fa'])->group(function () {
     Route::resource('teams', TeamController::class);
     Route::resource('teams.members', TeamMemberController::class)->except(['show']);
     Route::get('/teams/{team}/members', [TeamMemberController::class, 'index'])->name('teams.members.index');
@@ -131,7 +147,7 @@ Route::get('/team-invitation/{token}', [TeamMemberController::class, 'acceptInvi
 
 
 
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth', 'verified', '2fa'])->group(function () {
     // Enhanced booking routes
     Route::get('bookings/create-with-attendees', [BookingController::class, 'createWithAttendees'])->name('bookings.create-with-attendees');
     Route::post('bookings/with-attendees', [BookingController::class, 'storeWithAttendees'])->name('bookings.store-with-attendees');
@@ -155,7 +171,7 @@ Route::prefix('book')->name('public.booking.')->group(function () {
 });
 
 // Booking approval routes (authenticated)
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth', 'verified', '2fa'])->group(function () {
     Route::post('bookings/bulk-action', [BookingController::class, 'bulkAction'])->name('bookings.bulk-action');
     Route::post('bookings/{booking}/approve', [PublicBookingController::class, 'approve'])->name('bookings.approve');
     Route::post('bookings/{booking}/reject', [PublicBookingController::class, 'reject'])->name('bookings.reject');

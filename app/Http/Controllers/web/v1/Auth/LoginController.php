@@ -24,9 +24,18 @@ class LoginController extends Controller
             $request->session()->regenerate();
             $user = Auth::user();
 
+            // Clear any existing 2FA session
+            session()->forget('2fa_verified');
+
             if (!$user->hasVerifiedEmail()) {
                 return redirect()->route('verification.notice');
             }
+
+            // If user has 2FA enabled, redirect to verification
+            if ($user->has2FA()) {
+                return redirect()->route('2fa.verify');
+            }
+
             return redirect()->intended(default: route('dashboard.index'));
         }
 

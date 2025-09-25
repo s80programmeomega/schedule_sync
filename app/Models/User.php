@@ -9,8 +9,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-
 use App\Notifications\EmailVerificationNotification;
+use PragmaRX\Google2FA\Google2FA;
+
 
 /**
  * User Model with Email Verification
@@ -43,7 +44,10 @@ class User extends Authenticatable implements MustVerifyEmail
         'provider',
         'provider_id',
         'provider_token',
-        'provider_refresh_token'
+        'provider_refresh_token',
+        'google2fa_secret',
+        'google2fa_enabled',
+        'google2fa_enabled_at',
     ];
 
     /**
@@ -56,6 +60,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'remember_token',
         'provider_token',
         'provider_refresh_token',
+        'google2fa_secret',
     ];
 
     /**
@@ -69,6 +74,8 @@ class User extends Authenticatable implements MustVerifyEmail
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_public' => 'boolean',
+            'google2fa_enabled' => 'boolean',
+            'google2fa_enabled_at' => 'datetime',
         ];
     }
 
@@ -243,5 +250,54 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->allowsPublicBookings()
             ? $this->eventTypes()->where('is_active', true)
             : $this->eventTypes()->whereRaw('1 = 0'); // Empty query
+    }
+
+    // 2FA methods
+    public function has2FA(): bool
+    {
+        return $this->google2fa_enabled && !empty($this->google2fa_secret);
+    }
+
+    public function generate2FASecret(): string
+    {
+        $google2fa = new Google2FA();
+        $secret = $google2fa->generateSecretKey();
+
+        $this->update(['google2fa_secret' => $secret]);
+
+        return $secret;
+    }
+
+    public function get2FAQRCode(): string
+    {
+        $google2fa = new Google2FA();
+        return $google2fa->getQRCodeUrl(
+            config('app.name'),
+            $this->email,
+            $this->google2fa_secret
+        );
+    }
+
+    public function verify2FACode(string $code): bool
+    {
+        $google2fa = new Google2FA();
+        return $google2fa->verifyKey($this->google2fa_secret, $code);
+    }
+
+    public function enable2FA(): void
+    {
+        $this->update([
+            'google2fa_enabled' => true,
+            'google2fa_enabled_at' => now(),
+        ]);
+    }
+
+    public function disable2FA(): void
+    {
+        $this->update([
+            'google2fa_enabled' => false,
+            'google2fa_secret' => null,
+            'google2fa_enabled_at' => null,
+        ]);
     }
 }

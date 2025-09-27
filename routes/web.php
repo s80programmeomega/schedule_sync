@@ -168,6 +168,11 @@ Route::prefix('book')->name('public.booking.')->group(function () {
 
     Route::get('/{username}/pending/{booking}', [PublicBookingController::class, 'showDetails'])->name('pending.details');
 
+    Route::get('{username}/booking/{booking}/details', [PublicBookingController::class, 'viewDetails'])->name('details');
+
+    Route::post('{username}/booking/{booking}/join', [PublicBookingController::class, 'joinBooking'])->name('join');
+
+
 });
 
 // Booking approval routes (authenticated)

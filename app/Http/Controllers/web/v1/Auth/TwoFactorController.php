@@ -42,7 +42,7 @@ public function show()
 
         // Generate SVG QR code
         $renderer = new ImageRenderer(
-            new RendererStyle(200),
+            new RendererStyle(250),
             new SvgImageBackEnd()
         );
         $writer = new Writer($renderer);
@@ -67,14 +67,11 @@ public function show()
 
         // Verify the code
         $google2fa = new Google2FA();
-        if (!$google2fa->verifyKey($user->google2fa_secret, $request->code)) {
+        if (!$google2fa->verifyKey(secret: $user->google2fa_secret, key: $request->code)) {
             return back()->withErrors(['code' => 'Invalid verification code.']);
         }
 
-        $user->update([
-            'google2fa_enabled' => true,
-            'google2fa_enabled_at' => now(),
-        ]);
+        $user->enable2FA();
 
         return redirect()
             ->route('profile.show')

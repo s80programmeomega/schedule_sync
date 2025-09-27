@@ -34,10 +34,10 @@
                 <i class="bi bi-person me-1"></i>with {{ $booking->eventType->user->name }}
             </p>
             <p class="text-muted mb-1">
-                <i class="bi bi-calendar3 me-1"></i>{{ $booking->start_time->format('l, F j, Y') }}
+                <i class="bi bi-calendar3 me-1"></i>{{ $formattedDate }}
             </p>
             <p class="text-muted mb-0">
-                <i class="bi bi-clock me-1"></i>{{ $booking->start_time->format('g:i A T') }}
+                <i class="bi bi-clock me-1"></i>{{ $formattedTime }}
                 ({{ $booking->eventType->duration }} minutes)
             </p>
         </div>

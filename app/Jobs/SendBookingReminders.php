@@ -2,17 +2,16 @@
 
 namespace App\Jobs;
 
+use App\Mail\BookingReminder;
 use App\Models\Booking;
 use App\Models\BookingAttendee;
-use App\Mail\BookingReminder;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
-
+use Illuminate\Support\Facades\Mail;
 
 /**
  * Send Booking Reminders Job
@@ -40,7 +39,7 @@ class SendBookingReminders implements ShouldQueue
     public int $timeout = 120;
 
     public function __construct(
-        public string $reminderType // '24h' or '1h'
+        public string $reminderType  // '24h' or '1h'
     ) {}
 
     /**
@@ -55,8 +54,12 @@ class SendBookingReminders implements ShouldQueue
             'reminder_type' => $this->reminderType,
         ]);
 
-        foreach ($bookings as $booking) {
+        if ($bookings->isEmpty()) {
+            Log::info("No bookings found for {$this->reminderType} reminders");
+            return;
+        }
 
+        foreach ($bookings as $booking) {
             try {
                 foreach ($booking->attendees as $attendee) {
                     // Send to attendee
@@ -74,6 +77,8 @@ class SendBookingReminders implements ShouldQueue
                 Mail::to($booking->eventType->user->email)
                     ->send(new BookingReminder($booking, $this->reminderType));
 
+                // Mark reminder as sent to avoid duplicates
+                $this->markReminderSent($booking);
 
                 Log::info('Reminder sent successfully', [
                     'booking_id' => $booking->id,
@@ -89,8 +94,6 @@ class SendBookingReminders implements ShouldQueue
                 ]);
             }
         }
-        // Mark reminder as sent to avoid duplicates
-        $this->markReminderSent($booking);
     }
 
     /**
@@ -104,7 +107,7 @@ class SendBookingReminders implements ShouldQueue
 
         return Booking::with(['eventType.user'])
             ->where('status', 'scheduled')
-            ->whereBetween('start_time', $timeRange)
+            // ->whereBetween('start_time', $timeRange)
             ->whereNull($this->reminderType === '24h' ? 'reminder_24h_sent_at' : 'reminder_1h_sent_at')
             ->get();
     }

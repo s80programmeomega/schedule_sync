@@ -98,29 +98,29 @@
 
         <div class="mt-4">
             <h6 class="text-uppercase text-muted fs-7 fw-semibold px-3 mb-3">INTEGRATIONS</h6>
-            <a href="#" class="sidebar-link">
+            <span href="#" class="sidebar-link" style="cursor: not-allowed">
                 <i class="bi bi-google"></i>
                 Google Calendar
-            </a>
-            <a href="#" class="sidebar-link">
+            </span>
+            <span href="#" class="sidebar-link" style="cursor: not-allowed">
                 <i class="bi bi-microsoft"></i>
                 Outlook
-            </a>
-            <a href="#" class="sidebar-link">
+            </span>
+            <span href="#" class="sidebar-link" style="cursor: not-allowed">
                 <i class="bi bi-camera-video-fill"></i>
                 Zoom
-            </a>
+            </span>
         </div>
 
         <div class="mt-auto pt-5">
-            <a href="#" class="sidebar-link">
+            <span href="#" class="sidebar-link text-muted disabled" style="cursor: not-allowed">
                 <i class="bi bi-gear"></i>
                 Settings
-            </a>
-            <a href="#" class="sidebar-link">
+            </span>
+            <span href="#" class="sidebar-link" style="cursor: not-allowed">
                 <i class="bi bi-question-circle"></i>
                 Help & Support
-            </a>
+            </span>
         </div>
     </div>
 </div>

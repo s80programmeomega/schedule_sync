@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
 use App\Jobs\SendBookingReminders;
 use Illuminate\Support\Facades\Log;
+use App\Models\Booking;
 
 
 Artisan::command('inspire', function () {
@@ -28,11 +29,11 @@ Artisan::command('reminders:send {type}', function (string $type) {
 })->purpose('Send booking reminders manually');
 
 Artisan::command('bookings:cleanup', function () {
-    $deleted = \App\Models\Booking::where('status', 'cancelled')
+    $deleted = Booking::where('status', 'cancelled')
         ->where('cancelled_at', '<', now()->subDays(30))
         ->count();
 
-    \App\Models\Booking::where('status', 'cancelled')
+    Booking::where('status', 'cancelled')
         ->where('cancelled_at', '<', now()->subDays(30))
         ->delete();
 
@@ -67,11 +68,11 @@ Schedule::job(new SendBookingReminders('1h'))
 
 // Clean up old cancelled bookings daily at 2 AM
 Schedule::call(function () {
-    $deleted = \App\Models\Booking::where('status', 'cancelled')
+    $deleted = Booking::where('status', 'cancelled')
         ->where('cancelled_at', '<', now())
         ->count();
 
-    \App\Models\Booking::where('status', 'cancelled')
+    Booking::where('status', 'cancelled')
         ->where('cancelled_at', '<', now())
         ->delete();
 
@@ -95,10 +96,10 @@ Schedule::call(function () {
 Schedule::call(function () {
     $stats = [
         'date' => today()->toDateString(),
-        'total_bookings' => \App\Models\Booking::whereDate('created_at', today())->count(),
-        'completed_bookings' => \App\Models\Booking::where('status', 'completed')
+        'total_bookings' => Booking::whereDate('created_at', today())->count(),
+        'completed_bookings' => Booking::where('status', 'completed')
             ->whereDate('start_time', today())->count(),
-        'cancelled_bookings' => \App\Models\Booking::where('status', 'cancelled')
+        'cancelled_bookings' => Booking::where('status', 'cancelled')
             ->whereDate('cancelled_at', today())->count(),
         'active_event_types' => \App\Models\EventType::where('is_active', true)->count(),
     ];
@@ -114,10 +115,10 @@ Schedule::call(function () {
 
     $weeklyStats = [
         'week_of' => $weekStart->toDateString(),
-        'total_bookings' => \App\Models\Booking::whereBetween('created_at', [$weekStart, $weekEnd])->count(),
-        'completed_meetings' => \App\Models\Booking::where('status', 'completed')
+        'total_bookings' => Booking::whereBetween('created_at', [$weekStart, $weekEnd])->count(),
+        'completed_meetings' => Booking::where('status', 'completed')
             ->whereBetween('start_time', [$weekStart, $weekEnd])->count(),
-        'cancelled_meetings' => \App\Models\Booking::where('status', 'cancelled')
+        'cancelled_meetings' => Booking::where('status', 'cancelled')
             ->whereBetween('cancelled_at', [$weekStart, $weekEnd])->count(),
         'new_users' => \App\Models\User::whereBetween('created_at', [$weekStart, $weekEnd])->count(),
     ];

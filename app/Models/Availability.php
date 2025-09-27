@@ -2,11 +2,10 @@
 
 namespace App\Models;
 
+use App\Services\TimeSlotService;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Carbon\Carbon;
-use App\Services\TimeSlotService;
-
 
 /**
  * Availability Model
@@ -63,12 +62,13 @@ class Availability extends Model
 
     public function bookings()
     {
-
-        return $this->hasMany(Booking::class, 'user_id', 'user_id')
+        return $this
+            ->hasMany(Booking::class, 'user_id', 'user_id')
             ->whereDate('booking_date', $this->availability_date)
             ->where('status', 'scheduled')
             ->where(function ($query) {
-                $query->whereBetween('start_time', [$this->getRawOriginal('start_time'), $this->getRawOriginal('end_time')])
+                $query
+                    ->whereBetween('start_time', [$this->getRawOriginal('start_time'), $this->getRawOriginal('end_time')])
                     ->orWhereBetween('end_time', [$this->getRawOriginal('start_time'), $this->getRawOriginal('end_time')]);
             });
     }
@@ -83,4 +83,25 @@ class Availability extends Model
         return app(TimeSlotService::class)->generateTimeSlots($this, $duration);
     }
 
+    /**
+     * Check if this availability is publicly visible for booking
+     */
+    public function isPubliclyVisible(): bool
+    {
+        return $this->is_available &&
+            $this->user->allowsPublicBookings() &&
+            $this->availability_date >= now()->toDateString();
+    }
+
+    /**
+     * Get available time slots for public booking
+     */
+    public function getPublicTimeSlots($duration = 30): array
+    {
+        if (!$this->isPubliclyVisible()) {
+            return [];
+        }
+
+        return $this->getTimeSlots($duration);
+    }
 }

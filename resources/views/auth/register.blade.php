@@ -15,16 +15,16 @@
                         <div class="mb-4">
                             <div class="d-grid gap-2">
                                 <a href="{{ route('social.redirect', 'google') }}" class="btn btn-outline-danger">
-                                    <i class="fab fa-google me-2"></i>Sign up with Google
+                                    <i class="bi bi-google me-2"></i>Sign up with Google
                                 </a>
                                 {{-- <a href="{{ route('social.redirect', 'linkedin') }}" class="btn btn-outline-info">
-                                    <i class="fab fa-linkedin me-2"></i>Sign up with LinkedIn
+                                    <i class="bi bi-linkedin me-2"></i>Sign up with LinkedIn
                                 </a> --}}
                                 <a href="{{ route('social.redirect', 'github') }}" class="btn btn-outline-dark">
-                                    <i class="fab fa-github me-2"></i>Sign up with GitHub
+                                    <i class="bi bi-github me-2"></i>Sign up with GitHub
                                 </a>
                                 {{-- <a href="{{ route('social.redirect', 'facebook') }}" class="btn btn-outline-primary">
-                                    <i class="fab fa-facebook me-2"></i>Sign up with Facebook
+                                    <i class="bi bi-facebook me-2"></i>Sign up with Facebook
                                 </a> --}}
                             </div>
 
@@ -69,6 +69,30 @@
                             </div>
                             <div class="mb-3">
                                 <label for="password" class="form-label">Password</label>
+                                <div class="input-group">
+                                    <input type="password" class="form-control @error('password') is-invalid @enderror"
+                                        id="password" name="password" required>
+                                        <button type="button" class="btn btn-outline-secondary" onclick="togglePassword('password')" title="Show/Hide Password">
+                                            <i id="passwordIcon" class="bi bi-eye-slash"></i>
+                                        </button>
+                                </div>
+                                @error('password')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="mb-3">
+                                <label for="password_confirmation" class="form-label">Confirm Password</label>
+                                <div class="input-group">
+                                    <input type="password" class="form-control" id="password_confirmation"
+                                        name="password_confirmation" required>
+                                        <button type="button" class="btn btn-outline-secondary" onclick="togglePassword('password_confirmation')" title="Show/Hide Password">
+                                            <i id="confirmPasswordIcon" class="bi bi-eye-slash"></i>
+                                        </button>
+                                </div>
+                            </div>
+
+                            {{-- <div class="mb-3">
+                                <label for="password" class="form-label">Password</label>
                                 <input type="password" class="form-control @error('password') is-invalid @enderror"
                                     id="password" name="password" required>
                                 @error('password')
@@ -79,7 +103,7 @@
                                 <label for="password_confirmation" class="form-label">Confirm Password</label>
                                 <input type="password" class="form-control" id="password_confirmation"
                                     name="password_confirmation" required>
-                            </div>
+                            </div> --}}
                             <div class="mb-3">
                                 <select name="timezone_id" class="form-select">
                                     <option value="">Select your timezone</option>
@@ -98,4 +122,19 @@
             </div>
         </div>
     </div>
+    <script>
+        function togglePassword(fieldId) {
+            const field = document.getElementById(fieldId);
+            const icon = document.getElementById(fieldId === 'password' ? 'passwordIcon' : 'confirmPasswordIcon');
+
+            if (field.type === 'password') {
+                field.type = 'text';
+                icon.className = 'bi bi-eye';
+            } else {
+                field.type = 'password';
+                icon.className = 'bi bi-eye-slash';
+            }
+        }
+        </script>
+
 @endsection

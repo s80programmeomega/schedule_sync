@@ -3,7 +3,7 @@
 @section('title', '2FA Setup')
 
 @section('content')
-<div class="col-lg-10 col-12 px-lg-5">
+<div class="col-lg-10 col-12 px-lg-5 pt-4 mt-md-5">
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card">
@@ -21,7 +21,13 @@
 
                         <div class="mb-3">
                             <label class="form-label">Secret Key (manual entry):</label>
-                            <code>{{ $user->google2fa_secret }}</code>
+                            <div class="input-group">
+                                <code id="secretKey" style="display: none;">{{ $user->google2fa_secret }}</code>
+                                <code class="text-secondary fw-bold" id="hiddenKey">XXXXXXXXXXXXXXXX</code>
+                                <a type="button" class="  btn-outline-secondary btn-sm ms-2" onclick="toggleSecret()" title="Show/Hide Secret Key">
+                                    <i id="toggleIcon" class="bi bi-eye"></i>
+                                </a>
+                            </div>
                         </div>
 
                         <form method="POST" action="{{ route('2fa.enable') }}">
@@ -59,4 +65,21 @@
         </div>
     </div>
 </div>
+<script>
+    function toggleSecret() {
+    const secretKey = document.getElementById('secretKey');
+    const hiddenKey = document.getElementById('hiddenKey');
+    const icon = document.getElementById('toggleIcon');
+
+    if (secretKey.style.display === 'none') {
+        secretKey.style.display = 'inline';
+        hiddenKey.style.display = 'none';
+        icon.className = 'bi bi-eye-slash';
+    } else {
+        secretKey.style.display = 'none';
+        hiddenKey.style.display = 'inline';
+        icon.className = 'bi bi-eye';
+    }
+}
+</script>
 @endsection

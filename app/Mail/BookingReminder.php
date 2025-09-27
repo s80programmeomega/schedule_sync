@@ -3,10 +3,11 @@
 namespace App\Mail;
 
 use App\Models\Booking;
+use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
-use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
+use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
 /**
@@ -22,7 +23,7 @@ class BookingReminder extends Mailable
 
     public function __construct(
         public Booking $booking,
-        public string $reminderType = '24h' // '24h' or '1h'
+        public string $reminderType = '24h'  // '24h' or '1h'
     ) {}
 
     public function envelope(): Envelope
@@ -41,12 +42,18 @@ class BookingReminder extends Mailable
 
     public function content(): Content
     {
+        $startDateTime = $this->booking->booking_date && $this->booking->start_time
+            ? Carbon::parse($this->booking->booking_date->toDateString() . ' ' . $this->booking->start_time)
+            : null;
+
         return new Content(
             view: 'emails.booking.reminder',
             with: [
                 'booking' => $this->booking,
                 'reminderType' => $this->reminderType,
-                'timeUntil' => $this->booking->start_time->diffForHumans(),
+                'timeUntil' => $startDateTime?->diffForHumans() ?? 'Soon',
+                'formattedDate' => $startDateTime?->format('l, F j, Y') ?? '',
+                'formattedTime' => $startDateTime?->format('g:i A T') ?? '',
                 'joinLink' => $this->booking->meeting_link,
                 'cancelLink' => route('public.booking.cancel', $this->booking->id),
             ]
